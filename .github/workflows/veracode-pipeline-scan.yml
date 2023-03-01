@@ -1,0 +1,35 @@
+name: Veracode Static Pipeline Scanner
+
+on:
+  workflow_call:
+  
+jobs:
+  pipeline_scan:
+    runs-on: ubuntu-latest
+    name: pipeline scan
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+      
+      # get the compiled binary from a previous job
+      - name: get archive
+        uses: actions/download-artifact@v3
+        with:
+          name: veracode-artifact
+          path: ./veracode_artifact_directory
+      
+      - name: Get the name of the downloaded files
+        run: |
+          artifact_file=$(ls -1 ./veracode_artifact_directory | head -n 1)
+          echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
+
+      # run the pipeline scan action
+      - name: Veracode Pipeline-Scan
+        id: pipeline-scan
+        uses: veracode/Veracode-pipeline-scan-action@pipeline-scan-beta-v0.0.4
+        with:
+          vid: ${{ secrets.API_ID }}
+          vkey: ${{ secrets.API_KEY }}
+          file: ./veracode_artifact_directory/${{ env.veracode_artifact }}
+          fail_build: true

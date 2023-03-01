@@ -1,0 +1,44 @@
+name: Build Artifact for Veracode Code Analysis
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+      token:
+        required: true
+        type: string
+      event_name:
+        required: true
+        type: string
+  
+jobs:
+  build-java-maven:
+    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' }}
+    uses: ./.github/workflows/veracode-build-java-maven.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+      
+  build-source-code-scan:
+    if: ${{ inputs.event_name == 'source-code-pipeline-scan' }}
+    uses: ./.github/workflows/veracode-build-source-code.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+      
+  build-dot-net-package:
+    if: ${{ inputs.event_name == 'dot-net-pipeline-scan' }}
+    uses: ./.github/workflows/veracode-build-dot-net.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+      
+      

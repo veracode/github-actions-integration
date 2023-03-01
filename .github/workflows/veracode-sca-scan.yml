@@ -1,0 +1,44 @@
+name: Veracode Software Composition Analysis
+
+run-name: Software Composition Analysis - ${{ github.event.client_payload.repository.name }}
+
+on:
+  repository_dispatch:
+    types: [veracode-sca-scan]
+    
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: vincent-deng/veracode-github-app@aws-ecs-dynamodb
+      with:
+        callback_url: ${{ github.event.client_payload.callback_url }}
+        sha: ${{ github.event.client_payload.sha }}
+        branch: ${{ github.event.client_payload.branch }}
+        run_id: ${{ github.run_id }}
+        repository_owner: ${{ github.event.client_payload.repository.owner }}
+        repository_name: ${{ github.event.client_payload.repository.name }}
+        event_type: ${{ github.event.client_payload.event_type }}
+        enforce: true
+       
+  veracode-sca-scan:
+    needs: [register]
+    runs-on: ubuntu-latest
+    name: Veracode Component Analysis
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: ${{ github.event.client_payload.repository.full_name }}
+          ref: ${{ github.event.client_payload.sha }}
+          token: ${{ github.event.client_payload.token }}
+      - name: Run Veracode SCA
+        env:
+          SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
+#         uses: veracode/veracode-sca@v2.0.65
+        uses: vincent-deng/veracode-sca-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+#           create-issues: true  
+#           fail-on-cvss: 1
+#           min-cvss-for-issue: 1

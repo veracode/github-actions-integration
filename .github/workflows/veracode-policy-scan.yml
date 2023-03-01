@@ -1,0 +1,94 @@
+name: Veracode Static Code Analysis
+
+on:
+  repository_dispatch:
+    types: [veracode-policy-scan]
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: vincent-deng/veracode-github-app@aws-ecs-dynamodb
+      with:
+        callback_url: ${{ github.event.client_payload.callback_url }}
+        sha: ${{ github.event.client_payload.sha }}
+        branch: ${{ github.event.client_payload.branch }}
+        run_id: ${{ github.run_id }}
+        repository_owner: ${{ github.event.client_payload.repository.owner }}
+        repository_name: ${{ github.event.client_payload.repository.name }}
+        event_type: ${{ github.event.client_payload.event_type }}
+        enforce: true
+        
+  build:
+    needs: [register]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ github.event.client_payload.repository.full_name }}
+        ref: ${{ github.event.client_payload.sha }}
+        token: ${{ github.event.client_payload.token }}
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Cache Maven Dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+    - name: Build with Maven
+      run: mvn clean package
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: verademo.war
+        path: target/verademo.war
+
+  pipeline_scan:
+    # needs the build step before this job will start running
+    needs: build
+    runs-on: ubuntu-latest
+    name: pipeline scan
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+      
+      # get the compiled binary from a previous job
+      - name: get archive
+        uses: actions/download-artifact@v3
+        with:
+          name: verademo.war
+
+      # run the pipeline scan action
+      - name: Veracode Pipeline-Scan
+        id: pipeline-scan
+        uses: veracode/Veracode-pipeline-scan-action@pipeline-scan-beta-v0.0.4
+        with:
+          vid: ${{ secrets.API_ID }}
+          vkey: ${{ secrets.API_KEY }}
+          file: "verademo.war" 
+          fail_build: false
+
+#   policy-scan:
+#     runs-on: ubuntu-latest
+#     needs: build
+#     steps:
+#       - uses: actions/checkout@v3
+#       - name: get archive
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: verademo.war
+#           path: .
+#       - name: Veracoe Upload and Scan Action Step
+#         uses: veracode/veracode-uploadandscan-action@master
+#         id: upload_and_scan
+#         with:
+#           appname: 'VeraDemo - Web - GitHub'
+#           createprofile: true
+#           version: '${{ github.run_id }}'
+#           filepath: 'verademo.war'
+#           vid: '${{ secrets.API_ID }}'
+#           vkey: '${{ secrets.API_KEY }}'
+#           scantimeout: 15
+#         continue-on-error: false

@@ -1,0 +1,38 @@
+name: Veracode Static Code Analysis
+
+run-name: Static Code Analysis - ${{ github.event.client_payload.repository.name }}
+
+on:
+  repository_dispatch:
+    types: [java-maven-pipeline-scan, source-code-pipeline-scan, dot-net-pipeline-scan]
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: vincent-deng/veracode-github-app@aws-ecs-dynamodb
+      with:
+        callback_url: ${{ github.event.client_payload.callback_url }}
+        sha: ${{ github.event.client_payload.sha }}
+        branch: ${{ github.event.client_payload.branch }}
+        run_id: ${{ github.run_id }}
+        repository_owner: ${{ github.event.client_payload.repository.owner }}
+        repository_name: ${{ github.event.client_payload.repository.name }}
+        event_type: ${{ github.event.client_payload.event_type }}
+        enforce: true
+        
+  build:
+    needs: register
+    uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
+    with:
+      repository: ${{ github.event.client_payload.repository.full_name }}
+      ref: ${{ github.event.client_payload.sha }}
+      token: ${{ github.event.client_payload.token }}
+      event_name: ${{ github.event.action }}
+
+
+  pipeline_scan:
+    # needs the build step before this job will start running
+    needs: build
+    uses: ./.github/workflows/veracode-pipeline-scan.yml
+    secrets: inherit

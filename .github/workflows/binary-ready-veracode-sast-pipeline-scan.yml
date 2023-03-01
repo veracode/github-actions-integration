@@ -1,0 +1,42 @@
+name: Binary Ready - Veracode Static Code Analysis
+
+run-name: Binary Ready - Static Code Analysis - ${{ github.event.client_payload.repository.name }}
+
+on:
+  repository_dispatch:
+    types: [binary-ready-veracode-sast-pipeline-scan]
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: vincent-deng/veracode-github-app@aws-ecs-dynamodb
+      with:
+        callback_url: ${{ github.event.client_payload.callback_url }}
+        sha: ${{ github.event.client_payload.sha }}
+        branch: ${{ github.event.client_payload.branch }}
+        run_id: ${{ github.run_id }}
+        repository_owner: ${{ github.event.client_payload.repository.owner }}
+        repository_name: ${{ github.event.client_payload.repository.name }}
+        event_type: ${{ github.event.client_payload.event_type }}
+        enforce: true
+        
+  pipeline_scan:
+    needs: register
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        run_id: ${{ github.event.client_payload.run_id }}
+        repo: ${{ github.event.client_payload.repository.full_name }}
+    - name: Veracode Pipeline-Scan
+      id: pipeline-scan
+      uses: veracode/Veracode-pipeline-scan-action@pipeline-scan-beta-v0.0.4
+      with:
+        vid: ${{ secrets.API_ID }}
+        vkey: ${{ secrets.API_KEY }}
+        file: ./veracode-artifact/verademo.war
+        fail_build: true
