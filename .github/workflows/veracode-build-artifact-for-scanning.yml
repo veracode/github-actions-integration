@@ -18,9 +18,7 @@ on:
   
 jobs:
   build-java-maven:
-#     if: contains(${{ inputs.event_name }}, 'maven')
     if: ${{ github.event_name == 'java-maven-pipeline-scan' || github.event_name == 'java-maven-policy-scan' }}
-#     if: ${{ inputs.event_name == 'java-maven-pipeline-scan' }}
     uses: ./.github/workflows/veracode-build-java-maven.yml
     with:
       repository: ${{ inputs.repository }}
@@ -28,8 +26,7 @@ jobs:
       token: ${{ inputs.token }}
       
   build-source-code-scan:
-    if: contains(${{ inputs.event_name }}, 'source-code')
-#     if: ${{ inputs.event_name == 'source-code-pipeline-scan' }}
+    if: ${{ inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan' }}
     uses: ./.github/workflows/veracode-build-source-code.yml
     with:
       repository: ${{ inputs.repository }}
