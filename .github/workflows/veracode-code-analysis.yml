@@ -42,4 +42,6 @@ jobs:
     needs: build
     if: contains(github.event.action, 'policy')
     uses: ./.github/workflows/veracode-policy-scan.yml
+    with:
+      profile_name: ${{ github.event.client_payload.profile_name }}
     secrets: inherit
