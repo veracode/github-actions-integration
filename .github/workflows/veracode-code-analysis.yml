@@ -41,5 +41,5 @@ jobs:
   policy_scan:
     needs: build
     if: contains(github.event.action, 'policy')
-    uses: ./.github/workflows/veracode-pipeline-scan.yml
+    uses: ./.github/workflows/veracode-policy-scan.yml
     secrets: inherit
