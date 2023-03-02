@@ -38,5 +38,6 @@ jobs:
           filepath: ./veracode_artifact_directory/${{ env.veracode_artifact }}
           vid: '${{ secrets.API_ID }}'
           vkey: '${{ secrets.API_KEY }}'
+          scanpollinginterval: 30
           scantimeout: 15
         continue-on-error: false
