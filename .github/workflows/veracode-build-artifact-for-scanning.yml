@@ -18,7 +18,8 @@ on:
   
 jobs:
   build-java-maven:
-    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' }}
+    if: contains(${{ inputs.event_name }}, 'maven')
+#     if: ${{ inputs.event_name == 'java-maven-pipeline-scan' }}
     uses: ./.github/workflows/veracode-build-java-maven.yml
     with:
       repository: ${{ inputs.repository }}
