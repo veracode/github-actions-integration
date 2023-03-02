@@ -2,6 +2,10 @@ name: Veracode Static Policy Scanner
 
 on:
   workflow_call:
+    inputs:
+      profile_name:
+        required: true
+        type: string
   
 jobs:
   policy_scan:
@@ -28,7 +32,7 @@ jobs:
         uses: veracode/veracode-uploadandscan-action@master
         id: upload_and_scan
         with:
-          appname: 'VeraDemo - Web - GitHub'
+          appname: ${{ inputs.profile_name }}
           createprofile: true
           version: '${{ github.run_id }}'
           filepath: ./veracode_artifact_directory/${{ env.veracode_artifact }}
