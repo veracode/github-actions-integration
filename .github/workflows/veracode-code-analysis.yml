@@ -36,3 +36,11 @@ jobs:
     needs: build
     uses: ./.github/workflows/veracode-pipeline-scan.yml
     secrets: inherit
+    
+  policy_scan:
+    needs: build
+    runs-on: ubuntu-latest
+    if: contains(github.event.action, 'policy')
+    steps:
+      - name: My Step
+        run: echo "This job runs only if the action type contains 'substring'"
