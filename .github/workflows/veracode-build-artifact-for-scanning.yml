@@ -18,7 +18,7 @@ on:
   
 jobs:
   build-java-maven:
-    if: ${{ github.event_name == 'java-maven-pipeline-scan' || github.event_name == 'java-maven-policy-scan' }}
+    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' || inputs.event_name == 'java-maven-policy-scan' }}
     uses: ./.github/workflows/veracode-build-java-maven.yml
     with:
       repository: ${{ inputs.repository }}
