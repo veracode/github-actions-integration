@@ -38,7 +38,6 @@ jobs:
           export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
           guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .guid, .scans[0].scan_url') 
           echo GUID: ${guid}
-          read -r var1 var2 <<< ${guid}
-          echo "Var 1: $var1"
-          echo "Var 2: $var2"
+          var1 = echo ${guid} | tr ' ' '\n'
+          echo $var1
 
