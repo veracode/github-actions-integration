@@ -42,9 +42,7 @@ jobs:
           echo TOTAL_FLAWS: ${total_flaws}
           http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
           results_url=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications/${guid}" | jq -r '.results_url')
-          echo "https://analysiscenter.veracode.com/auth/index.jsp#${results_url}" > results_url.txt
-          policy_compliance=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications/${guid}" | jq -r '.profile.policies[0].policy_compliance_status')
-          echo COMPLIANCE: ${policy_compliance}     
+          echo "https://analysiscenter.veracode.com/auth/index.jsp#${results_url}" > results_url.txt     
       - name: save results file
         uses: actions/upload-artifact@v3
         with:
@@ -52,14 +50,17 @@ jobs:
           path: |
             /tmp/policy_flaws.json
             /tmp/results_url.txt
-      - name: fail the pipeline for compliance
+      - name: fair the pipeline for compliance
         run: |
+          export VERACODE_API_KEY_ID=${{ secrets.API_ID }}
+          export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
+          policy_compliance=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications/${guid}" | jq -r '.profile.policies[0].policy_compliance_status')
           echo COMPLIANCE: ${policy_compliance}
           if [ ${policy_compliance} == "DID_NOT_PASS" ]; then
-            echo "Condition met, pipeline continues"
+            echo "Compliance not met, pipeline fails"
             exit 1
           else
-            echo "Condition not met, pipeline fails"
+            echo "Compliance met, pipeline continues"
           fi
           
 
