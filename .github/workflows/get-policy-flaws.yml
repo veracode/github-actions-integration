@@ -36,8 +36,17 @@ jobs:
           cd /tmp
           export VERACODE_API_KEY_ID=${{ secrets.API_ID }}
           export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
-          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .guid, .scans[0].scan_url') 
+          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .guid') 
           echo GUID: ${guid}
-          var1 = echo ${guid} | tr ' ' '\n'
-          echo $var1
+          total_flaws=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
+          echo TOTAL_FLAWS: ${total_flaws}
+          http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
+          scan_url=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .scans[0].scan_url')
+          echo SCAN_URL: ${scan_url}
+      - name: save results file
+        uses: actions/upload-artifact@v3
+        with:
+          name: policy-flaws
+          path: |
+            /tmp/policy_flaws.json
 
