@@ -42,11 +42,12 @@ jobs:
           echo TOTAL_FLAWS: ${total_flaws}
           http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
           scan_url=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .scans[0].scan_url')
-          echo SCAN_URL: ${scan_url}
+          echo "https://analysiscenter.veracode.com/auth/index.jsp#${scan_url}" > scan_url.txt
       - name: save results file
         uses: actions/upload-artifact@v3
         with:
           name: policy-flaws
           path: |
             /tmp/policy_flaws.json
+            /tmp/scan_url.txt
 
