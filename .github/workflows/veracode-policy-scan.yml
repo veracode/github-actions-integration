@@ -71,7 +71,14 @@ jobs:
           path: |
             /tmp/policy_flaws.json
             /tmp/results_url.txt
-      - name: fair the pipeline for compliance
+
+  set-compliance-pass-fail:
+    runs-on: ubuntu-latest
+    needs: policy_scan
+    container:
+      image: veracode/api-signing:latest
+    steps:
+      - name: fail the pipeline for compliance
         run: |
           export VERACODE_API_KEY_ID=${{ secrets.API_ID }}
           export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
