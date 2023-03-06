@@ -78,7 +78,7 @@ jobs:
           guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .guid')
           echo GUID: ${guid}
           total_flaws=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
-          if [ ${total_flaws} > 0 ]; then
+          if [ ${total_flaws} -gt 0 ]; then
             echo "Compliance not met, pipeline fails"
             exit 1
           else
