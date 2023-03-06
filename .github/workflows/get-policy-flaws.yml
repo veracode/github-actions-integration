@@ -37,6 +37,6 @@ jobs:
           export VERACODE_API_KEY_ID=${{ secrets.API_ID }}
           export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
           application=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}")') 
-          echo GUID: ${application}
+          echo GUID: ${{ application.guid }}
           
 
