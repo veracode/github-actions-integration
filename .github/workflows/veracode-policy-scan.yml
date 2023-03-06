@@ -57,12 +57,15 @@ jobs:
           cd /tmp
           export VERACODE_API_KEY_ID=${{ secrets.API_ID }}
           export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
-          application=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}")') 
-          echo GUID: ${application.guid}
+          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .guid')
+          echo GUID: ${guid}
           total_flaws=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${application.guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
           echo TOTAL_FLAWS: ${total_flaws}
           http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${application.guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
-          echo "https://analysiscenter.veracode.com/auth/index.jsp#${application.results_url}" > results_url.txt
+          results_url=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .results_url')
+          echo "https://analysiscenter.veracode.com/auth/index.jsp#${results_url}" > results_url.txt
+          policy_compliance=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .profile.policies[0].policy_compliance_status')
+          echo COMPLIANCE: ${policy_compliance}
       - name: save results file
         uses: actions/upload-artifact@v3
         with:
