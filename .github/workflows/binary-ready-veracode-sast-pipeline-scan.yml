@@ -32,11 +32,15 @@ jobs:
         github_token: ${{secrets.GITHUB_TOKEN}}
         run_id: ${{ github.event.client_payload.run_id }}
         repo: ${{ github.event.client_payload.repository.full_name }}
+    - name: Get the name of the downloaded files
+      run: |
+        artifact_file=$(ls -1 ./veracode_artifact_directory | head -n 1)
+        echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
     - name: Veracode Pipeline-Scan
       id: pipeline-scan
       uses: veracode/Veracode-pipeline-scan-action@pipeline-scan-beta-v0.0.4
       with:
         vid: ${{ secrets.API_ID }}
         vkey: ${{ secrets.API_KEY }}
-        file: ./veracode-artifact/
+        file: ./veracode-artifact/${{ env.veracode_artifact }}
         fail_build: true
