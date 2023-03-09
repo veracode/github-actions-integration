@@ -34,7 +34,7 @@ jobs:
         repo: ${{ github.event.client_payload.repository.full_name }}
     - name: Get the name of the downloaded files
       run: |
-        artifact_file=$(ls -1 ./veracode_artifact_directory | head -n 1)
+        artifact_file=$(ls -1 ./veracode-artifact | head -n 1)
         echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
     - name: Veracode Pipeline-Scan
       id: pipeline-scan
