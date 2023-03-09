@@ -32,6 +32,10 @@ jobs:
         github_token: ${{secrets.GITHUB_TOKEN}}
         run_id: ${{ github.event.client_payload.run_id }}
         repo: ${{ github.event.client_payload.repository.full_name }}
+    - name: Get the name of the downloaded files
+      run: |
+        artifact_file=$(ls -1 ./veracode-artifact | head -n 1)
+        echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
     - name: Veracoe Upload and Scan Action Step
       uses: veracode/veracode-uploadandscan-action@0.2.5
       id: upload_and_scan
@@ -39,7 +43,7 @@ jobs:
         appname: ${{ github.event.client_payload.profile_name }}
         createprofile: true
         version: '${{ github.run_id }}'
-        filepath: ./veracode-artifact/verademo.war
+        filepath: ./veracode-artifact/${{ env.veracode_artifact }}
         vid: '${{ secrets.API_ID }}'
         vkey: '${{ secrets.API_KEY }}'
         scanpollinginterval: 30
