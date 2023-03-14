@@ -1,0 +1,98 @@
+veracode_sast_pipeline_scan:
+  # Please only specify trigger:true for either push event or 
+  # pull request event. Specifying both will only execute push event.
+  # Leaving them both false means this will never run
+  push:
+    trigger: false
+    # Please only specify either branches_to_run or branches_to_exclude
+    # Entering both will only execute branches_to_run
+    # Leaving them both blank means this will never run
+    branches_to_run:
+    branches_to_exclude:
+      - default_branch
+  pull_request:
+    trigger: false
+    action:
+      - opened
+      - synchronize
+    target_branch:
+      - default_branch
+  break_build: true
+  policy: verademo
+  create_issues: false
+  create_checks: true
+  create_checks_annotations: true
+  compilation: 'mvn clean package'
+  os-image: 'os-image-name'
+  compile_locally: false
+  local_compilation_workflow: na
+
+veracode_sast_policy_scan:
+  # Please only specify trigger:true for either push event or 
+  # pull request event. Specifying both will only execute push event.
+  # Leaving them both false means this will never run
+  push:
+    trigger: false
+    branches_to_run:
+      - default_branch
+    branches_to_exclude:
+  pull_request:
+    trigger: true
+    action:
+      - opened
+      - synchronize
+    target_branch:
+      - default_branch
+  break_build: true
+  policy: verademo
+  create_issues: false
+  create_checks: true
+  create_checks_annotations: true
+  compilation: 'mvn clean package'
+  os-image: 'os-image-name'
+  compile_locally: false
+  local_compilation_workflow: veracode-build
+
+veracode_sca_scan:
+  # Please only specify trigger:true for either push event or 
+  # pull request event. Specifying both will only execute push event.
+  # Leaving them both false means this will never run
+  push:
+    trigger: false
+    # Please only specify either branches_to_run or branches_to_exclude
+    # Entering both will only execute branches_to_run
+    # Leaving them both blank means this will never run
+    branches_to_run:
+      - "*"
+    branches_to_exclude:
+  pull_request:
+    trigger: true
+    action:
+      - opened
+      - synchronize
+    target_branch:
+      - default_branch
+  break_build: true
+  create_issues: false
+
+veracode_container_security_scan:
+  # Please only specify trigger:true for either push event or 
+  # pull request event. Specifying both will only execute push event.
+  # Leaving them both false means this will never run
+  push:
+    trigger: false
+    # Please only specify either branches_to_run or branches_to_exclude
+    # Entering both will only execute branches_to_run
+    # Leaving them both blank means this will never run
+    branches_to_run:
+      - "*"
+    branches_to_exclude:
+  pull_request:
+    trigger: false
+    action:
+      - opened
+      - synchronize
+    target_branch:
+      - default_branch
+  break_build: true
+  create_issues: false
