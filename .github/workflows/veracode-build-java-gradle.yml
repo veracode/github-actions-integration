@@ -31,9 +31,9 @@ jobs:
     - name: Identify the Artifact
       id: identify
       run: |
-        jar_files=$(find build -name "*.jar" -type f -maxdepth 2 -not -name '*plain*' -exec basename {} \;)
-        war_files=$(find build -name "*.war" -type f -maxdepth 2 -not -name '*plain*' -exec basename {} \;)
-        ear_files=$(find build -name "*.ear" -type f -maxdepth 2 -not -name '*plain*' -exec basename {} \;)
+        jar_files=$(find build -name "*.jar" -type f -maxdepth 2 -not -name '*plain*')
+        war_files=$(find build -name "*.war" -type f -maxdepth 2 -not -name '*plain*')
+        ear_files=$(find build -name "*.ear" -type f -maxdepth 2 -not -name '*plain*')
         if [ ! -z "$jar_files" ]; then
           artifact_file=$jar_files
         elif [ ! -z "$war_files" ]; then
@@ -49,4 +49,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: veracode-artifact
-        path: build/libs/${{ env.veracode_artifact }}
+        path: ${{ env.veracode_artifact }}
