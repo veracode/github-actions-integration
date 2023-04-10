@@ -25,6 +25,14 @@ jobs:
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
       
+  build-java-gradle:
+    if: ${{ inputs.event_name == 'java-gradle-pipeline-scan' || inputs.event_name == 'java-gradle-policy-scan' }}
+    uses: ./.github/workflows/veracode-build-java-gradle.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+      
   build-source-code-scan:
     if: ${{ inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan' }}
     uses: ./.github/workflows/veracode-build-source-code.yml
