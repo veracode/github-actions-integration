@@ -11,7 +11,7 @@ veracode_sast_pipeline_scan:
     branches_to_exclude:
       - default_branch
   pull_request:
-    trigger: false
+    trigger: true
     action:
       - opened
       - synchronize
@@ -37,7 +37,7 @@ veracode_sast_policy_scan:
       - default_branch
     branches_to_exclude:
   pull_request:
-    trigger: true
+    trigger: false
     action:
       - opened
       - synchronize
