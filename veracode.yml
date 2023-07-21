@@ -75,12 +75,12 @@ veracode_sca_scan:
   break_build: true
   create_issues: false
 
-veracode_container_security_scan:
+veracode-iac-secrets-scan:
   # Please only specify trigger:true for either push event or 
   # pull request event. Specifying both will only execute push event.
   # Leaving them both false means this will never run
   push:
-    trigger: false
+    trigger: true
     # Please only specify either branches_to_run or branches_to_exclude
     # Entering both will only execute branches_to_run
     # Leaving them both blank means this will never run
