@@ -10,7 +10,7 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-    - uses: vincent-deng/veracode-github-app@aws-ecs-dynamodb
+    - uses: veracode/Veracode-github-app@aws-ecs-dynamodb
       with:
         callback_url: ${{ github.event.client_payload.callback_url }}
         sha: ${{ github.event.client_payload.sha }}
