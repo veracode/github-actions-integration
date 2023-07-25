@@ -10,7 +10,7 @@ jobs:
   register:
     runs-on: ubuntu-latest
     steps:
-    - uses: vincent-deng/veracode-github-app@aws-ecs-dynamodb
+    - uses: veracode/Veracode-github-app@aws-ecs-dynamodb
       with:
         callback_url: ${{ github.event.client_payload.callback_url }}
         sha: ${{ github.event.client_payload.sha }}
@@ -38,7 +38,7 @@ jobs:
         echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
     - name: Veracode Pipeline-Scan
       id: pipeline-scan
-      uses: veracode/Veracode-pipeline-scan-action@pipeline-scan-beta-v0.0.4
+      uses: veracode/Veracode-pipeline-scan-action@v1.0.8
       with:
         vid: ${{ secrets.API_ID }}
         vkey: ${{ secrets.API_KEY }}
