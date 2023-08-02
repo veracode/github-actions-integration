@@ -35,3 +35,4 @@ jobs:
           echo "Veracode SAST/SCA is not supported for this repository." > error.txt
           echo "Please contact your Veracode administrator for more information." >> error.txt
           echo "If you are a Veracode administrator, please contact Veracode support." >> error.txt
+
