@@ -1,0 +1,37 @@
+name: Veracode - SAST/SCA Not Supported Repository
+
+run-name: Veracode - SAST/SCA Not Supported Repository - ${{ github.event.client_payload.repository.name }}
+
+on:
+  repository_dispatch:
+    types: [veracode-not-supported]
+    
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: veracode/Veracode-github-app@aws-ecs-dynamodb
+      with:
+        callback_url: ${{ github.event.client_payload.callback_url }}
+        sha: ${{ github.event.client_payload.sha }}
+        branch: ${{ github.event.client_payload.branch }}
+        run_id: ${{ github.run_id }}
+        repository_owner: ${{ github.event.client_payload.repository.owner }}
+        repository_name: ${{ github.event.client_payload.repository.name }}
+        event_type: ${{ github.event.client_payload.event_type }}
+        enforce: true
+       
+  veracode-not-supported:
+    needs: [register]
+    runs-on: ubuntu-latest
+    name: Veracode - SAST/SCA Not Supported Repository 
+
+    steps:
+      - name: Display error message
+        run: |
+          echo "Veracode SAST/SCA is not supported for this repository."
+          echo "Please contact your Veracode administrator for more information."
+          echo "If you are a Veracode administrator, please contact Veracode support."
+          echo "Veracode SAST/SCA is not supported for this repository." > error.txt
+          echo "Please contact your Veracode administrator for more information." >> error.txt
+          echo "If you are a Veracode administrator, please contact Veracode support." >> error.txt
