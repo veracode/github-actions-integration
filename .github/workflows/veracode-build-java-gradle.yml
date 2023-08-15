@@ -24,7 +24,7 @@ jobs:
         token: ${{ inputs.token }}
     - uses: actions/setup-java@v3
       with:
-        java-version: 1.8
+        java-version: 17
         distribution: oracle
     - name: Build with Gradle
       run: ./gradlew build
