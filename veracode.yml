@@ -85,7 +85,7 @@ veracode_sca_scan:
   #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the SCA scan fails to complete, no libraries found, no build system found or on any other error.
   error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
 
-veracode-iac-secrets-scan:
+veracode_iac_secrets_scan:
   #The install trigger is used to run the IaC/Secrets scan on the default branch when the app is installed.
   install:
     trigger: false
