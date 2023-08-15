@@ -6,6 +6,9 @@ on:
       profile_name:
         required: true
         type: string
+      moddules_to_scan:
+        required: true
+        type: string
   
 jobs:
   policy_scan:
@@ -29,58 +32,18 @@ jobs:
           echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
       # run the policy scan action
       - name: Veracoe Upload and Scan Action Step
-        uses: veracode/veracode-uploadandscan-action@0.2.6
+        uses: veracode/uploadandscan-action@main
         id: upload_and_scan
         with:
           appname: ${{ inputs.profile_name }}
           createprofile: true
+          policy: 'Verademo Policy'
           version: '${{ github.run_id }}'
           filepath: ./veracode_artifact_directory/${{ env.veracode_artifact }}
           vid: '${{ secrets.API_ID }}'
           vkey: '${{ secrets.API_KEY }}'
-          scanpollinginterval: 30
+          #scanpollinginterval: 30
           scantimeout: 15
-        continue-on-error: true
+          include: ${{ inputs.moddules_to_scan }}
+          failbuild: true
         
-  get-policy-flaws:
-    runs-on: ubuntu-latest
-    needs: policy_scan
-    container:
-      image: veracode/api-signing:latest
-    steps:
-      # Note: this will only work up to about 500 flaws
-      #		due to Veracode results limiting
-      # See the get_flaws.sh script in the helpers directory
-      #		for a more elaborate method
-      - name: get policy flaws
-        run: |
-          cd /tmp
-          export VERACODE_API_KEY_ID=${{ secrets.API_ID }}
-          export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
-          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .guid')
-          echo GUID: ${guid}
-          total_flaws=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
-          echo TOTAL_FLAWS: ${total_flaws}
-          http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True&size=${total_flaws}" > policy_flaws.json
-          results_url=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications/${guid}" | jq -r '.results_url')
-          echo "https://analysiscenter.veracode.com/auth/index.jsp#${results_url}" > results_url.txt     
-      - name: save results file
-        uses: actions/upload-artifact@v3
-        with:
-          name: policy-flaws
-          path: |
-            /tmp/policy_flaws.json
-            /tmp/results_url.txt
-      - name: fail the pipeline for compliance
-        run: |
-          export VERACODE_API_KEY_ID=${{ secrets.API_ID }}
-          export VERACODE_API_KEY_SECRET=${{ secrets.API_KEY }}
-          guid=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v1/applications?name=${{ github.event.client_payload.profile_name }}" | jq -r '._embedded.applications[] | select(.profile.name == "${{ github.event.client_payload.profile_name }}") | .guid')
-          echo GUID: ${guid}
-          total_flaws=$(http --auth-type veracode_hmac GET "https://api.veracode.com/appsec/v2/applications/${guid}/findings?scan_type=STATIC&violates_policy=True" | jq -r '.page.total_elements')
-          if [ ${total_flaws} -gt 0 ]; then
-            echo "Compliance not met, pipeline fails"
-            exit 1
-          else
-            echo "Compliance met, pipeline continues"
-          fi
