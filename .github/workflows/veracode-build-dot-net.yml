@@ -31,7 +31,7 @@ jobs:
     - name: Build
       run: |
         dotnet restore
-        dotnet publish -c Debug -o ./output
+        dotnet publish -p:UseAppHost=False -p:MapFileExtensions=False -c Debug -o ./output
     - name: Create zip archive
       run: zip -r veracode.zip ./output
 
