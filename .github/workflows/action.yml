@@ -35,7 +35,7 @@ on:
         required: true
         type: string
 jobs:
-  reusable_workflow_job:
+  create_check_run:
     runs-on: ubuntu-latest
     steps: 
       # Create check run
