@@ -5,6 +5,7 @@ veracode_sast_pipeline_scan:
   push:
     trigger: true
     branches_to_run:
+      - default_branch
     branches_to_exclude:
       - default_branch
   pull_request:
@@ -29,7 +30,7 @@ veracode_sast_policy_scan:
   # pull request event. Specifying both will only execute push event.
   # Leaving them both false means this will never run
   push:
-    trigger: false
+    trigger: true
     branches_to_run:
       - default_branch
     branches_to_exclude:
@@ -55,7 +56,7 @@ veracode_sca_scan:
   # pull request event. Specifying both will only execute push event.
   # Leaving them both false means this will never run
   push:
-    trigger: false
+    trigger: true
     branches_to_run:
       - "*"
     branches_to_exclude:
