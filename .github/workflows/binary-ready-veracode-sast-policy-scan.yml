@@ -8,18 +8,15 @@ on:
 
 jobs:
   register:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: veracode/veracode-github-app@main
-        with:
-          callback_url: ${{ github.event.client_payload.callback_url }}
-          sha: ${{ github.event.client_payload.sha }}
-          branch: ${{ github.event.client_payload.branch }}
-          run_id: ${{ github.run_id }}
-          repository_owner: ${{ github.event.client_payload.repository.owner }}
-          repository_name: ${{ github.event.client_payload.repository.name }}
-          event_type: ${{ github.event.client_payload.event_type }}
-          enforce: true
+    uses: ./.github/workflows/veracode-check-run.yml
+      with:
+        check_run_name: ${{ github.workflow }}
+        head_sha: ${{ github.event.client_payload.sha }}
+        repositroy_owner: ${{ github.event.client_payload.repository.owner }}
+        repositroy_name: ${{ github.event.client_payload.repository.name }}
+        event_type: ${{ github.event.client_payload.event_type }}
+        github_token: ${{ github.event.client_payload.token }}
+        run_id: ${{ github.run_id }}
 
   policy_scan:
     needs: register

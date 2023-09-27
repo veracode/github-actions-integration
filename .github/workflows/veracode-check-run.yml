@@ -1,0 +1,65 @@
+name: 'Organization workflow action'
+on:
+  workflow_call:
+    inputs:
+      run_id: 
+        description: 'ID of workflow run (provided via GitHub syntax `github.run_id`)'
+        required: true
+        type: string
+      repositroy_owner: 
+        description: 'repositroy_owner of original commit (provided by GitHub app via `github.event.client_payload.repository.owner`)'
+        required: true
+        type: string
+      repositroy_name: 
+        description: 'repositroy_name of original commit (provided by GitHub app via `github.event.client_payload.repository.name`)'
+        required: true
+        type: string
+      check_run_name: 
+        description: 'Name of check (Use `github.workflow` to use the name of the workflow)'
+        required: true
+        type: string
+      head_sha: 
+        description: 'head_sha of original commit (provided by GitHub app via `github.event.client_payload.sha`)'
+        required: true
+        type: string
+      github_token: 
+        description: 'github_token is a token (provided by GitHub app via `github.event.client_payload.token`)'
+        required: true
+        type: string
+      event_type:
+        description: 'event_type triggered by the GitHub App (provided by GitHub app via `github.event.client_payload.event_type`)'
+        required: true
+        type: string
+jobs:
+  create_check_run:
+    runs-on: ubuntu-latest
+    steps: 
+      # Create check run
+      - name: GitHub API Request to create a check
+        uses: octokit/request-action@v2.x
+        id: create_check_run
+        with:
+          route: POST /repos/{owner}/{repo}/check-runs
+        env:
+          GITHUB_TOKEN: ${{ inputs.github_token }}
+          INPUT_OWNER: ${{ inputs.repositroy_owner }}
+          INPUT_REPO: ${{ inputs.repositroy_name }}
+          INPUT_NAME: ${{ inputs.check_run_name }}
+          INPUT_HEAD_SHA: ${{ inputs.head_sha }}
+          INPUT_DETAILS_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ inputs.run_id }}"
+  
+          
+      - name: Create metadata
+        id: create-metadata-json
+        run: |
+          echo '{
+            "check_run_type": "${{ inputs.event_type }}",
+            "repository_name": "${{ inputs.repositroy_name }}",
+            "check_run_id": ${{ fromJson(steps.create_check_run.outputs.data).id }}
+          }' > workflow-metadata.json
+        shell: bash
+      - name: Save metadata
+        uses: actions/upload-artifact@v3
+        with:
+          name: workflow-metadata
+          path: workflow-metadata.json
