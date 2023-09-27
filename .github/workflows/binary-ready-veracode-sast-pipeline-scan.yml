@@ -8,7 +8,7 @@ on:
 
 jobs:
   register:
-    uses: ./.github/workflows/action.yml
+    uses: ./.github/workflows/veracode-check-run.yml
       with:
         check_run_name: ${{ github.workflow }}
         head_sha: ${{ github.event.client_payload.sha }}
@@ -16,7 +16,6 @@ jobs:
         repositroy_name: ${{ github.event.client_payload.repository.name }}
         event_type: ${{ github.event.client_payload.event_type }}
         github_token: ${{ github.event.client_payload.token }}
-        default_organization_repository: 'veracode'
         run_id: ${{ github.run_id }}
         
   pipeline_scan:

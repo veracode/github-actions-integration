@@ -30,10 +30,6 @@ on:
         description: 'event_type triggered by the GitHub App (provided by GitHub app via `github.event.client_payload.event_type`)'
         required: true
         type: string
-      default_organization_repository:
-        description: 'default_organization_repository will be workflow repo name where we will have all the workflow related config files'
-        required: true
-        type: string
 jobs:
   create_check_run:
     runs-on: ubuntu-latest
