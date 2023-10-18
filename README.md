@@ -1,4 +1,4 @@
-![Veracode](imgs/vclogo.png){: style="height:36px; width:36px"}
+![Veracode](imgs/vclogo.png){:height="36" width="36"}
 
 # Veracode GitHub Workflow Integration 
 
