@@ -1,4 +1,4 @@
-<img src="imgs/vclogo.png" width="150"/>
+![Veracode](imgs/vclogo.png)
 
 # Veracode GitHub Workflow Integration 
 
