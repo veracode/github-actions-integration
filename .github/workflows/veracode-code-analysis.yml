@@ -41,5 +41,6 @@ jobs:
     uses: ./.github/workflows/veracode-policy-scan.yml
     with:
       profile_name: ${{ github.event.client_payload.profile_name }}
+      policy_name: ${{ github.event.client_payload.policy_name }}
       moddules_to_scan: ${{ github.event.client_payload.modules_to_scan }}
     secrets: inherit
