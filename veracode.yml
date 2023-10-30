@@ -29,7 +29,7 @@ veracode_static_scan:
   break_build_on_error: true
   #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the pipeline scan fails to complete in time or with an error.
   error_message: "Veracode SAST scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
-  policy: 'Veracode Recommended Medium + SCA'
+  policy: 'Verademo Policy'
   compile_locally: false
   local_compilation_workflow: na
 
