@@ -8,9 +8,8 @@ veracode_static_scan:
     # Entering both will only execute branches_to_run
     # Leaving them both blank means this will never run
     branches_to_run:
-      - "*"
+      - '*'
     branches_to_exclude:
-      - default_branch
   pull_request:
     trigger: true
     action:
@@ -30,7 +29,7 @@ veracode_static_scan:
   #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the pipeline scan fails to complete in time or with an error.
   error_message: "Veracode SAST scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
   policy: 'Veracode Recommended Medium + SCA'
-  compile_locally: true
+  compile_locally: false
   local_compilation_workflow: na
 
 veracode_sca_scan:   
