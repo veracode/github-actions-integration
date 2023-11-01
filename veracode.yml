@@ -21,6 +21,8 @@ veracode_static_scan:
   # By selecting a branch here - Veracode will save your last scan result
   # As an App Profile - given the current name of your scanned repo
   # Use 'none' if you would not like any scans saved to the platform
+  
+  # When set to branch will run on commit when the branch specified when the merge happens into the default branch. Policy scan
   analysis_branch: default_branch
   #If the break_build_policy_findings is set to true, the build will break if the pipeline scan finds any policy violations.      
   break_build_policy_findings: true
@@ -31,7 +33,8 @@ veracode_static_scan:
   policy: 'Veracode Recommended Medium + SCA'
   compile_locally: false
   local_compilation_workflow: na
-
+  # local compilation is if needs custom build waits for repo depoloyment for the artifact
+  
 veracode_sca_scan:   
   # Please only specify trigger:true for either push event or 
   # pull request event. Specifying both will only execute push event.
