@@ -4,7 +4,7 @@ run-name: Static Code Analysis - ${{ github.event.client_payload.repository.name
 
 on:
   repository_dispatch:
-    types: [java-maven-pipeline-scan, java-gradle-pipeline-scan, source-code-pipeline-scan, dot-net-pipeline-scan, dot-net-policy-scan, java-maven-policy-scan, java-gradle-policy-scan, source-code-policy-scan]
+    types: [java-maven-pipeline-scan, java-gradle-pipeline-scan, source-code-pipeline-scan, dot-net-pipeline-scan, go-pipeline-scan, dot-net-policy-scan, java-maven-policy-scan, java-gradle-policy-scan, source-code-policy-scan, go-policy-scan]
 
 jobs:
   register:
