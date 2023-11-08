@@ -48,5 +48,12 @@ jobs:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
-      
-      
+
+  build-go-package:
+    if: ${{ inputs.event_name == 'go-pipeline-scan' || inputs.event_name == 'go-policy-scan' }}
+    uses: ./.github/workflows/veracode-build-go.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}  
+    
