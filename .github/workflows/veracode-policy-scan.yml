@@ -6,6 +6,9 @@ on:
       profile_name:
         required: true
         type: string
+      policy_name:
+        required: true
+        type: string
       moddules_to_scan:
         required: true
         type: string
@@ -37,7 +40,7 @@ jobs:
         with:
           appname: ${{ inputs.profile_name }}
           createprofile: true
-          policy: 'Verademo Policy'
+          policy: ${{ inputs.policy_name }}
           version: '${{ github.run_id }}'
           filepath: ./veracode_artifact_directory/${{ env.veracode_artifact }}
           vid: '${{ secrets.API_ID }}'
