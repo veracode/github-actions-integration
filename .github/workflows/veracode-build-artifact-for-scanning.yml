@@ -56,5 +56,3 @@ jobs:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
-      
-      

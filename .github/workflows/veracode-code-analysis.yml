@@ -4,19 +4,16 @@ run-name: Static Code Analysis - ${{ github.event.client_payload.repository.name
 
 on:
   repository_dispatch:
-    types:
-      [
-        java-maven-pipeline-scan,
-        java-gradle-pipeline-scan,
-        source-code-pipeline-scan,
-        dot-net-pipeline-scan,
-        dot-net-policy-scan,
-        java-maven-policy-scan,
-        java-gradle-policy-scan,
-        source-code-policy-scan,
-        go-policy-scan,
-        go-pipeline-scan,
-      ]
+    types: [java-maven-pipeline-scan, 
+            java-gradle-pipeline-scan, 
+            source-code-pipeline-scan, 
+            dot-net-pipeline-scan, 
+            go-pipeline-scan, 
+            dot-net-policy-scan, 
+            java-maven-policy-scan, 
+            java-gradle-policy-scan, 
+            source-code-policy-scan, 
+            go-policy-scan]
 
 jobs:
   register:
@@ -45,6 +42,8 @@ jobs:
     needs: build
     if: contains(github.event.action, 'pipeline')
     uses: ./.github/workflows/veracode-pipeline-scan.yml
+    with:
+      policy_name: ${{ github.event.client_payload.policy_name }}
     secrets: inherit
     
   policy_scan:
@@ -53,5 +52,6 @@ jobs:
     uses: ./.github/workflows/veracode-policy-scan.yml
     with:
       profile_name: ${{ github.event.client_payload.profile_name }}
+      policy_name: ${{ github.event.client_payload.policy_name }}
       moddules_to_scan: ${{ github.event.client_payload.modules_to_scan }}
     secrets: inherit
