@@ -42,7 +42,7 @@ jobs:
       token: ${{ inputs.token }}
       
   build-dot-net-package:
-    if: ${{ inputs.event_name == 'dot-net-pipeline-scan' }}
+    if: ${{ inputs.event_name == 'dot-net-pipeline-scan' || inputs.event_name == 'dot-net-policy-scan' }}
     uses: ./.github/workflows/veracode-build-dot-net.yml
     with:
       repository: ${{ inputs.repository }}
