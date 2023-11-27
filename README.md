@@ -16,17 +16,17 @@ Ensure that this repository and the repositories you want to scan have [GitHub A
 
 You must add the appropriate GitHub secrets to this repository to enable the GitHub actions that run when a specified GitHub event is triggered.
 
-### Configure Veracode API ID and secret key for Static Analysis
+### Configure Veracode API ID and Key for Static Analysis
 
-1. [Generate your Veracode API ID and secret key](https://docs.veracode.com/r/t_create_api_creds) from the [Veracode Platform](https://analysiscenter.veracode.com/auth/index.jsp#APICredentialsGenerator).
-2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `VERACODE_API_ID' for your Veracode API ID and another called 'VERACODE_API_KEY' for your API secret key.
+1. [Generate your Veracode API ID and Key](https://docs.veracode.com/r/t_create_api_creds) from the [Veracode Platform](https://analysiscenter.veracode.com/auth/index.jsp#APICredentialsGenerator).
+2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `VERACODE_API_ID' for your Veracode API ID and another called 'VERACODE_API_KEY' for your API key.
 
 ### Configure SCA agent token
 
 Veracode uses the SCA agent within your workflows to scan your code.  
 
 1. Identify the agent token value for the SCA workspace in which you want your scan results to appear. If you do not know the token, you can [regenerate it](https://docs.veracode.com/r/Regenerate_Veracode_SCA_Agent_Tokens). 
-2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `SRCCLR_API_TOKEN' for your token.
+2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `VERACODE_AGENT_TOKEN' for your token.
 
 ## Language support
 
@@ -43,7 +43,6 @@ The GitHub Workflow Integration supports scanning repositories written in the fo
 | C#               | X              | X           |
 | PHP              | X              | X           |
 | Perl             | X              |             |
-| Ruby             | X              | X           |
 | Go               | X              | X           |
 | Visual Basic 6.0 | X              |             |
 | Apex             | X              |             |
