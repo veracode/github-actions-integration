@@ -26,7 +26,7 @@ You must add the appropriate GitHub secrets to this repository to enable the Git
 Veracode uses the SCA agent within your workflows to scan your code.  
 
 1. Identify the agent token value for the SCA workspace in which you want your scan results to appear. If you do not know the token, you can [regenerate it](https://docs.veracode.com/r/Regenerate_Veracode_SCA_Agent_Tokens). 
-2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `SRCCLR_TOKEN' for your token.
+2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `SRCCLR_API_TOKEN' for your token.
 
 ## Language support
 
