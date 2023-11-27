@@ -19,7 +19,7 @@ You must add the appropriate GitHub secrets to this repository to enable the Git
 ### Configure Veracode API ID and secret key for Static Analysis
 
 1. [Generate your Veracode API ID and secret key](https://docs.veracode.com/r/t_create_api_creds) from the [Veracode Platform](https://analysiscenter.veracode.com/auth/index.jsp#APICredentialsGenerator).
-2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `API_ID' for your Veracode API ID and another called 'API_SECRET' for your API secret key.
+2. Configure a [Github secret in your repository](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) called `VERACODE_API_ID' for your Veracode API ID and another called 'VERACODE_API_KEY' for your API secret key.
 
 ### Configure SCA agent token
 

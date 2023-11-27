@@ -37,8 +37,8 @@ jobs:
         uses: veracode/uploadandscan-action@main
         id: upload_and_scan
         with:
-          vid: '${{ secrets.API_ID }}'
-          vkey: '${{ secrets.API_KEY }}'
+          vid: '${{ secrets.VERACODE_API_ID }}'
+          vkey: '${{ secrets.VERACODE_API_KEY }}'
           appname: ${{ github.event.client_payload.profile_name }}
           createprofile: true
           version: '${{ github.run_id }}'
