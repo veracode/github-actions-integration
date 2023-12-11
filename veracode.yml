@@ -16,7 +16,7 @@ veracode_static_scan:
       - opened
       - synchronize
     target_branch:
-      - default_branch 
+      - ybaiscan-patch-1 
   # What branch would you like to use for platform analysis 
   # By selecting a branch here - Veracode will save your last scan result
   # As an App Profile - given the current name of your scanned repo
