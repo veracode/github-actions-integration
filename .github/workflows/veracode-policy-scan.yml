@@ -34,7 +34,7 @@ jobs:
           artifact_file=$(ls -1 ./veracode_artifact_directory | head -n 1)
           echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
       # run the policy scan action
-      - name: Veracoe Upload and Scan Action Step
+      - name: Veracode Upload and Scan Action Step
         uses: veracode/uploadandscan-action@main
         id: upload_and_scan
         with:
