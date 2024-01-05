@@ -11,7 +11,7 @@ veracode_static_scan:
       - '*'
     branches_to_exclude:
   pull_request:
-    trigger: true
+    trigger: false
     action:
       - opened
       - synchronize
@@ -37,12 +37,12 @@ veracode_sca_scan:
   # pull request event. Specifying both will only execute push event.
   # Leaving them both false means this will never run
   push:
-    trigger: true
+    trigger: false
     branches_to_run:
       - '*'
     branches_to_exclude:
   pull_request:
-    trigger: true
+    trigger: false
     action:
       - opened
       - synchronize
@@ -60,12 +60,12 @@ veracode_iac_secrets_scan:
   # pull request event. Specifying both will only execute push event.
   # Leaving them both false means this will never run
   push:
-    trigger: true
+    trigger: false
     branches_to_run:
       - '*'
     branches_to_exclude:
   pull_request:
-    trigger: true
+    trigger: false
     action:
       - opened
       - synchronize
