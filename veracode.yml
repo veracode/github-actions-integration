@@ -23,7 +23,7 @@ veracode_static_scan:
   # Use 'none' if you would not like any scans saved to the platform
   
   # When set to branch will run on commit when the branch specified when the merge happens into the default branch. Policy scan
-  analysis_branch: default_branch
+  analysis_branch: main
   #If the break_build_policy_findings is set to true, the build will break if the pipeline scan finds any policy violations.      
   break_build_policy_findings: true
   #If the break_build_on_error is set to true, the build will break if the scan failed to complete in time or with an error.
