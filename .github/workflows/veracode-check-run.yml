@@ -37,6 +37,8 @@ on:
 jobs:
   create_check_run:
     runs-on: ubuntu-latest
+    outputs:
+      RUN_ID: ${{ fromJson(steps.create_check_run.outputs.data).id }}
     steps: 
       # Create check run
       - name: GitHub API Request to create a check
