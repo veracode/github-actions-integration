@@ -16,6 +16,38 @@ on:
             go-policy-scan]
 
 jobs:
+  find_veracode_policy_name:
+    runs-on: ubuntu-latest
+    outputs:
+      Total_Elements: ${{ steps.generate_header.outputs.Total_Elements }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Encode value
+        id: encode_step
+        run: |
+          ENCODED_NAME=$(echo -n "${{ github.event.client_payload.policy_name }}" | jq -s -R -r @uri)
+          echo "Encoded name: $ENCODED_NAME"
+          echo "ENCODED_NAME=$ENCODED_NAME" >> $GITHUB_ENV
+
+      - name: Call generateHeader and capture result
+        id: generate_header
+        run: |
+          ID='${{ secrets.VERACODE_API_ID }}'
+          KEY='${{ secrets.VERACODE_API_KEY }}'
+          url='https://api.veracode.com/appsec/v1/policies?name='$ENCODED_NAME
+          method='GET'
+          host='api.veracode.com'
+          RESULT=$(node -e "require('./generate_signature').calculateVeracodeAuthHeader('$url', '$method', '$host', '$ID', '$KEY')")
+          echo "result:" $RESULT
+          api_response=$(curl -X GET "$url" -H "Host: $host" -H "Authorization: $RESULT")
+          echo "API Response: $api_response"
+          echo "{apiResponse}={api_response}" >> GITHUB_OUTPUT
+          total_elements=$(echo "$api_response" | jq -r '.page.total_elements')
+          echo "Total_Elements=$total_elements" >> "$GITHUB_OUTPUT"
+          echo "mesage:${{ github.event.client_payload.annotationObj.annotation_message }}"
+          
   register:
     uses: ./.github/workflows/veracode-check-run.yml
     with:
@@ -29,6 +61,7 @@ jobs:
         
   build:
     needs: register
+    if: ${{ !(needs.veracode_policy_validation.outputs.Total_Elements == 0  && github.event.client_payload.break_build_policy_findings == true) }} 
     uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
     with:
       repository: ${{ github.event.client_payload.repository.full_name }}
