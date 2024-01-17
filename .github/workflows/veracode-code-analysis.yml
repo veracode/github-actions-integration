@@ -16,6 +16,37 @@ on:
             go-policy-scan]
 
 jobs:
+  find_veracode_policy_name:
+    runs-on: ubuntu-latest
+    outputs:
+      Total_Elements: ${{ steps.generate_header.outputs.Total_Elements }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Encode value
+        id: encode_step
+        run: |
+          ENCODED_NAME=$(echo -n "${{ github.event.client_payload.policy_name }}" | jq -s -R -r @uri)
+          echo "Encoded name: $ENCODED_NAME"
+          echo "ENCODED_NAME=$ENCODED_NAME" >> $GITHUB_ENV
+
+      - name: Call generateHeader and capture result
+        id: generate_header
+        run: |
+          ID='${{ secrets.VERACODE_API_ID }}'
+          KEY='${{ secrets.VERACODE_API_KEY }}'
+          url='https://api.veracode.com/appsec/v1/policies?name='$ENCODED_NAME
+          method='GET'
+          host='api.veracode.com'
+          RESULT=$(node -e "require('./generate_signature').calculateVeracodeAuthHeader('$url', '$method', '$host', '$ID', '$KEY')")
+          echo "result:" $RESULT
+          api_response=$(curl -X GET "$url" -H "Host: $host" -H "Authorization: $RESULT")
+          echo "API Response: $api_response"
+          echo "{apiResponse}={api_response}" >> GITHUB_OUTPUT
+          total_elements=$(echo "$api_response" | jq -r '.page.total_elements')
+          echo "Total_Elements=$total_elements" >> "$GITHUB_OUTPUT"
+          echo "mesage:${{ github.event.client_payload.annotationObj.annotation_message }}"
   register:
     uses: ./.github/workflows/veracode-check-run.yml
     with:
@@ -26,6 +57,29 @@ jobs:
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
+
+  update_check:
+    needs: register
+    if: ${{ needs.find_veracode_policy_name.outputs.Total_Elements == 0 }}
+    uses: ./.github/workflows/veracode-update-check-run.yml
+    with:
+      check_run_name: ${{ github.workflow }}
+      head_sha: ${{ github.event.client_payload.sha }}
+      repositroy_owner: ${{ github.event.client_payload.repository.owner }}
+      repositroy_name: ${{ github.event.client_payload.repository.name }}
+      event_type: ${{ github.event.client_payload.event_type }}
+      github_token: ${{ github.event.client_payload.token }}
+      run_id: ${{ needs.register.outputs.RUN_ID }}
+      show_annotation: ${{ (needs.find_veracode_policy_name.outputs.Total_Elements == 0  && github.event.client_payload.break_build_policy_findings == true) }}
+      message: ${{ github.event.client_payload.annotationObj.message }}
+      annotation_level: ${{ github.event.client_payload.annotationObj.annotation_level }}
+      conclusion:  ${{ github.event.client_payload.annotationObj.conclusion }}
+      status: ${{ github.event.client_payload.annotationObj.status }}
+      title: ${{ github.event.client_payload.annotationObj.title }}
+      summary:  ${{ github.event.client_payload.annotationObj.summary }}
+      start_line: ${{ github.event.client_payload.annotationObj.start_line }}
+      end_line: ${{ github.event.client_payload.annotationObj.end_line }}
+      path: ${{ github.event.client_payload.annotationObj.github_host }}/${{ github.event.client_payload.repository.owner }}/veracode/blob/${{ github.event.client_payload.branch }}/${{ github.event.client_payload.annotationObj.veracodeConfigFile }}
         
   build:
     needs: register

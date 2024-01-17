@@ -57,6 +57,7 @@ jobs:
             "repository_name": "${{ inputs.repositroy_name }}",
             "check_run_id": ${{ fromJson(steps.create_check_run.outputs.data).id }}
           }' > workflow-metadata.json
+          echo "RUN_ID=${{ fromJson(steps.create_check_run.outputs.data).id }}" >> "GITHUB_OUTPUT" 
         shell: bash
       - name: Save metadata
         uses: actions/upload-artifact@v3
