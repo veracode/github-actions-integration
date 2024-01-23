@@ -24,7 +24,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Encode value
+      - name: Encode policy name
         id: encode_step
         run: |
           ENCODED_NAME=$(echo -n "${{ github.event.client_payload.policy_name }}" | jq -s -R -r @uri)
@@ -46,8 +46,11 @@ jobs:
           echo "{apiResponse}={api_response}" >> GITHUB_OUTPUT
           total_elements=$(echo "$api_response" | jq -r '.page.total_elements')
           echo "Total_Elements=$total_elements" >> "$GITHUB_OUTPUT"
-          echo "mesage:${{ github.event.client_payload.annotationObj.annotation_message }}"
+          echo "mesage:${{ github.event.client_payload.annotationObj.message }}"
+          echo "break: ${{ github.event.client_payload.break_build_policy_findings }}"
+
   register:
+    needs: find_veracode_policy_name
     uses: ./.github/workflows/veracode-check-run.yml
     with:
       check_run_name: ${{ github.workflow }}
@@ -70,9 +73,10 @@ jobs:
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ needs.register.outputs.RUN_ID }}
-      show_annotation: ${{ (needs.find_veracode_policy_name.outputs.Total_Elements == 0  && github.event.client_payload.break_build_policy_findings == true) }}
+      show_annotation: ${{ needs.find_veracode_policy_name.outputs.Total_Elements == 0  }}
       message: ${{ github.event.client_payload.annotationObj.message }}
       annotation_level: ${{ github.event.client_payload.annotationObj.annotation_level }}
+      break_build_policy_findings: ${{github.event.client_payload.break_build_policy_findings }}
       conclusion:  ${{ github.event.client_payload.annotationObj.conclusion }}
       status: ${{ github.event.client_payload.annotationObj.status }}
       title: ${{ github.event.client_payload.annotationObj.title }}
@@ -83,6 +87,7 @@ jobs:
         
   build:
     needs: register
+    if: ${{ !(needs.find_veracode_policy_name.outputs.Total_Elements == 0  && github.event.client_payload.break_build_policy_findings == true) }} 
     uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
     with:
       repository: ${{ github.event.client_payload.repository.full_name }}
