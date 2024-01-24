@@ -83,7 +83,7 @@ jobs:
       summary:  ${{ github.event.client_payload.annotationObj.summary }}
       start_line: ${{ github.event.client_payload.annotationObj.start_line }}
       end_line: ${{ github.event.client_payload.annotationObj.end_line }}
-      path: ${{ github.event.client_payload.annotationObj.github_host }}/${{ github.event.client_payload.repository.owner }}/veracode/blob/${{ github.event.client_payload.branch }}/${{ github.event.client_payload.annotationObj.veracodeConfigFile }}
+      path: ${{ github.event.client_payload.annotationObj.github_host }}/${{ github.event.client_payload.repository.owner }}/${{ github.event.client_payload.annotationObj.workflow_reponame }}/blob/${{ github.event.client_payload.branch }}/${{ github.event.client_payload.annotationObj.veracode_config_file }}
         
   build:
     needs: register
