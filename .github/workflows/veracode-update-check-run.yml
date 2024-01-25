@@ -1,0 +1,117 @@
+name: 'Organization workflow action'
+on:
+  workflow_call:
+    inputs:
+      run_id: 
+        description: 'ID of workflow run (provided via GitHub syntax `github.run_id`)'
+        required: true
+        type: string
+      repositroy_owner: 
+        description: 'repositroy_owner of original commit (provided by GitHub app via `github.event.client_payload.repository.owner`)'
+        required: true
+        type: string
+      repositroy_name: 
+        description: 'repositroy_name of original commit (provided by GitHub app via `github.event.client_payload.repository.name`)'
+        required: true
+        type: string
+      check_run_name: 
+        description: 'Name of check (Use `github.workflow` to use the name of the workflow)'
+        required: true
+        type: string
+      head_sha: 
+        description: 'head_sha of original commit (provided by GitHub app via `github.event.client_payload.sha`)'
+        required: true
+        type: string
+      github_token: 
+        description: 'github_token is a token (provided by GitHub app via `github.event.client_payload.token`)'
+        required: true
+        type: string
+      event_type:
+        description: 'event_type triggered by the GitHub App (provided by GitHub app via `github.event.client_payload.event_type`)'
+        required: true
+        type: string
+      show_annotation:
+        description: 'Boolean flag to indicate if the annotation has to be displayed'
+        required: false
+        type: boolean
+        default: false
+      message:
+        description: 'Annotation message that needs to be displayed'
+        required: false
+        type: string
+      conclusion:
+        description: 'Workflow conclusion'
+        required: false
+        type: string
+      status:
+        description: 'Workflow status'
+        required: false
+        type: string
+      title:
+        description: 'title of Annotation'
+        required: false
+        type: string
+      annotation_level: 
+        description: 'Annotation level is whether warning or failure'
+        required: false
+        type: string
+      start_line:
+        description: 'Start line of the Policy'
+        required: false
+        type: string
+      end_line:
+        description: 'End line of the Policy'
+        required: false
+        type: string
+      summary:
+        description: 'Summary of the Annotation'
+        required: false
+        type: string
+      path:
+       description: 'Path for Configuration file'
+       required: false
+       type: string
+      break_build_policy_findings:
+        description: 'Breaking the build'
+        required: false
+        type: string
+jobs:
+  update_check_run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Octokit.js Request to update a check
+        uses: octokit/request-action@v2.x
+        id: update_check_run
+        env:
+          GITHUB_TOKEN: ${{ inputs.github_token }} 
+        with:
+          route: PATCH /repos/${{ inputs.repositroy_owner }}/${{ inputs.repositroy_name }}/check-runs/${{ inputs.run_id }}
+          name: "Veracode Policy Name Validation"
+          conclusion: ${{ inputs.conclusion }}
+          status: ${{ inputs.status }}
+          output: |
+              title: ${{ inputs.title }}
+              summary: ${{ inputs.summary }}
+              annotations:
+                - path: ${{ inputs.path }}
+                  title: ${{ inputs.title }}
+                  annotation_level: ${{ inputs.annotation_level }}
+                  message: ${{ inputs.message }}
+                  start_line: ${{ inputs.start_line }}
+                  end_line: ${{ inputs.end_line }}
+
+      - name: Show annotations
+        if: ${{ inputs.show_annotation == true && inputs.break_build_policy_findings == 'false' }}
+        run: |
+            echo "::error::${{ inputs.message }}"
+
+
+      - name: Fail the Execution
+        if: ${{ inputs.break_build_policy_findings == 'true' }} 
+        uses: actions/github-script@v7.0.1
+        with:
+          script: |
+           core.setFailed( "${{ inputs.message }}")
