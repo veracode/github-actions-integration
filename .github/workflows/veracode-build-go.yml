@@ -34,9 +34,14 @@ jobs:
           fi
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.x
+          go-version: 'stable'
+          cache: false
+
+      - name: Set Go Envs
+        shell: bash
+        run: go env -w GOPRIVATE=github.com/smarterly/\*
 
       - name: Install vcgopkg
         run: |
