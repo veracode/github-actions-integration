@@ -1,0 +1,54 @@
+name: Veracode Static Sandbox Scanner
+
+on:
+  workflow_call:
+    inputs:
+      profile_name:
+        required: true
+        type: string
+      moddules_to_scan:
+        required: true
+        type: string
+      branch:
+        required: false
+        type: string
+  
+  
+jobs:
+  sandbox_scan:
+    runs-on: ubuntu-latest
+    name: sandbox scan
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+      
+      # get the compiled binary from a previous job
+      - name: get archive
+        uses: actions/download-artifact@v3
+        with:
+          name: veracode-artifact
+          path: ./veracode_artifact_directory
+      
+      - name: Get the name of the downloaded files
+        run: |
+          artifact_file=$(ls -1 ./veracode_artifact_directory | head -n 1)
+          echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
+      # run the policy scan action
+      - name: Veracoe Upload and Scan Action Step
+        #uses: veracode/veracode-uploadandscan-action@0.2.6
+        uses: veracode/uploadandscan-action@main
+        id: upload_and_scan
+        with:
+          appname: ${{ inputs.profile_name }}
+          createprofile: true
+          policy: ${{ inputs.policy_name }}
+          version: '${{ github.run_id }}'
+          filepath: ./veracode_artifact_directory/${{ env.veracode_artifact }}
+          vid: '${{ secrets.API_ID }}'
+          vkey: '${{ secrets.API_KEY }}'
+          createsandbox: true
+          sandboxname: GitHub App Scans-${{ inputs.branch }}
+          scantimeout: 15
+          include: ${{ inputs.moddules_to_scan }}
+          failbuild: true
