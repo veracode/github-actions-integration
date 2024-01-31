@@ -1,0 +1,53 @@
+name: Veracode Build Scala Application
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+      token:
+        required: true
+        type: string
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.ref }}
+        token: ${{ inputs.token }}
+    - uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: oracle
+    - name: Build with sbt
+      run: sbt clean package
+      
+    - name: Identify the Artifact
+      id: identify
+      run: |
+        jar_files=$(find target -name "*.jar" -type f -maxdepth 1 -exec basename {} \;)
+        war_files=$(find target -name "*.war" -type f -maxdepth 1 -exec basename {} \;)
+        ear_files=$(find target -name "*.ear" -type f -maxdepth 1 -exec basename {} \;)
+        if [ ! -z "$jar_files" ]; then
+          artifact_file=$jar_files
+        elif [ ! -z "$war_files" ]; then
+          artifact_file=$war_files
+        elif [ ! -z "$ear_files" ]; then
+          artifact_file=$ear_files
+        else
+          echo "no files found"
+        fi
+        echo $artifact_file
+        echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
+        
+    - uses: actions/upload-artifact@v3
+      with:
+        name: veracode-artifact
+        path: target/${{ env.veracode_artifact }}
