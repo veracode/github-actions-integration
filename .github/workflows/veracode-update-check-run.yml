@@ -1,4 +1,4 @@
-name: 'Organization workflow action'
+name: Veracode Check Run Updation
 on:
   workflow_call:
     inputs:
@@ -6,12 +6,12 @@ on:
         description: 'ID of workflow run (provided via GitHub syntax `github.run_id`)'
         required: true
         type: string
-      repositroy_owner: 
-        description: 'repositroy_owner of original commit (provided by GitHub app via `github.event.client_payload.repository.owner`)'
+      repository_owner: 
+        description: 'repository_owner of original commit (provided by GitHub app via `github.event.client_payload.repository.owner`)'
         required: true
         type: string
-      repositroy_name: 
-        description: 'repositroy_name of original commit (provided by GitHub app via `github.event.client_payload.repository.name`)'
+      repository_name: 
+        description: 'repository_name of original commit (provided by GitHub app via `github.event.client_payload.repository.name`)'
         required: true
         type: string
       check_run_name: 
@@ -77,6 +77,7 @@ on:
         type: string
 jobs:
   update_check_run:
+    name: Update Check Run Job
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -88,7 +89,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ inputs.github_token }} 
         with:
-          route: PATCH /repos/${{ inputs.repositroy_owner }}/${{ inputs.repositroy_name }}/check-runs/${{ inputs.run_id }}
+          route: PATCH /repos/${{ inputs.repository_owner }}/${{ inputs.repository_name }}/check-runs/${{ inputs.run_id }}
           name: "Veracode Policy Name Validation"
           conclusion: ${{ inputs.conclusion }}
           status: ${{ inputs.status }}
