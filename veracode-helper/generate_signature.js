@@ -51,6 +51,5 @@ function calculateVeracodeAuthHeader(requestUrl, httpMethod, host, id, key) {
 
 
 module.exports = {
-    generateHeader: generateHeader,
     calculateVeracodeAuthHeader: calculateVeracodeAuthHeader
 };
