@@ -13,7 +13,12 @@ on:
             java-maven-policy-scan, 
             java-gradle-policy-scan, 
             source-code-policy-scan, 
-            go-policy-scan]
+            go-policy-scan,
+            dot-net-sandbox-scan, 
+            java-maven-sandbox-scan, 
+            java-gradle-sandbox-scan, 
+            source-code-sandbox-scan, 
+            go-sandbox-scan]
 
 jobs:
   register:
@@ -50,6 +55,16 @@ jobs:
     needs: build
     if: contains(github.event.action, 'policy')
     uses: ./.github/workflows/veracode-policy-scan.yml
+    with:
+      profile_name: ${{ github.event.client_payload.profile_name }}
+      policy_name: ${{ github.event.client_payload.policy_name }}
+      modules_to_scan: ${{ github.event.client_payload.modules_to_scan }}
+    secrets: inherit
+
+  sandbox_scan:
+    needs: build
+    if: contains(github.event.action, 'policy')
+    uses: ./.github/workflows/veracode-sandbox-scan.yml
     with:
       profile_name: ${{ github.event.client_payload.profile_name }}
       policy_name: ${{ github.event.client_payload.policy_name }}
