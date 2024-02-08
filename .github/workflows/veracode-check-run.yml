@@ -1,10 +1,6 @@
 name: 'Organization workflow action'
 on:
   workflow_call:
-    outputs:
-      run_id:
-        description: "Unique check run id"
-        value: ${{ jobs.create_check_run.outputs.run_id }}
     inputs:
       run_id: 
         description: 'ID of workflow run (provided via GitHub syntax `github.run_id`)'
@@ -37,8 +33,6 @@ on:
 jobs:
   create_check_run:
     runs-on: ubuntu-latest
-    outputs:
-      run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
     steps: 
       # Create check run
       - name: GitHub API Request to create a check
@@ -63,11 +57,9 @@ jobs:
             "repository_name": "${{ inputs.repositroy_name }}",
             "check_run_id": ${{ fromJson(steps.create_check_run.outputs.data).id }}
           }' > workflow-metadata.json
-          echo "run_id=${{ fromJson(steps.create_check_run.outputs.data).id }}" >> "GITHUB_OUTPUT" 
         shell: bash
-
       - name: Save metadata
-        uses: actions/upload-artifact@v4.3.0
+        uses: actions/upload-artifact@v3
         with:
           name: workflow-metadata
           path: workflow-metadata.json

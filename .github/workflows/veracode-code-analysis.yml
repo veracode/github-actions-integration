@@ -16,56 +16,7 @@ on:
             go-policy-scan]
 
 jobs:
-  find_veracode_policy_name:
-    name: Validate Policy Name
-    runs-on: ubuntu-latest
-    outputs:
-      total_elements: ${{ steps.generate_header.outputs.total_elements }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Encode policy name
-        id: encode_step
-        run: |
-          ENCODED_NAME=$(echo -n "${{ github.event.client_payload.policy_name }}" | jq -s -R -r @uri)
-          echo "Encoded name: $ENCODED_NAME"
-          echo "ENCODED_NAME=$ENCODED_NAME" >> $GITHUB_ENV
-
-      - name: Call API to validate policy name
-        id: generate_header
-        run: |
-          ID='${{ secrets.VERACODE_API_ID }}'
-          KEY='${{ secrets.VERACODE_API_KEY }}'
-          host='api.veracode.com'
-          method='GET'
-          case $ID in
-            vera01ei-*)
-              host='api.veracode.eu'
-              ID="${ID/vera01ei-/}"  # One-liner for cleaning up ID
-              ID="${ID:-''}"  # Set to '' if the result is empty
-              KEY="${KEY/vera01es-/}"  # One-liner for cleaning up KEY
-              KEY="${KEY:-''}"  # Set to '' if the result is empty
-              echo 'Region: EU'
-              ;;
-            *)
-              echo 'Region: US'
-              ;;
-          esac
-
-          url="https://$host/appsec/v1/policies?name=$ENCODED_NAME" 
-          RESULT=$(node -e "require('./veracode-helper/generate_signature').calculateVeracodeAuthHeader('$url', '$method', '$host', '$ID', '$KEY')")
-          echo "result:" $RESULT
-          api_response=$(curl -X GET "$url" -H "Host: $host" -H "Authorization: $RESULT")
-          echo "API Response: $api_response"
-          echo "{apiResponse}={api_response}" >> GITHUB_OUTPUT
-          total_elements=$(echo "$api_response" | jq -r '.page.total_elements')
-          echo "total_elements=$total_elements" >> "$GITHUB_OUTPUT"
-          echo "mesage:${{ github.event.client_payload.annotationObj.message }}"
-          echo "break: ${{ github.event.client_payload.break_build_policy_findings }}"
-
   register:
-    needs: find_veracode_policy_name
     uses: ./.github/workflows/veracode-check-run.yml
     with:
       check_run_name: ${{ github.workflow }}
@@ -74,36 +25,10 @@ jobs:
       repositroy_name: ${{ github.event.client_payload.repository.name }}
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
-      run_id: ${{ github.run_id }}        
-
-  update_check:
-    needs: register
-    if: ${{ needs.find_veracode_policy_name.outputs.total_elements == 0 }}
-    uses: ./.github/workflows/veracode-update-check-run.yml
-    with:
-      check_run_name: ${{ github.workflow }}
-      head_sha: ${{ github.event.client_payload.sha }}
-      repository_owner: ${{ github.event.client_payload.repository.owner }}
-      repository_name: ${{ github.event.client_payload.repository.name }}
-      event_type: ${{ github.event.client_payload.event_type }}
-      github_token: ${{ github.event.client_payload.token }}
-      run_id: ${{ needs.register.outputs.run_id }}
-      show_annotation: ${{ needs.find_veracode_policy_name.outputs.total_elements == 0  }}
-      message: ${{ github.event.client_payload.annotationObj.message }}
-      annotation_level: ${{ github.event.client_payload.annotationObj.annotation_level }}
-      break_build_policy_findings: ${{github.event.client_payload.break_build_policy_findings }}
-      conclusion:  ${{ github.event.client_payload.annotationObj.conclusion }}
-      status: ${{ github.event.client_payload.annotationObj.status }}
-      title: ${{ github.event.client_payload.annotationObj.title }}
-      summary:  ${{ github.event.client_payload.annotationObj.summary }}
-      start_line: ${{ github.event.client_payload.annotationObj.start_line }}
-      end_line: ${{ github.event.client_payload.annotationObj.end_line }}
-      path: ${{ github.event.client_payload.annotationObj.path }}
-
+      run_id: ${{ github.run_id }}
         
   build:
     needs: register
-    if: ${{ !(needs.find_veracode_policy_name.outputs.total_elements == 0  && github.event.client_payload.break_build_policy_findings == true) }} 
     uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
     with:
       repository: ${{ github.event.client_payload.repository.full_name }}
