@@ -22,6 +22,9 @@ jobs:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         token: ${{ inputs.token }}
+    - uses: actions/checkout@v3
+      with:
+        path: 'veracode-helper'
     - uses: actions/setup-java@v3
       with:
         java-version: 17
@@ -31,28 +34,23 @@ jobs:
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-    - name: Build with Maven
-      run: mvn clean package
-      
-    - name: Identify the Artifact
-      id: identify
+    - name: Package the appliccation
+      env:
+        VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
+        VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
       run: |
-        jar_files=$(find target -name "*.jar" -type f -maxdepth 1 -exec basename {} \;)
-        war_files=$(find target -name "*.war" -type f -maxdepth 1 -exec basename {} \;)
-        ear_files=$(find target -name "*.ear" -type f -maxdepth 1 -exec basename {} \;)
-        if [ ! -z "$jar_files" ]; then
-          artifact_file=$jar_files
-        elif [ ! -z "$war_files" ]; then
-          artifact_file=$war_files
-        elif [ ! -z "$ear_files" ]; then
-          artifact_file=$ear_files
-        else
-          echo "no files found"
-        fi
-        echo $artifact_file
-        echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
+        cd veracode-helper/helper/cli
+        cliFile=$(ls -1 . | head -n 1)
+        cliFileName=$(echo "$cliFile" | cut -c 1-$((${#cliFile}-7)))
+        tar -zxvf $cliFile
+        cd $cliFileName
+        chmod +x install.sh
+        ./install.sh system
+        cd /home/runner/work/veracode/veracode/
+        veracode package --source . --output veracode-artifacts --trust
+        zip veracode-artifact.zip veracode-artifacts/* -x .zip .tar .tar.gz .gz
         
     - uses: actions/upload-artifact@v3
       with:
         name: veracode-artifact
-        path: target/${{ env.veracode_artifact }}
+        path: veracode-artifact.zip
