@@ -1,0 +1,43 @@
+name: Veracode - Remove Sandbox When Pr Closed or Branch Deleted
+
+run-name: Remove Veracode Sandbox - Profile ${{ github.event.client_payload.repository.name }} - Sandbox ${{ github.event.client_payload.branch }}
+
+concurrency:
+  group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.branch }}
+  cancel-in-progress: true
+
+on:
+  repository_dispatch:
+    types: [veracode-remove-sandbox]
+    
+jobs:
+  create-checks-run:
+    name: Create Checks Run
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create metadata
+      id: create_metadata_json
+      run: |
+        echo '{
+          "check_run_type": "${{ github.event.client_payload.event_type }}",
+          "repository_name": "${{ github.event.client_payload.repository.name }}",
+          "check_run_id": "",
+          "sha": "${{ github.event.client_payload.sha }}"
+        }' > workflow-metadata.json
+    - name: Save metadata
+      uses: actions/upload-artifact@v3
+      with:
+        name: workflow-metadata
+        path: workflow-metadata.json
+  veracode-remove-sandbox:
+    needs: create-checks-run
+    runs-on: ubuntu-latest
+    name: Remove Sandbox
+    steps:
+      - uses: veracode/workflow-app-helper@removeSandbox
+        with:
+          action: 'removeSandbox'
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ github.event.client_payload.profile_name }}
+          sandboxname: GitHub App Scans-${{ github.event.client_payload.branch }}
