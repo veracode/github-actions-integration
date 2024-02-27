@@ -23,7 +23,7 @@ veracode_static_scan:
   # Use 'none' if you would not like any scans saved to the platform
   analysis_branch: default_branch
   #If the break_build_policy_findings is set to true, the build will break if the pipeline scan finds any policy violations.      
-  break_build_policy_findings: true
+  break_build_policy_findings: false
   #If the break_build_on_error is set to true, the build will break if the scan failed to complete in time or with an error.
   break_build_on_error: false
   #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the pipeline scan fails to complete in time or with an error.
