@@ -8,7 +8,7 @@ veracode_static_scan:
     # Entering both will only execute branches_to_run
     # Leaving them both blank means this will never run
     branches_to_run:
-      - '*'
+      - 'main'
     branches_to_exclude:
   pull_request:
     trigger: true
@@ -16,19 +16,19 @@ veracode_static_scan:
       - opened
       - synchronize
     target_branch:
-      - default_branch 
+      - develop
   # What branch would you like to use for platform analysis 
   # By selecting a branch here - Veracode will save your last scan result
   # As an App Profile - given the current name of your scanned repo
   # Use 'none' if you would not like any scans saved to the platform
-  analysis_branch: ENTER_BRANCH_NAME_HERE
+  analysis_branch: main
   #If the break_build_policy_findings is set to true, the build will break if the pipeline scan finds any policy violations.      
   break_build_policy_findings: true
   #If the break_build_on_error is set to true, the build will break if the scan failed to complete in time or with an error.
-  break_build_on_error: false
+  break_build_on_error: true
   #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the pipeline scan fails to complete in time or with an error.
   error_message: "Veracode SAST scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
-  policy: 'Veracode Recommended Medium + SCA'
+  policy: 'Medium+ not allowed with SCA'
   compile_locally: false
   local_compilation_workflow: na
 
@@ -39,7 +39,7 @@ veracode_sca_scan:
   push:
     trigger: true
     branches_to_run:
-      - '*'
+      - 'main'
     branches_to_exclude:
   pull_request:
     trigger: true
@@ -47,7 +47,7 @@ veracode_sca_scan:
       - opened
       - synchronize
     target_branch:
-      - default_branch
+      - develop
   #If the break_build_policy_findings is set to true, the build will break if the SCA scan finds any policy violations.      
   break_build_policy_findings: true
   #If the break_build_on_error is set to true, the build will break if the scan failed to complete, no libraries found, no build system found or on any other error.
