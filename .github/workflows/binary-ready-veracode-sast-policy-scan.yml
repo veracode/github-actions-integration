@@ -39,7 +39,7 @@ jobs:
         with:
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
-          appname: ${{ github.event.client_payload.profile_name }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
           createprofile: true
           version: '${{ github.run_id }}'
           filepath: ./veracode-artifact/${{ env.veracode_artifact }}

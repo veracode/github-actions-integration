@@ -21,7 +21,7 @@ on:
       ref:
         required: true
         type: string
-      security_report_enabled:
+      create_code_scanning_alert:
         required: true
         type: boolean
       create_issue:
@@ -63,7 +63,7 @@ jobs:
   results_to_security_tab:
     needs: pipeline_scan
     runs-on: ubuntu-latest
-    if: ${{ failure() && inputs.security_report_enabled }}
+    if: ${{ failure() && inputs.create_code_scanning_alert }}
     name: Send report to Security tab
     steps:
       - name: Get scan results
