@@ -1,4 +1,4 @@
-name: Veracode Build Source Code Package
+name: Veracode Build PHP Source Code Package
 
 on:
   workflow_call:

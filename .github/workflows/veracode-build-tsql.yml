@@ -1,4 +1,4 @@
-name: Veracode Build Source Code Package
+name: Veracode Build T-SQL Source Code Package
 
 on:
   workflow_call:
@@ -24,7 +24,7 @@ jobs:
         token: ${{ inputs.token }}
 
     - name: Create zip archive
-      run: zip -r veracode.zip . -x .git/**\* bin/**\* e2e/**\* tests/**\* node_modules/**\* *.pyd *.mwb *.exe *.dll *.bin *.png *.xml *.bat *.g2p *.gp4 *.wav *.jpg *.svg *.sfx *.prx *.sb *.nrm *.config *.ini *.pdf *.dat *.docx *.whl *.so *_arm64 *_armhf *_x64 *.xlsm *.sql
+      run: zip -r veracode.zip . -x .git/**\* bin/**\* e2e/**\* tests/**\* node_modules/**\* *.pyd *.mwb *.exe *.dll *.bin *.png *.xml *.bat *.g2p *.gp4 *.wav *.jpg *.svg *.sfx *.prx *.sb *.nrm *.config *.ini *.pdf *.dat *.docx *.whl *.so *_arm64 *_armhf *_x64 *.xlsm
         
     - uses: actions/upload-artifact@v3
       with:
