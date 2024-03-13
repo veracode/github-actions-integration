@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: ${{ github.event.client_payload.repository.full_name }}
-          ref: ${{ github.event.client_payload.sha }}
+          ref: ${{ github.event.client_payload.repository.branch }}
           token: ${{ github.event.client_payload.token }}
       - name: Run Veracode SCA
         env:
