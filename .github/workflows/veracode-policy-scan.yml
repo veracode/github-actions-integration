@@ -85,7 +85,7 @@ jobs:
           name: 'policy-flaws'
           path: /tmp
       - name: Create flaws as issues
-        uses: veracode/veracode-flaws-to-issues@addWorkflowAppSupport
+        uses: veracode/veracode-flaws-to-issues@v2.2.22
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ inputs.owner }}
