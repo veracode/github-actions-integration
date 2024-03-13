@@ -41,9 +41,9 @@ veracode_static_scan:
   profile: ENTER_PROFILE_NAME
   #If enabled, the scan will be triggered when a command matches by either creating an issue or adding a comment to an issue.
   issues:
-  trigger: false
-  commands:
-    - "ENTER_COMMAND_TO_EXECUTE_SCAN"
+    trigger: false
+    commands:
+      - "ENTER_COMMAND_TO_EXECUTE_SCAN"
 
 veracode_sca_scan:   
   # Please only specify trigger:true for either push event or 
@@ -69,9 +69,9 @@ veracode_sca_scan:
   error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
   #If enabled, the scan will be triggered when a command matches by either creating an issue or adding a comment to an issue.
   issues:
-  trigger: false
-  commands:
-    - "ENTER_COMMAND_TO_EXECUTE_SCAN"
+    trigger: false
+    commands:
+      - "ENTER_COMMAND_TO_EXECUTE_SCAN"
 
 veracode_iac_secrets_scan:
   # Please only specify trigger:true for either push event or 
@@ -97,6 +97,6 @@ veracode_iac_secrets_scan:
   error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
   #If enabled, the scan will be triggered when a command matches by either creating an issue or adding a comment to an issue.
   issues:
-  trigger: false
-  commands:
-    - "ENTER_COMMAND_TO_EXECUTE_SCAN"
+    trigger: false
+    commands:
+      - "ENTER_COMMAND_TO_EXECUTE_SCAN"
