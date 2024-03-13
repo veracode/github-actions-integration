@@ -94,6 +94,6 @@ For scans triggered by a pull request, you can also view the findings on the req
 
 Static Analysis scans return a list of annotations describing each static flaw and a link to the Veracode Platform where you can view a full report of your results. If an [application profile](https://docs.veracode.com/r/request_profile) for a scanned repository does not already exist in the Veracode Platform, Veracode automatically creates one using the name of the repository as the name of the profile. 
 
-For more information on reviewing Statis Analysis findings, see [Reviewing scan results](https://docs.veracode.com/r/review_results).
+For more information on reviewing Static Analysis findings, see [Reviewing scan results](https://docs.veracode.com/r/review_results).
 
 SCA scans return a summary report of your open source security findings as well as a detailed list of libraries, vulnerabilities, and licenses. For more information about SCA findings, see [Viewing agent-based scan results](https://docs.veracode.com/r/Viewing_Agent_Based_Scan_Results).
