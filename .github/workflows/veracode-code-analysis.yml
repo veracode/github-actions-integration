@@ -84,7 +84,7 @@ jobs:
           path: ${{ github.event.client_payload.annotationObj.path }}
           start_line: ${{ github.event.client_payload.annotationObj.start_line }}
           end_line: ${{ github.event.client_payload.annotationObj.end_line }}
-          break_build_policy_findings: ${{github.event.client_payload.break_build_policy_findings }}
+          break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
  
   build:
     needs: validations
