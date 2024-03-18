@@ -25,7 +25,7 @@ jobs:
           "sha": "${{ github.event.client_payload.sha }}"
         }' > workflow-metadata.json
     - name: Save metadata
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: workflow-metadata
         path: workflow-metadata.json
