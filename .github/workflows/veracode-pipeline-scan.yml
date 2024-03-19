@@ -40,7 +40,7 @@ jobs:
       
       # get the compiled binary from a previous job
       - name: get archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
@@ -67,7 +67,7 @@ jobs:
     name: Send report to Security tab
     steps:
       - name: Get scan results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: "Veracode Pipeline-Scan Results"
       - name: Convert pipeline scan output to SARIF format
@@ -90,7 +90,7 @@ jobs:
     name: Send report to issue tab
     steps:
       - name: Get scan results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'Veracode Pipeline-Scan Results'
       - name: Create flaws as issues

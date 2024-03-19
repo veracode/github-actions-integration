@@ -46,7 +46,7 @@ jobs:
       
       # get the compiled binary from a previous job
       - name: get archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get flaw file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'policy-flaws'
           path: /tmp
@@ -99,7 +99,7 @@ jobs:
     name: Send policy scan report to Security tab
     steps:
       - name: Get scan results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: policy-flaws
           path: /tmp

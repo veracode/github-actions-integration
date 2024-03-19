@@ -24,7 +24,7 @@ jobs:
     steps:
     - name: Download artifact
       id: download-artifact
-      uses: dawidd6/action-download-artifact@v4
+      uses: dawidd6/action-download-artifact@v3
       with:
         github_token: ${{secrets.GITHUB_TOKEN}}
         run_id: ${{ github.event.client_payload.run_id }}

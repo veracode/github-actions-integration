@@ -39,7 +39,6 @@ veracode_static_scan:
   create_code_scanning_alert: false
   #If the create_issue is set to true, GitHub Issues will be created for static findings.
   create_issue: false
-  profile: ENTER_PROFILE_NAME
   #If the trigger is set to true, the scan will be triggered when a command matches by either creating an issue or adding a comment to an issue.
   issues:
     trigger: false
