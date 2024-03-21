@@ -36,11 +36,11 @@ jobs:
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       # get the compiled binary from a previous job
       - name: get archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
@@ -53,7 +53,7 @@ jobs:
       # run the pipeline scan action
       - name: Veracode Pipeline-Scan
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.10
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.14
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
@@ -67,7 +67,7 @@ jobs:
     name: Send report to Security tab
     steps:
       - name: Get scan results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: "Veracode Pipeline-Scan Results"
       - name: Convert pipeline scan output to SARIF format
@@ -90,7 +90,7 @@ jobs:
     name: Send report to issue tab
     steps:
       - name: Get scan results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: 'Veracode Pipeline-Scan Results'
       - name: Create flaws as issues

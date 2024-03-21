@@ -33,7 +33,7 @@ jobs:
           echo "Please contact your Veracode administrator for more information." >> error.txt
           echo "If you are a Veracode administrator, please contact Veracode support." >> error.txt
       - name: save results file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: veracode-error
           path: error.txt

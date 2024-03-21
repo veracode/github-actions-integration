@@ -17,14 +17,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         token: ${{ inputs.token }}
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v4
       with:
-        java-version: 17
+        java-version: 21
         distribution: oracle
     - name: Build with sbt
       run: sbt clean package
@@ -47,7 +47,7 @@ jobs:
         echo $artifact_file
         echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
         
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: veracode-artifact
         path: target/${{ env.veracode_artifact }}

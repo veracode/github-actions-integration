@@ -28,7 +28,7 @@ jobs:
     name: Veracode Component Analysis
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: ${{ github.event.client_payload.repository.full_name }}
           ref: ${{ github.event.client_payload.repository.branch }}
@@ -36,7 +36,7 @@ jobs:
       - name: Run Veracode SCA
         env:
           SRCCLR_API_TOKEN: ${{ secrets.VERACODE_AGENT_TOKEN }}
-        uses: veracode/veracode-sca@v2.1.9
+        uses: veracode/veracode-sca@v2.1.11
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false  
