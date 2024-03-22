@@ -80,6 +80,11 @@ jobs:
           go-version: 'stable'
           cache: false
 
+      - name: Set Git to ssh
+        shell: bash
+        run: |
+          git config --global url."https://${{ inputs.token }}@github.com/".insteadOf "https://github.com/"
+
       - name: Set Go Envs
         shell: bash
         run: go env -w GOPRIVATE=github.com/smarterly/\*
