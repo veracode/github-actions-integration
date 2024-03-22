@@ -53,4 +53,4 @@ jobs:
           createsandbox: true
           sandboxname: GitHub App Scans-${{ inputs.branch }}
           include: ${{ inputs.modules_to_scan }}
-          failbuild: true
+          failbuild: ${{ inputs.break_build_policy_findings }}

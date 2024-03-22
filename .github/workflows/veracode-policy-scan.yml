@@ -33,7 +33,21 @@ on:
       create_issue:
         required: true
         type: boolean
-
+      check_run_id:
+        required: true
+        type: string
+      source_repository:
+          required: true
+          type: string
+      break_build_policy_findings: 
+          required: true
+          type: string
+      break_build_on_error: 
+          required: true
+          type: string
+      filter_mitigated_flaws: 
+          required: true
+          type: string
 
 jobs:
   policy_scan:
@@ -70,13 +84,28 @@ jobs:
           #scanpollinginterval: 30
           scantimeout: 15
           include: ${{ inputs.modules_to_scan }}
-          failbuild: true
+          failbuild: ${{ inputs.break_build_policy_findings }}
 
+      - name: Veracode Policy Results
+        id: mitigated_scans
+        if: always()
+        uses: Veracode/github-actions-integration-helper@main
+        with:
+          action: 'preparePolicyResults'
+          token: ${{ inputs.token }}
+          check_run_id: ${{ inputs.check_run_id }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ inputs.profile_name }}
+          source_repository: ${{ inputs.source_repository }}
+          fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
+          fail_checks_on_error: ${{ inputs.break_build_on_error }}
+          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
 # This step will import the flaws from the step above
   create-issues:
     needs: policy_scan
 
-    if: ${{ inputs.create_issue && failure() }}
+    if: ${{ inputs.create_issue }}
     runs-on: ubuntu-latest
     steps:
       - name: Get flaw file
@@ -95,7 +124,7 @@ jobs:
   results_to_security_tab:
     needs: policy_scan
     runs-on: ubuntu-latest
-    if: ${{ failure() && inputs.create_code_scanning_alert }}
+    if: ${{ inputs.create_code_scanning_alert }}
     name: Send policy scan report to Security tab
     steps:
       - name: Get scan results

@@ -27,7 +27,24 @@ on:
       create_issue:
         required: true
         type: boolean
-
+      check_run_id:
+        required: true
+        type: string
+      source_repository:
+          required: true
+          type: string
+      profile_name:
+          required: true
+          type: string
+      break_build_policy_findings: 
+          required: true
+          type: string
+      break_build_on_error: 
+          required: true
+          type: string
+      filter_mitigated_flaws: 
+          required: true
+          type: string
   
 jobs:
   pipeline_scan:
@@ -59,11 +76,28 @@ jobs:
           vkey: ${{ secrets.VERACODE_API_KEY }}
           veracode_policy_name: ${{ inputs.policy_name }}
           file: ./veracode_artifact_directory/${{ env.veracode_artifact }}
-          fail_build: true
+          fail_build: ${{ inputs.break_build_policy_findings }}
+
+      - name: Veracode Pipeline Results
+        if: always()
+        id: mitigated-scan
+        uses: Veracode/github-actions-integration-helper@main
+        with:
+          action: 'preparePipelineResults'
+          token: ${{ inputs.token }}
+          check_run_id: ${{ inputs.check_run_id }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ inputs.profile_name }}
+          source_repository: ${{ inputs.source_repository }}
+          fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
+          fail_checks_on_error: ${{ inputs.break_build_on_error }} 
+          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
+
   results_to_security_tab:
     needs: pipeline_scan
     runs-on: ubuntu-latest
-    if: ${{ failure() && inputs.create_code_scanning_alert }}
+    if: ${{ inputs.create_code_scanning_alert }}
     name: Send report to Security tab
     steps:
       - name: Get scan results
@@ -85,7 +119,7 @@ jobs:
 # This step will import the flaws from the step above
   create-issues:
     needs: pipeline_scan
-    if: ${{ inputs.create_issue && failure()}}
+    if: ${{ inputs.create_issue }}
     runs-on: ubuntu-latest
     name: Send report to issue tab
     steps:
