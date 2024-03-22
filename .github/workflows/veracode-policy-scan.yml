@@ -33,13 +33,15 @@ on:
       create_issue:
         required: true
         type: boolean
+      language:
+        required: true
+        type: string
 
 
 jobs:
   policy_scan:
     runs-on: ubuntu-latest
     name: policy scan
-
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
@@ -72,10 +74,8 @@ jobs:
           include: ${{ inputs.modules_to_scan }}
           failbuild: true
 
-# This step will import the flaws from the step above
   create-issues:
     needs: policy_scan
-
     if: ${{ inputs.create_issue && failure() }}
     runs-on: ubuntu-latest
     steps:
@@ -84,14 +84,25 @@ jobs:
         with:
           name: 'policy-flaws'
           path: /tmp
-      - name: Create flaws as issues
-        uses: veracode/veracode-flaws-to-issues@v2.2.22
+      - name: Create flaws as issues for ${{ inputs.language }} language
+        if: inputs.language == 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ inputs.owner }}
           repo_name: ${{ inputs.repo }}
           github-token: ${{ inputs.token }}
-  
+          source_base_path_1: 'com/:src/main/java/com/'
+          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Create flaws as issues for ${{ inputs.language }} language
+        if: inputs.language != 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: '/tmp/policy_flaws.json'
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          github-token: ${{ inputs.token }}
+
   results_to_security_tab:
     needs: policy_scan
     runs-on: ubuntu-latest
@@ -103,8 +114,22 @@ jobs:
         with:
           name: policy-flaws
           path: /tmp
-      - name: Convert policy scan output to SARIF format
-        id: convert
+      - name: Convert policy scan output to SARIF format for ${{ inputs.language }} language
+        if: inputs.language == 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+        with:
+          scan-type: policy
+          results-json: '/tmp/policy_flaws.json'
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          commitSHA: ${{ inputs.sha }}
+          ref: ${{ inputs.ref }}
+          githubToken: ${{ inputs.token }}
+          source-base-path-1: 'com/:src/main/java/com/'
+          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Convert policy scan output to SARIF format for ${{ inputs.language }} language
+        if: inputs.language != 'Java'
         uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
         with:
           scan-type: policy

@@ -27,6 +27,9 @@ on:
       create_issue:
         required: true
         type: boolean
+      language:
+        required: true
+        type: string
 
   
 jobs:
@@ -70,9 +73,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: "Veracode Pipeline-Scan Results"
-      - name: Convert pipeline scan output to SARIF format
-        id: convert
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+      - name: Convert pipeline scan output to SARIF format for ${{ inputs.language }} language
+        if: inputs.language == 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.2
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -81,7 +84,19 @@ jobs:
           commitSHA: ${{ inputs.sha }}
           ref: ${{ inputs.ref }}
           githubToken: ${{ inputs.token }}
-
+          source-base-path-1: 'com/:src/main/java/com/'
+          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Convert pipeline scan output to SARIF format for ${{ inputs.language }} language
+        if: inputs.language != 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.2
+        with:
+          pipeline-results-json: filtered_results.json
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          commitSHA: ${{ inputs.sha }}
+          ref: ${{ inputs.ref }}
+          githubToken: ${{ inputs.token }}
 # This step will import the flaws from the step above
   create-issues:
     needs: pipeline_scan
@@ -93,8 +108,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: 'Veracode Pipeline-Scan Results'
-      - name: Create flaws as issues
-        uses: veracode/veracode-flaws-to-issues@v2.2.22
+      - name: Create flaws as issues for ${{ inputs.language }} language
+        if: inputs.language == 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: 'filtered_results.json'
+          repo_owner: ${{ inputs.owner }}
+          github-token: ${{ inputs.token }}
+          repo_name: ${{ inputs.repo }}
+          source_base_path_1: 'com/:src/main/java/com/'
+          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Create flaws as issues for ${{ inputs.language }} language
+        if: inputs.language != 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ inputs.owner }}

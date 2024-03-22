@@ -97,19 +97,19 @@ jobs:
 
 
   pipeline_scan:
-    # needs the build step before this job will start running
     needs: build
     if: contains(github.event.action, 'pipeline')
     uses: ./.github/workflows/veracode-pipeline-scan.yml
     with:
       policy_name: ${{ github.event.client_payload.policy_name }}
-      create_code_scanning_alert: ${{ github.event.client_payload.user_config.create_code_scanning_alert }}
       owner: ${{ github.event.client_payload.repository.owner }}
       repo: ${{ github.event.client_payload.repository.name }}
       sha: ${{ github.event.client_payload.sha }}
       token: ${{ github.event.client_payload.token }}
       ref: ${{ github.event.client_payload.user_config.ref }}
       create_issue: ${{ github.event.client_payload.user_config.create_issue }}
+      create_code_scanning_alert: ${{ github.event.client_payload.user_config.create_code_scanning_alert }}
+      language: ${{ github.event.client_payload.repository.language }}
     secrets: inherit
     
   policy_scan:
@@ -127,6 +127,7 @@ jobs:
       ref: ${{ github.event.client_payload.user_config.ref }}
       create_issue: ${{ github.event.client_payload.user_config.create_issue }}
       create_code_scanning_alert: ${{ github.event.client_payload.user_config.create_code_scanning_alert }}
+      language: ${{ github.event.client_payload.repository.language }}
     secrets: inherit
 
   sandbox_scan:
