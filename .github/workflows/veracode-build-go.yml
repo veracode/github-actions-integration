@@ -14,47 +14,7 @@ on:
         type: string
 
 jobs:
-  resolve-modules:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Checkout Sources
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.repository }}
-          ref: ${{ inputs.ref }}
-          token: ${{ inputs.token }}
-          depth: 0
-      - name: Run modules change check
-        id: set-matrix
-        shell: bash
-        run: |
-          directory=.
-          echo "Resolving modules in $(pwd)"
-
-          # Initialize PATHS as an empty string
-          PATHS=""
-
-          # Recursively find all directories with a go.mod file
-          while IFS= read -r -d '' mod_file; do
-            directory=$(dirname "$mod_file")
-            echo $directory
-            # Add the directory to PATHS if the condition is true
-            PATHS+="{\"workdir\":\"$(dirname "$mod_file")\"},"
-          done < <(find "$directory" -type f -name go.mod -print0)
-
-          # Check if PATHS is not empty before creating the matrix
-          if [ -n "$PATHS" ]; then
-            echo "No directories found."
-          fi
-          echo "matrix={\"include\":[${PATHS%,}]}" 
-          echo "matrix={\"include\":[${PATHS%,}]}" >> "$GITHUB_OUTPUT"
   build:
-    needs: resolve-modules
-    if: ${{ needs.resolve-modules.outputs.matrix != '{"include":[]}' }}
-    strategy:
-      matrix: ${{ fromJson(needs.resolve-modules.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -64,7 +24,6 @@ jobs:
           token: ${{ inputs.token }}
       - name: Check if go.mod exists
         id: check-go-mod
-        working-directory: ${{ matrix.workdir }}
         run: |
           if [ -f "go.mod" ]; then
             echo "go.mod exists"
@@ -80,11 +39,6 @@ jobs:
           go-version: 'stable'
           cache: false
 
-      - name: Set Git to ssh
-        shell: bash
-        run: |
-          git config --global url."https://${{ inputs.token }}@github.com/".insteadOf "https://github.com/"
-
       - name: Set Go Envs
         shell: bash
         run: go env -w GOPRIVATE=github.com/smarterly/\*
@@ -95,7 +49,6 @@ jobs:
           export PATH="$GOPATH/bin:$PATH" && go install github.com/relaxnow/vcgopkg@latest
 
       - name: Initialize and tidy go mod
-        working-directory: ${{ matrix.workdir }}
         run: |
           if [[ "${{ steps.check-go-mod.outputs.go_mod_exists }}" == "false" ]]; then
             go mod init github.com/${{ inputs.repository }}
@@ -103,10 +56,9 @@ jobs:
           fi
 
       - name: Run vcgopkg
-        working-directory: ${{ matrix.workdir }}
         run: vcgopkg
         
       - uses: actions/upload-artifact@v3
         with:
           name: veracode-artifact
-          path: ${{ matrix.workdir }}/veracode
+          path: ./veracode
