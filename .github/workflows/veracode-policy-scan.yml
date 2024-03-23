@@ -108,7 +108,7 @@ jobs:
   code-scanning-alert:
     needs: policy_scan
     runs-on: ubuntu-latest
-    if: ${{ inputs.create_code_scanning_alert }}
+    if: ${{ inputs.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
       - name: Get scan results
@@ -144,7 +144,7 @@ jobs:
           githubToken: ${{ inputs.token }}
   create-issues:
     needs: policy_scan
-    if: ${{ inputs.create_issue }}
+    if: ${{ inputs.create_issue && always() }}
     runs-on: ubuntu-latest
     name: Create issues
     steps:

@@ -101,7 +101,7 @@ jobs:
   code-scanning-alert:
     needs: pipeline_scan
     runs-on: ubuntu-latest
-    if: ${{ inputs.create_code_scanning_alert }}
+    if: ${{ inputs.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
       - name: Get scan results
@@ -135,7 +135,7 @@ jobs:
   create-issues:
     needs: pipeline_scan
     runs-on: ubuntu-latest
-    if: ${{ inputs.create_issue }}
+    if: ${{ inputs.create_issue && always() }}
     name: Create issues
     steps:
       - name: Get scan results
