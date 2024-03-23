@@ -104,7 +104,8 @@ jobs:
           source_repository: ${{ inputs.source_repository }}
           fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
           fail_checks_on_error: ${{ inputs.break_build_on_error }}
-          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}  
+          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
+
   code-scanning-alert:
     needs: policy_scan
     runs-on: ubuntu-latest
@@ -142,6 +143,7 @@ jobs:
           commitSHA: ${{ inputs.sha }}
           ref: ${{ inputs.ref }}
           githubToken: ${{ inputs.token }}
+
   create-issues:
     needs: policy_scan
     if: ${{ inputs.create_issue }}
