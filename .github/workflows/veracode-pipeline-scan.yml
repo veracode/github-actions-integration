@@ -73,13 +73,14 @@ jobs:
       # run the pipeline scan action
       - name: Veracode Pipeline-Scan
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.14
+        uses: veracode/Veracode-pipeline-scan-action@feature/DXS-355
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           veracode_policy_name: ${{ inputs.policy_name }}
           file: ./veracode_artifact_directory/${{ env.veracode_artifact }}
           fail_build: ${{ inputs.break_build_policy_findings }}
+          use_upgraded_version: true
 
       - name: Veracode Pipeline Results
         if: always()

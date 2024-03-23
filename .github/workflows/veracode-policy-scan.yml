@@ -74,7 +74,7 @@ jobs:
           echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.2
+        uses: veracode/uploadandscan-action@feature/DXS-335
         id: upload_and_scan
         with:
           appname: ${{ inputs.profile_name }}
@@ -88,6 +88,7 @@ jobs:
           scantimeout: 15
           include: ${{ inputs.modules_to_scan }}
           failbuild: ${{ inputs.break_build_policy_findings }}
+          use_upgraded_version: true
 
       - name: Veracode Policy Results
         id: prepare-results
