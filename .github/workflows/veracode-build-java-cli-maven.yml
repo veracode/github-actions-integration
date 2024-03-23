@@ -1,5 +1,4 @@
-name: Veracode Build Application using CLI
-
+name: Veracode Build Java Maven Application
 on:
   workflow_call:
     inputs:
@@ -12,25 +11,24 @@ on:
       token:
         required: true
         type: string
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         token: ${{ inputs.token }}
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
       with:
         path: 'veracode-helper'
-    - uses: actions/setup-java@v4
+    - uses: actions/setup-java@v3
       with:
-        java-version: 21
+        java-version: 17
         distribution: oracle
     - name: Cache Maven Dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v3
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -49,7 +47,7 @@ jobs:
         cd /home/runner/work/veracode/veracode/
         veracode package --source . --output veracode-artifacts --trust
         zip veracode-artifact.zip veracode-artifacts/* -x .zip .tar .tar.gz .gz
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v3
       with:
         name: veracode-artifact
         path: veracode-artifact.zip

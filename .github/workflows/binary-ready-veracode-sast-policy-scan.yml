@@ -119,7 +119,7 @@ jobs:
           name: policy-flaws
           path: /tmp
 
-      - name: Convert policy scan output to SARIF format for java language
+      - name: Convert policy scan output to SARIF format for Java language
         if: github.event.client_payload.repository.language == 'Java'
         uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
         with:
@@ -134,7 +134,7 @@ jobs:
           source-base-path-1: 'com/:src/main/java/com/'
           source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
 
-      - name: Convert policy scan output to SARIF format for non java language
+      - name: Convert policy scan output to SARIF format for non Java language
         if: github.event.client_payload.repository.language != 'Java'
         uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
         with:
@@ -159,7 +159,7 @@ jobs:
           name: 'policy-flaws'
           path: /tmp
 
-      - name: Create flaws as issues for java language
+      - name: Create flaws as issues for Java language
         if: github.event.client_payload.repository.language == 'Java'
         uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
@@ -170,7 +170,7 @@ jobs:
           source_base_path_1: 'com/:src/main/java/com/'
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
 
-      - name: Create flaws as issues for non java language
+      - name: Create flaws as issues for non Java language
         if: github.event.client_payload.repository.language != 'Java'
         uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:

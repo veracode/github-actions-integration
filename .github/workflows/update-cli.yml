@@ -1,10 +1,8 @@
 name: Update the Veracode CLI
-
 on:
   schedule:
       - cron: '0 2 * * *'
   workflow_dispatch:
-
 jobs:
   update-veracode-cli:
     runs-on: ubuntu-latest
@@ -36,7 +34,6 @@ jobs:
             rm -rf LATEST_VERSION
             ls -la
           fi
-
       - name: commit back to repo
         run: |
           git config --global user.name 'veracode'

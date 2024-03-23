@@ -17,14 +17,22 @@ on:
         type: string
   
 jobs:
-  build-cli:
-    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' || inputs.event_name == 'java-maven-policy-scan'  || inputs.event_name == 'java-maven-sandbox-scan' || inputs.event_name == 'java-gradle-pipeline-scan' || inputs.event_name == 'java-gradle-policy-scan'  || inputs.event_name == 'java-gradle-sandbox-scan' }}
-    uses: ./.github/workflows/veracode-build-cli.yml
+  build-java-maven:
+    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' || inputs.event_name == 'java-maven-policy-scan' }}
+    uses: ./.github/workflows/veracode-build-java-cli-maven.yml
     with:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
       
+  build-java-gradle:
+    if: ${{ inputs.event_name == 'java-gradle-pipeline-scan' || inputs.event_name == 'java-gradle-policy-scan' }}
+    uses: ./.github/workflows/veracode-build-java-cli-gradle.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+
   build-source-code-scan:
     if: ${{ inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan'  || inputs.event_name == 'source-code-sandbox-scan'}}
     uses: ./.github/workflows/veracode-build-source-code.yml
