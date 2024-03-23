@@ -115,12 +115,10 @@ jobs:
           commitSHA: ${{ inputs.sha }}
           ref: ${{ inputs.ref }}
           githubToken: ${{ inputs.token }}
-
-# This step will import the flaws from the step above
   create-issues:
     needs: pipeline_scan
-    if: ${{ inputs.create_issue }}
     runs-on: ubuntu-latest
+    if: ${{ inputs.create_issue }}
     name: Create issues
     steps:
       - name: Get scan results
