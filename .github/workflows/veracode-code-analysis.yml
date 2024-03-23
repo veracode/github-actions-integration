@@ -116,6 +116,7 @@ jobs:
       break_build_policy_findings: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
       break_build_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
       filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
+      language: ${{ github.event.client_payload.repository.language }}
     secrets: inherit
     
   policy_scan:
@@ -138,6 +139,7 @@ jobs:
       break_build_policy_findings: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
       break_build_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
       filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
+      language: ${{ github.event.client_payload.repository.language }}
     secrets: inherit
 
   sandbox_scan:
