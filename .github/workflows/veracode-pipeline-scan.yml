@@ -80,7 +80,7 @@ jobs:
 
       - name: Veracode Pipeline Results
         if: always()
-        id: mitigated-scan
+        id: prepare-results
         uses: Veracode/github-actions-integration-helper@main
         with:
           action: 'preparePipelineResults'
@@ -94,11 +94,11 @@ jobs:
           fail_checks_on_error: ${{ inputs.break_build_on_error }} 
           filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
 
-  results_to_security_tab:
+  code-scanning-alert:
     needs: pipeline_scan
     runs-on: ubuntu-latest
     if: ${{ inputs.create_code_scanning_alert }}
-    name: Send report to Security tab
+    name: Create code scanning alerts
     steps:
       - name: Get scan results
         uses: actions/download-artifact@v4
@@ -121,7 +121,7 @@ jobs:
     needs: pipeline_scan
     if: ${{ inputs.create_issue }}
     runs-on: ubuntu-latest
-    name: Send report to issue tab
+    name: Create issues
     steps:
       - name: Get scan results
         uses: actions/download-artifact@v4

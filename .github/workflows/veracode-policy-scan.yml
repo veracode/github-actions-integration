@@ -87,7 +87,7 @@ jobs:
           failbuild: ${{ inputs.break_build_policy_findings }}
 
       - name: Veracode Policy Results
-        id: mitigated_scans
+        id: prepare-results
         if: always()
         uses: Veracode/github-actions-integration-helper@main
         with:
@@ -104,7 +104,6 @@ jobs:
 # This step will import the flaws from the step above
   create-issues:
     needs: policy_scan
-
     if: ${{ inputs.create_issue }}
     runs-on: ubuntu-latest
     steps:
@@ -121,7 +120,7 @@ jobs:
           repo_name: ${{ inputs.repo }}
           github-token: ${{ inputs.token }}
   
-  results_to_security_tab:
+  code-scanning-alert:
     needs: policy_scan
     runs-on: ubuntu-latest
     if: ${{ inputs.create_code_scanning_alert }}

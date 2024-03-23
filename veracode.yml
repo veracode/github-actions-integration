@@ -23,6 +23,8 @@ veracode_static_scan:
   # Use 'none' if you would not like any scans saved to the platform
   analysis_branch: ENTER_BRANCH_NAME_HERE
   analysis_on_platform: false
+  break_build_policy_findings: true
+  filter_mitigated_flaws: true
   #If break_build_invalid_policy is set to true, the build will break when the policy name is invalid.
   break_build_invalid_policy: true
   #If the break_build_on_error is set to true, the build will break if the scan failed to complete in time or with an error.
