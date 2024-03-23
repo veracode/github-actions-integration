@@ -33,7 +33,21 @@ on:
       create_issue:
         required: true
         type: boolean
-
+      check_run_id:
+        required: true
+        type: string
+      source_repository:
+          required: true
+          type: string
+      break_build_policy_findings: 
+          required: true
+          type: string
+      break_build_on_error: 
+          required: true
+          type: string
+      filter_mitigated_flaws: 
+          required: true
+          type: string
 
 jobs:
   policy_scan:
@@ -70,33 +84,28 @@ jobs:
           #scanpollinginterval: 30
           scantimeout: 15
           include: ${{ inputs.modules_to_scan }}
-          failbuild: true
+          failbuild: ${{ inputs.break_build_policy_findings }}
 
-# This step will import the flaws from the step above
-  create-issues:
-    needs: policy_scan
-
-    if: ${{ inputs.create_issue && failure() }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get flaw file
-        uses: actions/download-artifact@v4
+      - name: Veracode Policy Results
+        id: prepare-results
+        if: always()
+        uses: Veracode/github-actions-integration-helper@main
         with:
-          name: 'policy-flaws'
-          path: /tmp
-      - name: Create flaws as issues
-        uses: veracode/veracode-flaws-to-issues@v2.2.22
-        with:
-          scan-results-json: '/tmp/policy_flaws.json'
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          github-token: ${{ inputs.token }}
-  
-  results_to_security_tab:
+          action: 'preparePolicyResults'
+          token: ${{ inputs.token }}
+          check_run_id: ${{ inputs.check_run_id }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ inputs.profile_name }}
+          source_repository: ${{ inputs.source_repository }}
+          fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
+          fail_checks_on_error: ${{ inputs.break_build_on_error }}
+          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}  
+  code-scanning-alert:
     needs: policy_scan
     runs-on: ubuntu-latest
-    if: ${{ failure() && inputs.create_code_scanning_alert }}
-    name: Send policy scan report to Security tab
+    if: ${{ inputs.create_code_scanning_alert }}
+    name: Create code scanning alerts
     steps:
       - name: Get scan results
         uses: actions/download-artifact@v4
@@ -115,3 +124,21 @@ jobs:
           commitSHA: ${{ inputs.sha }}
           ref: ${{ inputs.ref }}
           githubToken: ${{ inputs.token }}
+  create-issues:
+    needs: policy_scan
+    if: ${{ inputs.create_issue }}
+    runs-on: ubuntu-latest
+    name: Create issues
+    steps:
+      - name: Get flaw file
+        uses: actions/download-artifact@v4
+        with:
+          name: 'policy-flaws'
+          path: /tmp
+      - name: Create flaws as issues
+        uses: veracode/veracode-flaws-to-issues@v2.2.22
+        with:
+          scan-results-json: '/tmp/policy_flaws.json'
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          github-token: ${{ inputs.token }}
