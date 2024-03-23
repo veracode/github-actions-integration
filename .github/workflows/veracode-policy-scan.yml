@@ -100,31 +100,12 @@ jobs:
           source_repository: ${{ inputs.source_repository }}
           fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
           fail_checks_on_error: ${{ inputs.break_build_on_error }}
-          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
-# This step will import the flaws from the step above
-  create-issues:
-    needs: policy_scan
-    if: ${{ inputs.create_issue }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get flaw file
-        uses: actions/download-artifact@v4
-        with:
-          name: 'policy-flaws'
-          path: /tmp
-      - name: Create flaws as issues
-        uses: veracode/veracode-flaws-to-issues@v2.2.22
-        with:
-          scan-results-json: '/tmp/policy_flaws.json'
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          github-token: ${{ inputs.token }}
-  
+          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}  
   code-scanning-alert:
     needs: policy_scan
     runs-on: ubuntu-latest
     if: ${{ inputs.create_code_scanning_alert }}
-    name: Send policy scan report to Security tab
+    name: Create code scanning alerts
     steps:
       - name: Get scan results
         uses: actions/download-artifact@v4
@@ -143,3 +124,21 @@ jobs:
           commitSHA: ${{ inputs.sha }}
           ref: ${{ inputs.ref }}
           githubToken: ${{ inputs.token }}
+  create-issues:
+    needs: policy_scan
+    if: ${{ inputs.create_issue }}
+    runs-on: ubuntu-latest
+    name: Create issues
+    steps:
+      - name: Get flaw file
+        uses: actions/download-artifact@v4
+        with:
+          name: 'policy-flaws'
+          path: /tmp
+      - name: Create flaws as issues
+        uses: veracode/veracode-flaws-to-issues@v2.2.22
+        with:
+          scan-results-json: '/tmp/policy_flaws.json'
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          github-token: ${{ inputs.token }}
