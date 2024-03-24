@@ -132,6 +132,7 @@ jobs:
           commitSHA: ${{ inputs.sha }}
           ref: ${{ inputs.ref }}
           githubToken: ${{ inputs.token }}
+
   create-issues:
     needs: pipeline_scan
     runs-on: ubuntu-latest
