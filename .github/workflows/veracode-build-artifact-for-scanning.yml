@@ -18,15 +18,15 @@ on:
   
 jobs:
   build-java-maven:
-    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' || inputs.event_name == 'java-maven-policy-scan' }}
+    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' || inputs.event_name == 'java-maven-policy-scan' || inputs.event_name == 'java-maven-sandbox-scan' }}
     uses: ./.github/workflows/veracode-build-java-cli-maven.yml
     with:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
-      
+
   build-java-gradle:
-    if: ${{ inputs.event_name == 'java-gradle-pipeline-scan' || inputs.event_name == 'java-gradle-policy-scan' }}
+    if: ${{ inputs.event_name == 'java-gradle-pipeline-scan' || inputs.event_name == 'java-gradle-policy-scan' || inputs.event_name == 'java-gradle-sandbox-scan' }}
     uses: ./.github/workflows/veracode-build-java-cli-gradle.yml
     with:
       repository: ${{ inputs.repository }}
