@@ -102,7 +102,7 @@ jobs:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           appname: ${{ github.event.client_payload.user_config.profile_name }}
-          source_repository: ${{ github.event.client_payload.repository.name }}
+          source_repository: ${{ github.event.client_payload.repository.full_name }}
           fail_checks_on_policy: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
           fail_checks_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
           filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
@@ -110,7 +110,7 @@ jobs:
   code-scanning-alert:
     needs: policy_scan
     runs-on: ubuntu-latest
-    if: ${{ github.event.client_payload.user_config.create_code_scanning_alert }}
+    if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
       - name: Get scan results
@@ -149,7 +149,7 @@ jobs:
 
   create-issues:
     needs: policy_scan
-    if: ${{ github.event.client_payload.user_config.create_issue }}
+    if: ${{ github.event.client_payload.user_config.create_issue && always() }}
     runs-on: ubuntu-latest
     name: Create issues
     steps:
