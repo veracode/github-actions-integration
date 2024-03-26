@@ -12,7 +12,46 @@ on:
       modules_to_scan:
         required: true
         type: string
-  
+      owner:
+        required: true
+        type: string
+      repo:
+        required: true
+        type: string
+      sha:
+        required: true
+        type: string
+      token:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+      create_code_scanning_alert:
+        required: true
+        type: boolean
+      create_issue:
+        required: true
+        type: boolean
+      check_run_id:
+        required: true
+        type: string
+      source_repository:
+          required: true
+          type: string
+      break_build_policy_findings: 
+          required: true
+          type: string
+      break_build_on_error: 
+          required: true
+          type: string
+      filter_mitigated_flaws: 
+          required: true
+          type: string
+      language:
+        required: true
+        type: string
+
 jobs:
   policy_scan:
     runs-on: ubuntu-latest
@@ -20,11 +59,11 @@ jobs:
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       # get the compiled binary from a previous job
       - name: get archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
@@ -35,7 +74,7 @@ jobs:
           echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@main
+        uses: veracode/uploadandscan-action@feature/DXS-335
         id: upload_and_scan
         with:
           appname: ${{ inputs.profile_name }}
@@ -48,5 +87,89 @@ jobs:
           #scanpollinginterval: 30
           scantimeout: 15
           include: ${{ inputs.modules_to_scan }}
-          failbuild: true
-        
+          failbuild: ${{ inputs.break_build_policy_findings }}
+          use_upgraded_version: true
+
+      - name: Veracode Policy Results
+        id: prepare-results
+        if: always()
+        uses: Veracode/github-actions-integration-helper@main
+        with:
+          action: 'preparePolicyResults'
+          token: ${{ inputs.token }}
+          check_run_id: ${{ inputs.check_run_id }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ inputs.profile_name }}
+          source_repository: ${{ inputs.source_repository }}
+          fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
+          fail_checks_on_error: ${{ inputs.break_build_on_error }}
+          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
+
+  code-scanning-alert:
+    needs: policy_scan
+    runs-on: ubuntu-latest
+    if: ${{ inputs.create_code_scanning_alert && always() }}
+    name: Create code scanning alerts
+    steps:
+      - name: Get scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: policy-flaws
+          path: /tmp
+      - name: Convert policy scan output to SARIF format for java language
+        if: inputs.language == 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+        with:
+          scan-type: policy
+          results-json: '/tmp/policy_flaws.json'
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          commitSHA: ${{ inputs.sha }}
+          ref: ${{ inputs.ref }}
+          githubToken: ${{ inputs.token }}
+          source-base-path-1: 'com/:src/main/java/com/'
+          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Convert policy scan output to SARIF format for non java language
+        if: inputs.language != 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+        with:
+          scan-type: policy
+          results-json: '/tmp/policy_flaws.json'
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          commitSHA: ${{ inputs.sha }}
+          ref: ${{ inputs.ref }}
+          githubToken: ${{ inputs.token }}
+
+  create-issues:
+    needs: policy_scan
+    if: ${{ inputs.create_issue && always() }}
+    runs-on: ubuntu-latest
+    name: Create issues
+    steps:
+      - name: Get flaw file
+        uses: actions/download-artifact@v4
+        with:
+          name: 'policy-flaws'
+          path: /tmp
+      - name: Create flaws as issues for java language
+        if: inputs.language == 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: '/tmp/policy_flaws.json'
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          github-token: ${{ inputs.token }}
+          source_base_path_1: 'com/:src/main/java/com/'
+          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Create flaws as issues for non java language
+        if: inputs.language != 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: '/tmp/policy_flaws.json'
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          github-token: ${{ inputs.token }}

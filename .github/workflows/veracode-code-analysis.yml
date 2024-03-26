@@ -2,18 +2,42 @@ name: Veracode Static Code Analysis
 
 run-name: Static Code Analysis - ${{ github.event.client_payload.repository.name }}
 
+concurrency:
+  group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
+  cancel-in-progress: true
+
 on:
   repository_dispatch:
-    types: [java-maven-pipeline-scan, 
-            java-gradle-pipeline-scan, 
-            source-code-pipeline-scan, 
-            dot-net-pipeline-scan, 
-            go-pipeline-scan, 
-            dot-net-policy-scan, 
-            java-maven-policy-scan, 
-            java-gradle-policy-scan, 
-            source-code-policy-scan, 
-            go-policy-scan]
+    types: [java-maven-pipeline-scan,
+            java-maven-policy-scan,
+            java-maven-sandbox-scan,
+            java-gradle-pipeline-scan,
+            java-gradle-policy-scan,
+            java-gradle-sandbox-scan,
+            source-code-pipeline-scan,
+            source-code-policy-scan,
+            source-code-sandbox-scan,
+            dot-net-pipeline-scan,
+            dot-net-policy-scan,
+            dot-net-sandbox-scan,
+            go-pipeline-scan,
+            go-policy-scan,
+            go-sandbox-scan,
+            tsql-pipeline-scan,
+            tsql-policy-scan,
+            tsql-sandbox-scan,
+            plsql-pipeline-scan,
+            plsql-policy-scan,
+            plsql-sandbox-scan,
+            php-pipeline-scan,
+            php-policy-scan,
+            php-sandbox-scan,
+            scala-pipeline-scan,
+            scala-policy-scan,
+            scala-sandbox-scan,
+            dart-pipeline-scan,
+            dart-policy-scan,
+            dart-sandbox-scan]
 
 jobs:
   register:
@@ -26,9 +50,45 @@ jobs:
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
-        
-  build:
+      branch: ${{ github.event.client_payload.repository.branch }}
+
+  validations:
     needs: register
+    runs-on: ubuntu-latest
+    name: Validations
+    steps:
+      - name: Verify Veracode API credentials
+        id: verify_api_creds
+        uses: veracode/github-actions-integration-helper@v0.1.0
+        with:
+          action: validateVeracodeApiCreds
+          token: ${{ github.event.client_payload.token }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          source_repository: ${{ github.event.client_payload.repository.full_name }}
+          check_run_id: ${{ needs.register.outputs.run_id }}
+      
+      - name: Verify Policy name
+        id: verify_policy_name
+        if: success()
+        uses: veracode/github-actions-integration-helper@v0.1.0
+        with:
+          action: validatePolicyName
+          token: ${{ github.event.client_payload.token }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          source_repository: ${{ github.event.client_payload.repository.full_name }}
+          check_run_id: ${{ needs.register.outputs.run_id }}
+          policyname: ${{ github.event.client_payload.policy_name }}
+          path: ${{ github.event.client_payload.annotationObj.path }}
+          start_line: ${{ github.event.client_payload.annotationObj.start_line }}
+          end_line: ${{ github.event.client_payload.annotationObj.end_line }}
+          break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
+ 
+  build:
+    needs: validations
     uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
     with:
       repository: ${{ github.event.client_payload.repository.full_name }}
@@ -39,19 +99,58 @@ jobs:
 
   pipeline_scan:
     # needs the build step before this job will start running
-    needs: build
+    needs: [build, register]
     if: contains(github.event.action, 'pipeline')
     uses: ./.github/workflows/veracode-pipeline-scan.yml
     with:
       policy_name: ${{ github.event.client_payload.policy_name }}
+      create_code_scanning_alert: ${{ github.event.client_payload.user_config.create_code_scanning_alert }}
+      owner: ${{ github.event.client_payload.repository.owner }}
+      repo: ${{ github.event.client_payload.repository.name }}
+      sha: ${{ github.event.client_payload.sha }}
+      token: ${{ github.event.client_payload.token }}
+      ref: ${{ github.event.client_payload.user_config.ref }}
+      create_issue: ${{ github.event.client_payload.user_config.create_issue }}
+      source_repository: ${{ github.event.client_payload.repository.full_name }}
+      check_run_id: ${{ needs.register.outputs.run_id }}
+      profile_name: ${{ github.event.client_payload.user_config.profile_name }}
+      break_build_policy_findings: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+      break_build_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
+      filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
+      language: ${{ github.event.client_payload.repository.language }}
     secrets: inherit
     
   policy_scan:
-    needs: build
+    needs: [build, register]
     if: contains(github.event.action, 'policy')
     uses: ./.github/workflows/veracode-policy-scan.yml
     with:
-      profile_name: ${{ github.event.client_payload.profile_name }}
+      profile_name: ${{ github.event.client_payload.user_config.profile_name }}
       policy_name: ${{ github.event.client_payload.policy_name }}
       modules_to_scan: ${{ github.event.client_payload.modules_to_scan }}
+      owner: ${{ github.event.client_payload.repository.owner }}
+      repo: ${{ github.event.client_payload.repository.name }}
+      sha: ${{ github.event.client_payload.sha }}
+      token: ${{ github.event.client_payload.token }}
+      ref: ${{ github.event.client_payload.user_config.ref }}
+      create_issue: ${{ github.event.client_payload.user_config.create_issue }}
+      create_code_scanning_alert: ${{ github.event.client_payload.user_config.create_code_scanning_alert }}
+      source_repository: ${{ github.event.client_payload.repository.full_name }}
+      check_run_id: ${{ needs.register.outputs.run_id }}
+      break_build_policy_findings: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+      break_build_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
+      filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
+      language: ${{ github.event.client_payload.repository.language }}
+    secrets: inherit
+
+  sandbox_scan:
+    needs: build
+    if: contains(github.event.action, 'sandbox')
+    uses: ./.github/workflows/veracode-sandbox-scan.yml
+    with:
+      profile_name: ${{ github.event.client_payload.user_config.profile_name }}
+      policy_name: ${{ github.event.client_payload.policy_name }}
+      branch: ${{ github.event.client_payload.repository.branch }}
+      modules_to_scan: ${{ github.event.client_payload.modules_to_scan }}
+      break_build_policy_findings: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
     secrets: inherit

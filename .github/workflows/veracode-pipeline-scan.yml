@@ -6,8 +6,49 @@ on:
       policy_name:
         required: true
         type: string
+      owner:
+        required: true
+        type: string
+      repo:
+        required: true
+        type: string
+      sha:
+        required: true
+        type: string
+      token:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+      create_code_scanning_alert:
+        required: true
+        type: boolean
+      create_issue:
+        required: true
+        type: boolean
+      check_run_id:
+        required: true
+        type: string
+      source_repository:
+          required: true
+          type: string
+      profile_name:
+          required: true
+          type: string
+      break_build_policy_findings: 
+          required: true
+          type: string
+      break_build_on_error: 
+          required: true
+          type: string
+      filter_mitigated_flaws: 
+          required: true
+          type: string
+      language:
+        required: true
+        type: string
 
-  
 jobs:
   pipeline_scan:
     runs-on: ubuntu-latest
@@ -15,11 +56,11 @@ jobs:
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       # get the compiled binary from a previous job
       - name: get archive
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
@@ -32,10 +73,91 @@ jobs:
       # run the pipeline scan action
       - name: Veracode Pipeline-Scan
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.10
+        uses: veracode/Veracode-pipeline-scan-action@feature/DXS-355
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           veracode_policy_name: ${{ inputs.policy_name }}
           file: ./veracode_artifact_directory/${{ env.veracode_artifact }}
-          fail_build: true
+          fail_build: ${{ inputs.break_build_policy_findings }}
+          use_upgraded_version: true
+
+      - name: Veracode Pipeline Results
+        if: always()
+        id: prepare-results
+        uses: Veracode/github-actions-integration-helper@feature/DXS-358
+        with:
+          action: 'preparePipelineResults'
+          token: ${{ inputs.token }}
+          check_run_id: ${{ inputs.check_run_id }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ inputs.profile_name }}
+          source_repository: ${{ inputs.source_repository }}
+          fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
+          fail_checks_on_error: ${{ inputs.break_build_on_error }} 
+          filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
+
+  code-scanning-alert:
+    needs: pipeline_scan
+    runs-on: ubuntu-latest
+    if: ${{ inputs.create_code_scanning_alert && always() }}
+    name: Create code scanning alerts
+    steps:
+      - name: Get scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: "Veracode Pipeline-Scan Mitigated Filtered Results"
+      - name: Convert pipeline scan output to SARIF format for java language
+        if: inputs.language == 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.2
+        with:
+          pipeline-results-json: filtered_results.json
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          commitSHA: ${{ inputs.sha }}
+          ref: ${{ inputs.ref }}
+          githubToken: ${{ inputs.token }}
+          source-base-path-1: 'com/:src/main/java/com/'
+          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Convert pipeline scan output to SARIF format for non java language
+        if: inputs.language != 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.2
+        with:
+          pipeline-results-json: filtered_results.json
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          commitSHA: ${{ inputs.sha }}
+          ref: ${{ inputs.ref }}
+          githubToken: ${{ inputs.token }}
+
+  create-issues:
+    needs: pipeline_scan
+    runs-on: ubuntu-latest
+    if: ${{ inputs.create_issue && always() }}
+    name: Create issues
+    steps:
+      - name: Get scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: 'Veracode Pipeline-Scan Mitigated Filtered Results'
+      - name: Create flaws as issues for java language
+        if: inputs.language == 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: 'filtered_results.json'
+          repo_owner: ${{ inputs.owner }}
+          github-token: ${{ inputs.token }}
+          repo_name: ${{ inputs.repo }}
+          source_base_path_1: 'com/:src/main/java/com/'
+          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
+      - name: Create flaws as issues for non java language
+        if: inputs.language != 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: 'filtered_results.json'
+          repo_owner: ${{ inputs.owner }}
+          repo_name: ${{ inputs.repo }}
+          github-token: ${{ inputs.token }}

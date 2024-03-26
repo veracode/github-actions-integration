@@ -1,0 +1,43 @@
+name: Update the Veracode CLI
+on:
+  schedule:
+      - cron: '0 2 * * *'
+  workflow_dispatch:
+jobs:
+  update-veracode-cli:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Veracode CLI to latest version
+        run: |
+          cd helper/cli
+          cliFile=$(ls -1 . | head -n 1)
+          echo "Filename: $cliFile"
+          local_version="${cliFile#*_}"
+          local_version="${local_version%%_*}"
+          echo "Local version: $local_version"
+          curl -sSO https://tools.veracode.com/veracode-cli/LATEST_VERSION
+          latest_version=$(<"LATEST_VERSION")
+          echo "Latest version: $latest_version"
+          if [[ "$local_version" == "$latest_version" ]]; then
+            echo "We already have the latest version - nothing to do here"
+            rm -rf LATEST_VERSION
+          else
+            echo "There is a new version we need to downlaod"
+            downloadUrl="https://tools.veracode.com/veracode-cli/veracode-cli_${latest_version}_linux_x86.tar.gz"
+            echo "Download URL: $downloadUrl"
+            curl -sSO $downloadUrl
+            ls -la
+            echo "CLEAN UP"
+            rm -rf veracode-cli_${local_version}_linux_x86.tar.gz
+            rm -rf LATEST_VERSION
+            ls -la
+          fi
+      - name: commit back to repo
+        run: |
+          git config --global user.name 'veracode'
+          git config --global user.email 'cli@veracode.com'
+          git add -A
+          git commit -am "New CLI Version"
+          git push --verbose

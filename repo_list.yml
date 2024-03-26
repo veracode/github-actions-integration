@@ -1,0 +1,17 @@
+# NOTE: You can also perform advanced search to include/exclude the repos by giving repos name as mentioned below: 
+# IMPORTANT: Please give all the repo name(s) in single quotes like 'abc' or '*' to avoid any errors and to perform advanced searches effectively.
+        
+  #           - 'example-*'       -- This will match the character(s) starting with 'example-' followed by anything.
+  #           - 'vu*'             -- This will match the character(s) starting with 'vu' followed by anything. 
+  #           - '*example*'       -- This will match the character(s) anything before and after * and 'example' in between.
+  #           - 'e*-*'            -- This will match the character(s) starting with 'e' any character in between followed by '-' followed by anything.
+  #           - 'e*pt'            -- This will match the character(s) starting with 'e' and any character in between ending with 'pt'.
+
+
+#Populate the list of repos required to scan under org or leave it blank or '*' to include all
+include_repos:
+  - '*'
+
+#Populate the list of repos to skip from running the veracode scan(s) under org or leave it blank or '*' to exclude all
+exclude_repos:
+  - 'veracode'

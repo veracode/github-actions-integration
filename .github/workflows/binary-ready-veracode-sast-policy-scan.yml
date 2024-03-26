@@ -2,6 +2,10 @@ name: Binary Ready - Veracode Static Code Analysis
 
 run-name: Binary Ready - Static Code Analysis - ${{ github.event.client_payload.repository.name }}
 
+concurrency:
+  group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
+  cancel-in-progress: true
+
 on:
   repository_dispatch:
     types: [binary-ready-veracode-sast-policy-scan]
@@ -17,33 +21,160 @@ jobs:
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
+      branch: ${{ github.event.client_payload.repository.branch }}
+
+  validations:
+    needs: register
+    runs-on: ubuntu-latest
+    name: Validations
+    steps:
+      - name: Verify Veracode API credentials
+        id: verify_api_creds
+        uses: veracode/github-actions-integration-helper@v0.1.0
+        with:
+          action: validateVeracodeApiCreds
+          token: ${{ github.event.client_payload.token }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          source_repository: ${{ github.event.client_payload.repository.full_name }}
+          check_run_id: ${{ needs.register.outputs.run_id }}
+
+      - name: Verify Policy name
+        id: verify_policy_name
+        if: success()
+        uses: veracode/github-actions-integration-helper@v0.1.0
+        with:
+          action: validatePolicyName
+          token: ${{ github.event.client_payload.token }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          source_repository: ${{ github.event.client_payload.repository.full_name }}
+          check_run_id: ${{ needs.register.outputs.run_id }}
+          policyname: ${{ github.event.client_payload.policy_name }}
+          path: ${{ github.event.client_payload.annotationObj.path }}
+          start_line: ${{ github.event.client_payload.annotationObj.start_line }}
+          end_line: ${{ github.event.client_payload.annotationObj.end_line }}
+          break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
 
   policy_scan:
-    needs: register
+    needs: [register, validations]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
-          github_token: ${{ github.event.client_payload.token }}
-          run_id: ${{ github.event.client_payload.run_id }}
-          repo: ${{ github.event.client_payload.repository.full_name }}
+          github-token: ${{ github.event.client_payload.token }}
+          repository: ${{ github.event.client_payload.repository.full_name }}
+          run-id: ${{ github.event.client_payload.run_id }}
+
       - name: Get the name of the downloaded files
         run: |
           artifact_file=$(ls -1 ./veracode-artifact | head -n 1)
           echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
+
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@main
+        uses: veracode/uploadandscan-action@feature/DXS-335
         id: upload_and_scan
         with:
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
-          appname: ${{ github.event.client_payload.profile_name }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
           createprofile: true
           version: '${{ github.run_id }}'
           filepath: ./veracode-artifact/${{ env.veracode_artifact }}
           include: ${{ github.event.client_payload.modules_to_scan }}
-          policy: VeraDemo Policy
+          policy: ${{ github.event.client_payload.policy_name }}
           scantimeout: 15
-          failbuild: true
+          failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+          use_upgraded_version: true
+
+      - name: Veracode Policy Results
+        id: prepare-results
+        if: always()
+        uses: Veracode/github-actions-integration-helper@main
+        with:
+          action: 'preparePolicyResults'
+          token: ${{ github.event.client_payload.token }}
+          check_run_id: ${{ needs.register.outputs.run_id }}
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          source_repository: ${{ github.event.client_payload.repository.full_name }}
+          fail_checks_on_policy: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+          fail_checks_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
+          filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
+
+  code-scanning-alert:
+    needs: policy_scan
+    runs-on: ubuntu-latest
+    if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
+    name: Create code scanning alerts
+    steps:
+      - name: Get scan results
+        uses: actions/download-artifact@v4
+        with:
+          name: policy-flaws
+          path: /tmp
+
+      - name: Convert policy scan output to SARIF format for Java language
+        if: github.event.client_payload.repository.language == 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+        with:
+          scan-type: policy
+          results-json: '/tmp/policy_flaws.json'
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ github.event.client_payload.repository.owner }}
+          repo_name: ${{ github.event.client_payload.repository.name }}
+          commitSHA: ${{ github.event.client_payload.sha }}
+          ref: ${{ github.event.client_payload.user_config.ref }}
+          githubToken: ${{ github.event.client_payload.token }}
+          source-base-path-1: 'com/:src/main/java/com/'
+          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
+
+      - name: Convert policy scan output to SARIF format for non Java language
+        if: github.event.client_payload.repository.language != 'Java'
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+        with:
+          scan-type: policy
+          results-json: '/tmp/policy_flaws.json'
+          output-results-sarif: veracode-results.sarif
+          repo_owner: ${{ github.event.client_payload.repository.owner }}
+          repo_name: ${{ github.event.client_payload.repository.name }}
+          commitSHA: ${{ github.event.client_payload.sha }}
+          ref: ${{ github.event.client_payload.user_config.ref }}
+          githubToken: ${{ github.event.client_payload.token }}
+
+  create-issues:
+    needs: policy_scan
+    if: ${{ github.event.client_payload.user_config.create_issue && always() }}
+    runs-on: ubuntu-latest
+    name: Create issues
+    steps:
+      - name: Get flaw file
+        uses: actions/download-artifact@v4
+        with:
+          name: 'policy-flaws'
+          path: /tmp
+
+      - name: Create flaws as issues for Java language
+        if: github.event.client_payload.repository.language == 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: '/tmp/policy_flaws.json'
+          repo_owner: ${{ github.event.client_payload.repository.owner }}
+          github-token: ${{ github.event.client_payload.token }}
+          repo_name: ${{ github.event.client_payload.repository.name }}
+          source_base_path_1: 'com/:src/main/java/com/'
+          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
+
+      - name: Create flaws as issues for non Java language
+        if: github.event.client_payload.repository.language != 'Java'
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        with:
+          scan-results-json: '/tmp/policy_flaws.json'
+          repo_owner: ${{ github.event.client_payload.repository.owner }}
+          github-token: ${{ github.event.client_payload.token }}
+          repo_name: ${{ github.event.client_payload.repository.name }}

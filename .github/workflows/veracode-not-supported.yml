@@ -17,7 +17,8 @@ jobs:
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
-       
+      branch: ${{ github.event.client_payload.repository.branch }}
+
   veracode-not-supported:
     needs: [register]
     runs-on: ubuntu-latest
@@ -33,7 +34,7 @@ jobs:
           echo "Please contact your Veracode administrator for more information." >> error.txt
           echo "If you are a Veracode administrator, please contact Veracode support." >> error.txt
       - name: save results file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: veracode-error
           path: error.txt
