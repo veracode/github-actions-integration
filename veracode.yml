@@ -45,7 +45,7 @@ veracode_static_scan:
   issues:
     trigger: false
     commands:
-      - "ENTER_COMMAND_TO_EXECUTE_SCAN"
+      - "Veracode Static Scan"
 
 veracode_sca_scan:   
   # Please only specify trigger:true for either push event or 
@@ -71,7 +71,7 @@ veracode_sca_scan:
   issues:
     trigger: false
     commands:
-      - "ENTER_COMMAND_TO_EXECUTE_SCAN"
+      - "Veracode SCA Scan"
 
 veracode_iac_secrets_scan:
   # Please only specify trigger:true for either push event or 
@@ -97,4 +97,4 @@ veracode_iac_secrets_scan:
   issues:
     trigger: false
     commands:
-      - "ENTER_COMMAND_TO_EXECUTE_SCAN"
+      - "Veracode IAC Scan"
