@@ -85,7 +85,7 @@ jobs:
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: Veracode/github-actions-integration-helper@main
+        uses: Veracode/github-actions-integration-helper@feature/DXS-358
         with:
           action: 'preparePipelineResults'
           token: ${{ inputs.token }}
@@ -107,7 +107,7 @@ jobs:
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
-          name: "Veracode Pipeline-Scan Results"
+          name: "Veracode Pipeline-Scan Mitigated Filtered Results"
       - name: Convert pipeline scan output to SARIF format for java language
         if: inputs.language == 'Java'
         uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.2
@@ -142,7 +142,7 @@ jobs:
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
-          name: 'Veracode Pipeline-Scan Results'
+          name: 'Veracode Pipeline-Scan Mitigated Filtered Results'
       - name: Create flaws as issues for java language
         if: inputs.language == 'Java'
         uses: veracode/veracode-flaws-to-issues@v2.2.24
