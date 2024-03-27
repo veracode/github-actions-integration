@@ -15,7 +15,7 @@ veracode_static_scan:
     target_branch:
       - default_branch 
   # If the analysis_on_platform is set to true,
-  # Veracode will save your last scan result on the default branch as an application profile given the current name of your scanned repo. 
+  # Veracode will save your last scan result, on the default branch, as an application profile with the same name as your scanned repository on the Veracode platform. 
   # If the analysis_on_platform is set to false, scan results will not be saved to the Veracode platform.
   analysis_on_platform: false
   # If break_build_policy_findings is set to true, the build will break when findings violate the policy.
@@ -32,6 +32,7 @@ veracode_static_scan:
   # If the create_issue is set to true, GitHub Issues will be created for static findings.
   create_issue: false
   # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
+  # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
   issues:
     trigger: false
     commands:
@@ -58,6 +59,7 @@ veracode_sca_scan:
   break_build_on_error: true
   error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information."
   # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
+  # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
   issues:
     trigger: false
     commands:
@@ -84,6 +86,7 @@ veracode_iac_secrets_scan:
   break_build_on_error: true
   error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information."
   # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
+  # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
   issues:
     trigger: false
     commands:
