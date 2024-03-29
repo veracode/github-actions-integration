@@ -151,6 +151,7 @@ jobs:
           repo_owner: ${{ inputs.owner }}
           github-token: ${{ inputs.token }}
           repo_name: ${{ inputs.repo }}
+          commitHash: ${{ inputs.sha }}
           source_base_path_1: 'com/:src/main/java/com/'
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
       - name: Create flaws as issues for non java language
@@ -161,3 +162,4 @@ jobs:
           repo_owner: ${{ inputs.owner }}
           repo_name: ${{ inputs.repo }}
           github-token: ${{ inputs.token }}
+          commitHash: ${{ inputs.sha }}
