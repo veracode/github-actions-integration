@@ -157,7 +157,7 @@ jobs:
           path: /tmp
       - name: Create flaws as issues for java language
         if: inputs.language == 'Java'
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        uses: veracode/veracode-flaws-to-issues@severity-label
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ inputs.owner }}
@@ -168,7 +168,7 @@ jobs:
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
       - name: Create flaws as issues for non java language
         if: inputs.language != 'Java'
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        uses: veracode/veracode-flaws-to-issues@severity-label
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ inputs.owner }}
