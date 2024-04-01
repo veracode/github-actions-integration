@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.0
+      - uses: veracode/github-actions-integration-helper@v0.1.1
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
