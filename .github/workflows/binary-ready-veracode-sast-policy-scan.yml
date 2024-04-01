@@ -121,7 +121,7 @@ jobs:
 
       - name: Convert policy scan output to SARIF format for Java language
         if: github.event.client_payload.repository.language == 'Java'
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -136,7 +136,7 @@ jobs:
 
       - name: Convert policy scan output to SARIF format for non Java language
         if: github.event.client_payload.repository.language != 'Java'
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.0
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -167,6 +167,7 @@ jobs:
           repo_owner: ${{ github.event.client_payload.repository.owner }}
           github-token: ${{ github.event.client_payload.token }}
           repo_name: ${{ github.event.client_payload.repository.name }}
+          commitHash: ${{ github.event.client_payload.sha }}
           source_base_path_1: 'com/:src/main/java/com/'
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
 
@@ -178,3 +179,4 @@ jobs:
           repo_owner: ${{ github.event.client_payload.repository.owner }}
           github-token: ${{ github.event.client_payload.token }}
           repo_name: ${{ github.event.client_payload.repository.name }}
+          commitHash: ${{ github.event.client_payload.sha }}

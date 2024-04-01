@@ -111,11 +111,11 @@ jobs:
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
-          name: "Veracode Pipeline-Scan Results"
+          name: "Veracode Pipeline-Scan Mitigated Filtered Results"
 
       - name: Convert pipeline scan output to SARIF format for Java language
         if: github.event.client_payload.repository.language == 'Java'
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.2
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -129,7 +129,7 @@ jobs:
 
       - name: Convert pipeline scan output to SARIF format for non Java language
         if: github.event.client_payload.repository.language != 'Java'
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.2
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -148,7 +148,7 @@ jobs:
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
-          name: 'Veracode Pipeline-Scan Results'
+          name: 'Veracode Pipeline-Scan Mitigated Filtered Results'
 
       - name: Create flaws as issues for Java language
         if: github.event.client_payload.repository.language == 'Java'
@@ -158,6 +158,7 @@ jobs:
           repo_owner: ${{ github.event.client_payload.repository.owner }}
           github-token: ${{ github.event.client_payload.token }}
           repo_name: ${{ github.event.client_payload.repository.name }}
+          commitHash:  ${{ github.event.client_payload.sha }}
           source_base_path_1: 'com/:src/main/java/com/'
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
 
@@ -169,3 +170,4 @@ jobs:
           repo_owner: ${{ github.event.client_payload.repository.owner }}
           github-token: ${{ github.event.client_payload.token }}
           repo_name: ${{ github.event.client_payload.repository.name }}
+          commitHash:  ${{ github.event.client_payload.sha }}
