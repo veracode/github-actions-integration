@@ -70,23 +70,18 @@ jobs:
           repository: ${{ github.event.client_payload.repository.full_name }}
           run-id: ${{ github.event.client_payload.run_id }}
 
-      - name: Get the name of the downloaded files
-        run: |
-          artifact_file=$(ls -1 ./veracode-artifact | head -n 1)
-          echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
-
       - name: Veracode Upload and Scan Action Step
         id: upload_and_scan
-        uses: veracode/uploadandscan-action@v0.1.2
+        uses: veracode/uploadandscan-action@v0.1.3
         with:
           appname: ${{ github.event.client_payload.user_config.profile_name }}
           createprofile: true
           policy: ${{ github.event.client_payload.policy_name }}
           version: '${{ github.run_id }}'
-          filepath: ./veracode-artifact/${{ env.veracode_artifact }}
+          filepath: ${{ github.event.client_payload.repository.artifact_name }}
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           createsandbox: true
           sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
-          include: ${{ github.event.client_payload.modules_to_scan }}
+          # include: ${{ github.event.client_payload.modules_to_scan }}
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}

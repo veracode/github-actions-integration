@@ -70,19 +70,14 @@ jobs:
           repository: ${{ github.event.client_payload.repository.full_name }}
           run-id: ${{ github.event.client_payload.run_id }}
 
-      - name: Get the name of the downloaded files
-        run: |
-          artifact_file=$(ls -1 ./veracode-artifact | head -n 1)
-          echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
-
       - name: Veracode Pipeline-Scan
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@feature/DXS-355
+        uses: veracode/Veracode-pipeline-scan-action@master
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           veracode_policy_name: ${{ github.event.client_payload.policy_name }}
-          file: ./veracode-artifact/${{ env.veracode_artifact }}
+          file: ${{ github.event.client_payload.repository.artifact_name }}
           fail_build: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
           use_upgraded_version: true
 
