@@ -111,7 +111,7 @@ jobs:
 
       - name: Convert pipeline scan output to SARIF format for java language
         if: ${{ inputs.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -125,7 +125,7 @@ jobs:
 
       - name: Convert pipeline scan output to SARIF format for non java language
         if: ${{ inputs.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -148,7 +148,7 @@ jobs:
 
       - name: Create flaws as issues for java language
         if: ${{ inputs.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@addRepoName
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ inputs.owner }}
@@ -160,7 +160,7 @@ jobs:
 
       - name: Create flaws as issues for non java language
         if: ${{ inputs.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@addRepoName
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ inputs.owner }}
