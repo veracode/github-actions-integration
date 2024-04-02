@@ -1,0 +1,53 @@
+name: Veracode Static Sandbox Scanner
+
+on:
+  workflow_call:
+    inputs:
+      profile_name:
+        required: true
+        type: string
+      modules_to_scan:
+        required: true
+        type: string
+      branch:
+        required: false
+        type: string
+      policy_name:
+        required: true
+        type: string
+      break_build_policy_findings: 
+        required: true
+        type: string
+
+jobs:
+  sandbox_scan:
+    runs-on: ubuntu-latest
+    name: sandbox scan
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      
+      # get the compiled binary from a previous job
+      - name: get archive
+        uses: actions/download-artifact@v4
+        with:
+          name: veracode-artifact
+          path: ./veracode_artifact_directory
+
+      # run the policy scan action
+      - name: Veracode Upload and Scan Action Step
+        uses: veracode/uploadandscan-action@v0.1.4
+        id: upload_and_scan
+        with:
+          appname: ${{ inputs.profile_name }}
+          createprofile: true
+          policy: ${{ inputs.policy_name }}
+          version: '${{ github.run_id }}'
+          filepath: ./veracode_artifact_directory/
+          vid: '${{ secrets.VERACODE_API_ID }}'
+          vkey: '${{ secrets.VERACODE_API_KEY }}'
+          createsandbox: true
+          sandboxname: GitHub App Scans-${{ inputs.branch }}
+          # include: ${{ inputs.modules_to_scan }}
+          failbuild: ${{ inputs.break_build_policy_findings }}

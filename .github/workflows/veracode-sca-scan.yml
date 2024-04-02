@@ -2,6 +2,10 @@ name: Veracode Software Composition Analysis
 
 run-name: Software Composition Analysis - ${{ github.event.client_payload.repository.name }}
 
+concurrency:
+  group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
+  cancel-in-progress: true
+
 on:
   repository_dispatch:
     types: [veracode-sca-scan]
@@ -17,6 +21,7 @@ jobs:
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
+      branch: ${{ github.event.client_payload.repository.branch }}
        
   veracode-sca-scan:
     needs: [register]
@@ -24,15 +29,15 @@ jobs:
     name: Veracode Component Analysis
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: ${{ github.event.client_payload.repository.full_name }}
-          ref: ${{ github.event.client_payload.sha }}
+          ref: ${{ github.event.client_payload.repository.branch }}
           token: ${{ github.event.client_payload.token }}
       - name: Run Veracode SCA
         env:
           SRCCLR_API_TOKEN: ${{ secrets.VERACODE_AGENT_TOKEN }}
-        uses: veracode/veracode-sca@v2.1.9
+        uses: veracode/veracode-sca@v2.1.11
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false  

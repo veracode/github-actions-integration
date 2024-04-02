@@ -19,13 +19,13 @@ jobs:
   
 #     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         token: ${{ inputs.token }}
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '3.1.x'
     - name: Build
@@ -51,7 +51,7 @@ jobs:
 #     - name: Create zip archive
 #       run: 7z a -tzip veracode.zip ./output
         
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: veracode-artifact
         path: veracode.zip

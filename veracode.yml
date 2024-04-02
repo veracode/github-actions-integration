@@ -1,7 +1,4 @@
 veracode_static_scan:
-  # Please only specify trigger:true for either push event or 
-  # pull request event. Specifying both will only execute push event.
-  # Leaving them both false means this will never run
   push:
     trigger: true
     # Please only specify either branches_to_run or branches_to_exclude
@@ -17,27 +14,36 @@ veracode_static_scan:
       - synchronize
     target_branch:
       - default_branch 
-  # What branch would you like to use for platform analysis 
-  # By selecting a branch here - Veracode will save your last scan result
-  # As an App Profile - given the current name of your scanned repo
-  # Use 'none' if you would not like any scans saved to the platform
-  analysis_branch: ENTER_BRANCH_NAME_HERE
-  #If the break_build_policy_findings is set to true, the build will break if the pipeline scan finds any policy violations.      
+  # If the analysis_on_platform is set to true,
+  # Veracode will save your last scan result, on the default branch, as an application profile with the same name as your scanned repository on the Veracode platform. 
+  # If the analysis_on_platform is set to false, scan results will not be saved to the Veracode platform.
+  analysis_on_platform: false
+  # If break_build_policy_findings is set to true, the build will break when findings violate the policy.
   break_build_policy_findings: true
-  #If the break_build_on_error is set to true, the build will break if the scan failed to complete in time or with an error.
+  # If break_build_invalid_policy is set to true, the build will break when the policy name is invalid.
+  break_build_invalid_policy: true
+  # If the break_build_on_error is set to true, the build will break if the scan failed to complete in time or with an error and the error_message will be displayed.
   break_build_on_error: false
-  #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the pipeline scan fails to complete in time or with an error.
-  error_message: "Veracode SAST scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
+  error_message: "Veracode static scan faced a problem. Please contact your Veracode administrator for more information."
+  # Default policy to be used if a policy isn't already assigned to the application profile.
   policy: 'Veracode Recommended Medium + SCA'
-  compile_locally: false
-  local_compilation_workflow: na
+  # If the create_code_scanning_alert is set to true, GitHub security code scanning vulnerability alerts will be created for static findings.
+  create_code_scanning_alert: false
+  # If the create_issue is set to true, GitHub Issues will be created for static findings.
+  create_issue: false
+  # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
+  # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
+  issues:
+    trigger: false
+    commands:
+      - "Veracode Static Scan"
 
-veracode_sca_scan:   
-  # Please only specify trigger:true for either push event or 
-  # pull request event. Specifying both will only execute push event.
-  # Leaving them both false means this will never run
+veracode_sca_scan:
   push:
     trigger: true
+    # Please only specify either branches_to_run or branches_to_exclude
+    # Entering both will only execute branches_to_run
+    # Leaving them both blank means this will never run
     branches_to_run:
       - '*'
     branches_to_exclude:
@@ -48,19 +54,23 @@ veracode_sca_scan:
       - synchronize
     target_branch:
       - default_branch
-  #If the break_build_policy_findings is set to true, the build will break if the SCA scan finds any policy violations.      
-  break_build_policy_findings: true
-  #If the break_build_on_error is set to true, the build will break if the scan failed to complete, no libraries found, no build system found or on any other error.
+  # If the break_build_on_error is set to true, the build will break if the scan failed to complete or with an error, no libraries were found, 
+  # or no build system was found and the error_message will be displayed.
   break_build_on_error: true
-  #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the SCA scan fails to complete, no libraries found, no build system found or on any other error.
-  error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
+  error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information."
+  # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
+  # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
+  issues:
+    trigger: false
+    commands:
+      - "Veracode SCA Scan"
 
 veracode_iac_secrets_scan:
-  # Please only specify trigger:true for either push event or 
-  # pull request event. Specifying both will only execute push event.
-  # Leaving them both false means this will never run
   push:
     trigger: true
+    # Please only specify either branches_to_run or branches_to_exclude
+    # Entering both will only execute branches_to_run
+    # Leaving them both blank means this will never run
     branches_to_run:
       - '*'
     branches_to_exclude:
@@ -71,10 +81,13 @@ veracode_iac_secrets_scan:
       - synchronize
     target_branch:
       - default_branch
-  #If the break_build_policy_findings is set to true, the build will break if the IaC/Secrets scan finds any policy violations.      
-  break_build_policy_findings: true
-  #If the break_build_on_error is set to true, the build will break if the scan failed to complete, no libraries found or on any other error.
+  # If the break_build_on_error is set to true, the build will break if the scan failed to complete or with an error, no libraries were found, 
+  # or no build system was found and the error_message will be displayed.
   break_build_on_error: true
-  #If the break_build_on_policy_error is set to true, this is the error message that will be displayed if the IaC/Secrets scan fails to complete, no libraries found or on any other error.
-  error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information. If you are a Veracode administrator, please contact Veracode support."
-
+  error_message: "Veracode SCA scan faced a problem. Please contact your Veracode administrator for more information."
+  # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
+  # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
+  issues:
+    trigger: false
+    commands:
+      - "Veracode IAC Scan"
