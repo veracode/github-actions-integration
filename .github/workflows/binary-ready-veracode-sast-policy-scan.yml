@@ -116,7 +116,7 @@ jobs:
 
       - name: Convert policy scan output to SARIF format for Java language
         if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@issue/DXS-378
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -131,7 +131,7 @@ jobs:
 
       - name: Convert policy scan output to SARIF format for non Java language
         if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@issue/DXS-378
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -156,7 +156,7 @@ jobs:
 
       - name: Create flaws as issues for Java language
         if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@addRepoName
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ github.event.client_payload.repository.owner }}
@@ -168,7 +168,7 @@ jobs:
 
       - name: Create flaws as issues for non Java language
         if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@addRepoName
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ github.event.client_payload.repository.owner }}
