@@ -85,7 +85,7 @@ jobs:
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: Veracode/github-actions-integration-helper@feature/DXS-358
+        uses: Veracode/github-actions-integration-helper@main
         with:
           action: 'preparePipelineResults'
           token: ${{ inputs.token }}
@@ -110,7 +110,7 @@ jobs:
           name: "Veracode Pipeline-Scan Mitigated Filtered Results"
 
       - name: Convert pipeline scan output to SARIF format for java language
-        if: inputs.language == 'Java'
+        if: ${{ inputs.language == 'Java' }}
         uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
         with:
           pipeline-results-json: filtered_results.json
@@ -124,7 +124,7 @@ jobs:
           source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
 
       - name: Convert pipeline scan output to SARIF format for non java language
-        if: inputs.language != 'Java'
+        if: ${{ inputs.language != 'Java' }}
         uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
         with:
           pipeline-results-json: filtered_results.json
@@ -147,8 +147,8 @@ jobs:
           name: 'Veracode Pipeline-Scan Mitigated Filtered Results'
 
       - name: Create flaws as issues for java language
-        if: inputs.language == 'Java'
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        if: ${{ inputs.language == 'Java' }}
+        uses: veracode/veracode-flaws-to-issues@addRepoName
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ inputs.owner }}
@@ -159,8 +159,8 @@ jobs:
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
 
       - name: Create flaws as issues for non java language
-        if: inputs.language != 'Java'
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        if: ${{ inputs.language != 'Java' }}
+        uses: veracode/veracode-flaws-to-issues@addRepoName
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ inputs.owner }}
