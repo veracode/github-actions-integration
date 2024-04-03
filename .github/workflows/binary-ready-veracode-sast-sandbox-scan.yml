@@ -78,7 +78,7 @@ jobs:
           createprofile: true
           policy: ${{ github.event.client_payload.policy_name }}
           version: '${{ github.run_id }}'
-          filepath: ${{ github.event.client_payload.repository.artifact_name }}
+          filepath: ${{ github.event.client_payload.repository.artifact_file }}
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           createsandbox: true

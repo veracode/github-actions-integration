@@ -79,7 +79,7 @@ jobs:
           appname: ${{ github.event.client_payload.user_config.profile_name }}
           createprofile: true
           version: '${{ github.run_id }}'
-          filepath: ${{ github.event.client_payload.repository.artifact_name }}
+          filepath: ${{ github.event.client_payload.repository.artifact_file }}
           # include: ${{ github.event.client_payload.modules_to_scan }}
           policy: ${{ github.event.client_payload.policy_name }}
           scantimeout: 15
