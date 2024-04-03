@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Verify Veracode API credentials
         id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@v0.1.1
+        uses: veracode/github-actions-integration-helper@main
         with:
           action: validateVeracodeApiCreds
           token: ${{ github.event.client_payload.token }}
@@ -43,7 +43,7 @@ jobs:
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
-        uses: veracode/github-actions-integration-helper@v0.1.1
+        uses: veracode/github-actions-integration-helper@main
         with:
           action: validatePolicyName
           token: ${{ github.event.client_payload.token }}
@@ -106,11 +106,11 @@ jobs:
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
-          name: "Veracode Pipeline-Scan Mitigated Filtered Results"
+          name: "Veracode Pipeline-Scan Results - Mitigated findings"
 
       - name: Convert pipeline scan output to SARIF format for Java language
         if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -124,7 +124,7 @@ jobs:
 
       - name: Convert pipeline scan output to SARIF format for non Java language
         if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@master
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -143,11 +143,11 @@ jobs:
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
-          name: 'Veracode Pipeline-Scan Mitigated Filtered Results'
+          name: 'Veracode Pipeline-Scan Results - Mitigated findings'
 
       - name: Create flaws as issues for Java language
         if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@addRepoName
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ github.event.client_payload.repository.owner }}
@@ -159,7 +159,7 @@ jobs:
 
       - name: Create flaws as issues for non Java language
         if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@addRepoName
+        uses: veracode/veracode-flaws-to-issues@v2.2.24
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ github.event.client_payload.repository.owner }}
