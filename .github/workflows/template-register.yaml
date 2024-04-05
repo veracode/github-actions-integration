@@ -1,0 +1,27 @@
+#This is a template Register Build step.  Please place the register step at the end of any developer build file to use the local compilation option
+name: Veracode Register Build
+
+run-name: Veracode Register Build
+
+on:
+  repository_dispatch:
+    types: [register-build]
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    name: register
+    steps:
+    - name: Register build
+      id: register-build
+      uses: veracode/github-actions-integration-helper@main
+      with:
+        action: registerBuild
+        token: ${{ github.event.client_payload.token }}
+        appname: ${{ github.event.client_payload.user_config.profile_name }}
+        source_repository: ${{ github.event.client_payload.repository.full_name }}
+        check_run_id: ${{ github.run_id }}
+        check_run_name: ${{ github.workflow }}
+        head_sha: ${{ github.event.client_payload.sha }}
+        event_type: ${{ github.event.client_payload.event_type }}
+        branch: ${{ github.event.client_payload.repository.branch }}
