@@ -102,6 +102,20 @@ jobs:
           fail_checks_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
           filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
 
+  veracode-remove-sandbox:
+    needs: policy_scan
+    runs-on: ubuntu-latest
+    if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
+    name: Remove Sandbox
+    steps:
+      - uses: veracode/github-actions-integration-helper@main
+        with:
+          action: 'removeSandbox'
+          vid: ${{ secrets.VERACODE_API_ID }}
+          vkey: ${{ secrets.VERACODE_API_KEY }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          sandboxname: GitHub App Scans-${{ github.event.client_payload.user_config.sandbox_scan.branch }}
+
   code-scanning-alert:
     needs: policy_scan
     runs-on: ubuntu-latest
