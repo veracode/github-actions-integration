@@ -25,3 +25,4 @@ jobs:
         head_sha: ${{ github.event.client_payload.sha }}
         event_type: ${{ github.event.client_payload.event_type }}
         branch: ${{ github.event.client_payload.user_config.sandbox_scan.branch }}
+        issue_trigger_flow: ${{ github.event.client_payload.user_config.issue_trigger_flow }}
