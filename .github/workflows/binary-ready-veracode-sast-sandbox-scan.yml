@@ -1,6 +1,6 @@
 name: Binary Ready - Veracode Static Sandbox Scanner
 
-run-name: Binary Ready - Static Sandbox Scanner - ${{ github.event.client_payload.repository.name }}
+run-name: Binary Ready - Veracode Sandbox Scan - ${{ github.event.client_payload.repository.name }}
 
 concurrency:
   group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
@@ -11,55 +11,7 @@ on:
     types: [binary-ready-veracode-sast-sandbox-scan]
 
 jobs:
-  register:
-    uses: ./.github/workflows/veracode-check-run.yml
-    with:
-      check_run_name: ${{ github.workflow }}
-      head_sha: ${{ github.event.client_payload.sha }}
-      repositroy_owner: ${{ github.event.client_payload.repository.owner }}
-      repositroy_name: ${{ github.event.client_payload.repository.name }}
-      event_type: ${{ github.event.client_payload.event_type }}
-      github_token: ${{ github.event.client_payload.token }}
-      run_id: ${{ github.run_id }}
-      branch: ${{ github.event.client_payload.repository.branch }}
-
-  validations:
-    needs: register
-    runs-on: ubuntu-latest
-    name: Validations
-    steps:
-      - name: Verify Veracode API credentials
-        id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@main
-        with:
-          action: validateVeracodeApiCreds
-          token: ${{ github.event.client_payload.token }}
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
-          appname: ${{ github.event.client_payload.user_config.profile_name }}
-          source_repository: ${{ github.event.client_payload.repository.full_name }}
-          check_run_id: ${{ needs.register.outputs.run_id }}
-
-      - name: Verify Policy name
-        id: verify_policy_name
-        if: success()
-        uses: veracode/github-actions-integration-helper@main
-        with:
-          action: validatePolicyName
-          token: ${{ github.event.client_payload.token }}
-          vid: ${{ secrets.VERACODE_API_ID }}
-          vkey: ${{ secrets.VERACODE_API_KEY }}
-          appname: ${{ github.event.client_payload.user_config.profile_name }}
-          source_repository: ${{ github.event.client_payload.repository.full_name }}
-          check_run_id: ${{ needs.register.outputs.run_id }}
-          policyname: ${{ github.event.client_payload.policy_name }}
-          path: ${{ github.event.client_payload.annotationObj.path }}
-          start_line: ${{ github.event.client_payload.annotationObj.start_line }}
-          end_line: ${{ github.event.client_payload.annotationObj.end_line }}
-          break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
-
   sandbox_scan:
-    needs: [register, validations]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
