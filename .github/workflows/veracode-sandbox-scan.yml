@@ -1,26 +1,35 @@
 name: Veracode Static Sandbox Scanner
+run-name: Veracode Sandbox scan - ${{ github.event.client_payload.repository.name }}
+
+concurrency:
+  group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
+  cancel-in-progress: true
 
 on:
-  workflow_call:
-    inputs:
-      profile_name:
-        required: true
-        type: string
-      modules_to_scan:
-        required: true
-        type: string
-      branch:
-        required: false
-        type: string
-      policy_name:
-        required: true
-        type: string
-      break_build_policy_findings: 
-        required: true
-        type: string
+  repository_dispatch:
+    types:
+      - java-maven-sandbox-scan
+      - java-gradle-sandbox-scan
+      - source-code-sandbox-scan
+      - dot-net-sandbox-scan
+      - go-sandbox-scan
+      - tsql-sandbox-scan
+      - plsql-sandbox-scan
+      - php-sandbox-scan
+      - scala-sandbox-scan
+      - dart-sandbox-scan
 
 jobs:
+  build:
+    uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
+    with:
+      repository: ${{ github.event.client_payload.repository.full_name }}
+      ref: ${{ github.event.client_payload.sha }}
+      token: ${{ github.event.client_payload.token }}
+      event_name: ${{ github.event.action }}
+
   sandbox_scan:
+    needs: build
     runs-on: ubuntu-latest
     name: sandbox scan
 
@@ -40,14 +49,13 @@ jobs:
         uses: veracode/uploadandscan-action@v0.1.4
         id: upload_and_scan
         with:
-          appname: ${{ inputs.profile_name }}
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
           createprofile: true
-          policy: ${{ inputs.policy_name }}
+          policy: ${{ github.event.client_payload.policy_name }}
           version: '${{ github.run_id }}'
           filepath: ./veracode_artifact_directory/
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           createsandbox: true
-          sandboxname: GitHub App Scans-${{ inputs.branch }}
-          # include: ${{ inputs.modules_to_scan }}
-          failbuild: ${{ inputs.break_build_policy_findings }}
+          sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
+          failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}

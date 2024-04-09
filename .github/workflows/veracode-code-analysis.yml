@@ -8,36 +8,27 @@ concurrency:
 
 on:
   repository_dispatch:
-    types: [java-maven-pipeline-scan,
-            java-maven-policy-scan,
-            java-maven-sandbox-scan,
-            java-gradle-pipeline-scan,
-            java-gradle-policy-scan,
-            java-gradle-sandbox-scan,
-            source-code-pipeline-scan,
-            source-code-policy-scan,
-            source-code-sandbox-scan,
-            dot-net-pipeline-scan,
-            dot-net-policy-scan,
-            dot-net-sandbox-scan,
-            go-pipeline-scan,
-            go-policy-scan,
-            go-sandbox-scan,
-            tsql-pipeline-scan,
-            tsql-policy-scan,
-            tsql-sandbox-scan,
-            plsql-pipeline-scan,
-            plsql-policy-scan,
-            plsql-sandbox-scan,
-            php-pipeline-scan,
-            php-policy-scan,
-            php-sandbox-scan,
-            scala-pipeline-scan,
-            scala-policy-scan,
-            scala-sandbox-scan,
-            dart-pipeline-scan,
-            dart-policy-scan,
-            dart-sandbox-scan]
+    types: 
+      - java-maven-pipeline-scan
+      - java-maven-policy-scan
+      - java-gradle-pipeline-scan
+      - java-gradle-policy-scan
+      - source-code-pipeline-scan
+      - source-code-policy-scan
+      - dot-net-pipeline-scan
+      - dot-net-policy-scan
+      - go-pipeline-scan
+      - go-policy-scan
+      - tsql-pipeline-scan
+      - tsql-policy-scan
+      - plsql-pipeline-scan
+      - plsql-policy-scan
+      - php-pipeline-scan
+      - php-policy-scan
+      - scala-pipeline-scan
+      - scala-policy-scan
+      - dart-pipeline-scan
+      - dart-policy-sca
 
 jobs:
   register:
@@ -141,16 +132,4 @@ jobs:
       break_build_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }}
       filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
       language: ${{ github.event.client_payload.repository.language }}
-    secrets: inherit
-
-  sandbox_scan:
-    needs: build
-    if: contains(github.event.action, 'sandbox')
-    uses: ./.github/workflows/veracode-sandbox-scan.yml
-    with:
-      profile_name: ${{ github.event.client_payload.user_config.profile_name }}
-      policy_name: ${{ github.event.client_payload.policy_name }}
-      branch: ${{ github.event.client_payload.repository.branch }}
-      modules_to_scan: ${{ github.event.client_payload.modules_to_scan }}
-      break_build_policy_findings: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
     secrets: inherit
