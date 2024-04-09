@@ -1,0 +1,13 @@
+name: Print Echo Message
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # Runs every day at midnight UTC
+
+jobs:
+  print_echo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print Echo Message
+        run: echo "Hello, world! This is a scheduled message."
