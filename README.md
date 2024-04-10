@@ -152,6 +152,7 @@ To overwrite the settings:
     policy: 'Veracode Recommended Very High'
     use_custom_workflow: my_custom_build
    ```
+Note: If you’d like to use your source repository’s build workflows to prepare an artifact for scanning - please see our [documentation](https://docs.veracode.com/r/GitHub_Workflow_Integration_for_Repo_Scanning).
 
 ### Trigger on-demand scanning with GitHub issues
 
