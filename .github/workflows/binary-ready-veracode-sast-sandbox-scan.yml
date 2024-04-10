@@ -1,0 +1,39 @@
+name: Binary Ready - Veracode Static Sandbox Scanner
+
+run-name: Binary Ready - Veracode Sandbox Scan - ${{ github.event.client_payload.repository.name }}
+
+concurrency:
+  group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
+  cancel-in-progress: true
+
+on:
+  repository_dispatch:
+    types: [binary-ready-veracode-sast-sandbox-scan]
+
+jobs:
+  sandbox_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        id: download-artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.event.client_payload.token }}
+          repository: ${{ github.event.client_payload.repository.full_name }}
+          run-id: ${{ github.event.client_payload.run_id }}
+
+      - name: Veracode Upload and Scan Action Step
+        id: upload_and_scan
+        uses: veracode/uploadandscan-action@v0.1.4
+        with:
+          appname: ${{ github.event.client_payload.user_config.profile_name }}
+          createprofile: true
+          policy: ${{ github.event.client_payload.policy_name }}
+          version: '${{ github.run_id }}'
+          filepath: ${{ github.event.client_payload.repository.artifact_file }}
+          vid: '${{ secrets.VERACODE_API_ID }}'
+          vkey: '${{ secrets.VERACODE_API_KEY }}'
+          createsandbox: true
+          sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
+          # include: ${{ github.event.client_payload.modules_to_scan }}
+          failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}

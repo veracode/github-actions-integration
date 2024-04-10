@@ -1,6 +1,10 @@
 name: 'Organization workflow action'
 on:
   workflow_call:
+    outputs:
+      run_id:
+        description: "The first output string"
+        value: ${{ jobs.create_check_run.outputs.run_id }}
     inputs:
       run_id: 
         description: 'ID of workflow run (provided via GitHub syntax `github.run_id`)'
@@ -30,9 +34,15 @@ on:
         description: 'event_type triggered by the GitHub App (provided by GitHub app via `github.event.client_payload.event_type`)'
         required: true
         type: string
+      branch:
+        description: 'branch triggered by the GitHub App (provided by GitHub app via `github.event.client_payload.repository.branch`)'
+        required: true
+        type: string
 jobs:
   create_check_run:
     runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ fromJson(steps.create_check_run.outputs.data).id }}
     steps: 
       # Create check run
       - name: GitHub API Request to create a check
@@ -55,11 +65,14 @@ jobs:
           echo '{
             "check_run_type": "${{ inputs.event_type }}",
             "repository_name": "${{ inputs.repositroy_name }}",
-            "check_run_id": ${{ fromJson(steps.create_check_run.outputs.data).id }}
+            "check_run_id": ${{ fromJson(steps.create_check_run.outputs.data).id }},
+            "branch": "${{ inputs.branch }}",
+            "sha": "${{ inputs.head_sha }}"
           }' > workflow-metadata.json
+          echo "run_id=${{ fromJson(steps.create_check_run.outputs.data).id }}" >> "GITHUB_OUTPUT"
         shell: bash
       - name: Save metadata
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: workflow-metadata
           path: workflow-metadata.json

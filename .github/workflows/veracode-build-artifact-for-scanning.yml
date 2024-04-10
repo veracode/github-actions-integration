@@ -18,23 +18,23 @@ on:
   
 jobs:
   build-java-maven:
-    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' || inputs.event_name == 'java-maven-policy-scan' }}
-    uses: ./.github/workflows/veracode-build-java-maven.yml
+    if: ${{ inputs.event_name == 'java-maven-pipeline-scan' || inputs.event_name == 'java-maven-policy-scan' || inputs.event_name == 'java-maven-sandbox-scan' }}
+    uses: ./.github/workflows/veracode-build-java-cli-maven.yml
     with:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
-      
+
   build-java-gradle:
-    if: ${{ inputs.event_name == 'java-gradle-pipeline-scan' || inputs.event_name == 'java-gradle-policy-scan' }}
-    uses: ./.github/workflows/veracode-build-java-gradle.yml
+    if: ${{ inputs.event_name == 'java-gradle-pipeline-scan' || inputs.event_name == 'java-gradle-policy-scan' || inputs.event_name == 'java-gradle-sandbox-scan' }}
+    uses: ./.github/workflows/veracode-build-java-cli-gradle.yml
     with:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
-      
+
   build-source-code-scan:
-    if: ${{ inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan' }}
+    if: ${{ inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan'  || inputs.event_name == 'source-code-sandbox-scan'}}
     uses: ./.github/workflows/veracode-build-source-code.yml
     with:
       repository: ${{ inputs.repository }}
@@ -42,7 +42,7 @@ jobs:
       token: ${{ inputs.token }}
       
   build-dot-net-package:
-    if: ${{ inputs.event_name == 'dot-net-pipeline-scan' }}
+    if: ${{ inputs.event_name == 'dot-net-pipeline-scan' || inputs.event_name == 'dot-net-policy-scan'  || inputs.event_name == 'dot-net-sandbox-scan'}}
     uses: ./.github/workflows/veracode-build-dot-net.yml
     with:
       repository: ${{ inputs.repository }}
@@ -50,8 +50,48 @@ jobs:
       token: ${{ inputs.token }}
 
   build-go-package:
-    if: ${{ inputs.event_name == 'go-pipeline-scan' || inputs.event_name == 'go-policy-scan' }}
+    if: ${{ inputs.event_name == 'go-pipeline-scan' || inputs.event_name == 'go-policy-scan'  || inputs.event_name == 'go-sandbox-scan'}}
     uses: ./.github/workflows/veracode-build-go.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+
+  build-tsql-package:
+    if: ${{ inputs.event_name == 'tsql-pipeline-scan' || inputs.event_name == 'tsql-policy-scan'  || inputs.event_name == 'tsql-sandbox-scan'}}
+    uses: ./.github/workflows/veracode-build-tsql.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+
+  build-plsql-package:
+    if: ${{ inputs.event_name == 'plsql-pipeline-scan' || inputs.event_name == 'plsql-policy-scan'  || inputs.event_name == 'plsql-sandbox-scan'}}
+    uses: ./.github/workflows/veracode-build-plsql.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+
+  build-php-package:
+    if: ${{ inputs.event_name == 'php-pipeline-scan' || inputs.event_name == 'php-policy-scan'  || inputs.event_name == 'php-sandbox-scan'}}
+    uses: ./.github/workflows/veracode-build-php.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+
+  build-scala-package:
+    if: ${{ inputs.event_name == 'scala-pipeline-scan' || inputs.event_name == 'scala-policy-scan'  || inputs.event_name == 'scala-sandbox-scan'}}
+    uses: ./.github/workflows/veracode-build-scala.yml
+    with:
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref }}
+      token: ${{ inputs.token }}
+
+  build-dart-package:
+    if: ${{ inputs.event_name == 'dart-pipeline-scan' || inputs.event_name == 'dart-policy-scan'  || inputs.event_name == 'dart-sandbox-scan'}}
+    uses: ./.github/workflows/veracode-build-dart.yml
     with:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
