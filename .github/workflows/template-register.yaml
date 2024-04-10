@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: Register build
       id: register-build
-      uses: veracode/github-actions-integration-helper@main
+      uses: veracode/github-actions-integration-helper@v0.1.2
       with:
         action: registerBuild
         token: ${{ github.event.client_payload.token }}
