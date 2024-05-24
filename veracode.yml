@@ -26,7 +26,7 @@ veracode_static_scan:
   break_build_on_error: false
   error_message: "Veracode static scan faced a problem. Please contact your Veracode administrator for more information."
   # Default policy to be used if a policy isn't already assigned to the application profile.
-  policy: 'Veracode Recommended Medium + SCA'
+  policy: 'Veracode Recommended SCA Very Low'
   # If the create_code_scanning_alert is set to true, GitHub security code scanning vulnerability alerts will be created for static findings.
   create_code_scanning_alert: false
   # If the create_issue is set to true, GitHub Issues will be created for static findings.
