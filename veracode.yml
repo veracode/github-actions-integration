@@ -65,31 +65,31 @@ veracode_sca_scan:
     commands:
       - "Veracode SCA Scan"
 
-veracode_iac_secrets_scan:
-  push:
-    trigger: true
-    # Please only specify either branches_to_run or branches_to_exclude
-    # Entering both will only execute branches_to_run
-    # Leaving them both blank means this will never run
-    branches_to_run:
-      - '*'
-    branches_to_exclude:
-  pull_request:
-    trigger: true
-    action:
-      - opened
-      - synchronize
-    target_branch:
-      - default_branch
-  # If break_build_policy_findings is set to true, the build will break when findings violate the policy.
-  break_build_policy_findings: true
-  # If the break_build_on_error is set to true, the build will break if the scan failed to complete or with an error, no libraries were found, 
-  # or no build system was found and the error_message will be displayed.
-  break_build_on_error: true
-  error_message: "Veracode IAC secrets scan faced a problem. Please contact your Veracode administrator for more information."
-  # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
-  # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
-  issues:
-    trigger: false
-    commands:
-      - "Veracode IAC Scan"
+# veracode_iac_secrets_scan:
+#   push:
+#     trigger: true
+#     # Please only specify either branches_to_run or branches_to_exclude
+#     # Entering both will only execute branches_to_run
+#     # Leaving them both blank means this will never run
+#     branches_to_run:
+#       - '*'
+#     branches_to_exclude:
+#   pull_request:
+#     trigger: true
+#     action:
+#       - opened
+#       - synchronize
+#     target_branch:
+#       - default_branch
+#   # If break_build_policy_findings is set to true, the build will break when findings violate the policy.
+#   break_build_policy_findings: true
+#   # If the break_build_on_error is set to true, the build will break if the scan failed to complete or with an error, no libraries were found, 
+#   # or no build system was found and the error_message will be displayed.
+#   break_build_on_error: true
+#   error_message: "Veracode IAC secrets scan faced a problem. Please contact your Veracode administrator for more information."
+#   # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
+#   # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
+#   issues:
+#     trigger: false
+#     commands:
+#       - "Veracode IAC Scan"
