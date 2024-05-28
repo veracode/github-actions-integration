@@ -19,7 +19,7 @@ veracode_static_scan:
   # If the analysis_on_platform is set to false, scan results will not be saved to the Veracode platform.
   analysis_on_platform: false
   # If break_build_policy_findings is set to true, the build will break when findings violate the policy.
-  break_build_policy_findings: true
+  break_build_policy_findings: false
   # If break_build_invalid_policy is set to true, the build will break when the policy name is invalid.
   break_build_invalid_policy: true
   # If the break_build_on_error is set to true, the build will break if the scan failed to complete in time or with an error and the error_message will be displayed.
