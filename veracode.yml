@@ -34,7 +34,7 @@ veracode_static_scan:
   # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
   # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
   issues:
-    trigger: false
+    trigger: true
     commands:
       - "Veracode Static Scan"
 
