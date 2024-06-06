@@ -84,7 +84,6 @@ jobs:
           scantimeout: 15
           # include: ${{ inputs.modules_to_scan }}
           failbuild: ${{ inputs.break_build_policy_findings }}
-          use_upgraded_version: true
 
       - name: Veracode Policy Results
         id: prepare-results
