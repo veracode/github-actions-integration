@@ -29,6 +29,10 @@ on:
       - scala-policy-scan
       - dart-pipeline-scan
       - dart-policy-sca
+      - java-pipeline-scan
+      - java-policy-scan
+      - unidentified-lang-pipeline-scan
+      - unidentified-lang-policy-scan
 
 jobs:
   register:
