@@ -71,7 +71,7 @@ jobs:
           run-id: ${{ github.event.client_payload.run_id }}
 
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.4
+        uses: veracode/uploadandscan-action@v0.1.5
         id: upload_and_scan
         with:
           vid: '${{ secrets.VERACODE_API_ID }}'
