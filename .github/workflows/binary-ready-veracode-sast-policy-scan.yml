@@ -84,7 +84,6 @@ jobs:
           policy: ${{ github.event.client_payload.policy_name }}
           scantimeout: 15
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
-          use_upgraded_version: true
 
       - name: Veracode Policy Results
         id: prepare-results

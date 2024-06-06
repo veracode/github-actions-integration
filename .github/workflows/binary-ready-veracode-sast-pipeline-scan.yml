@@ -79,7 +79,6 @@ jobs:
           veracode_policy_name: ${{ github.event.client_payload.policy_name }}
           file: ${{ github.event.client_payload.repository.artifact_file }}
           fail_build: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
-          use_upgraded_version: true
 
       - name: Veracode Pipeline Results
         if: always()

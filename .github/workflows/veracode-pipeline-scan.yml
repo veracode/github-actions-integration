@@ -80,7 +80,6 @@ jobs:
           veracode_policy_name: ${{ inputs.policy_name }}
           file: ./veracode_artifact_directory/${{ env.veracode_artifact }}
           fail_build: ${{ inputs.break_build_policy_findings }}
-          use_upgraded_version: true
 
       - name: Veracode Pipeline Results
         if: always()
