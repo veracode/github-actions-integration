@@ -27,7 +27,7 @@ jobs:
       with:
         java-version: 21
         distribution: oracle
-    - name: Package the appliccation
+    - name: Package the application
       env:
         VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
         VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'

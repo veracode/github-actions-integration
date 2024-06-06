@@ -18,6 +18,8 @@ on:
       - php-sandbox-scan
       - scala-sandbox-scan
       - dart-sandbox-scan
+      - java-sandbox-scan
+      - unidentified-lang-sandbox-scan
 
 jobs:
   build:
@@ -46,7 +48,7 @@ jobs:
 
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.4
+        uses: veracode/uploadandscan-action@v0.1.5
         id: upload_and_scan
         with:
           appname: ${{ github.event.client_payload.user_config.profile_name }}

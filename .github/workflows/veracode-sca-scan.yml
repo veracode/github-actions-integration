@@ -9,7 +9,7 @@ concurrency:
 on:
   repository_dispatch:
     types: [veracode-sca-scan]
-    
+
 jobs:
   register:
     uses: ./.github/workflows/veracode-check-run.yml
@@ -22,11 +22,12 @@ jobs:
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
       branch: ${{ github.event.client_payload.repository.branch }}
-       
+
   veracode-sca-scan:
     needs: [register]
     runs-on: ubuntu-latest
     name: Veracode Component Analysis
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
@@ -34,12 +35,56 @@ jobs:
           repository: ${{ github.event.client_payload.repository.full_name }}
           ref: ${{ github.event.client_payload.repository.branch }}
           token: ${{ github.event.client_payload.token }}
+      - uses: actions/checkout@v4
+        with:
+          path: 'veracode-helper'
+      - name: Find yarn JS apps using workspaces
+        run: |
+          if [ -f "package.json" ] && [ -f "pnpm-lock.yaml" ] && [ -f "pnpm-workspace.yaml" ]; then
+            echo "- The file package.json, pnpm-lock.yml and pnpm-workspace.yaml exist. This looks like a PNPM workspace project."
+            if grep -q "workspaces" "package.json"; then
+              echo "-- The package.json file contains workspaces - running PNPM lockfile generator"
+          	  node veracode-helper/helper/pnpm-helper.js --folder '/home/runner/work/veracode/veracode' --intRepoPrefix '${{ github.event.client_payload.repository.owner }}' --repoName '${{ github.event.client_payload.repository.name }}'
+            else
+              echo "-- The package.json file does not contain workspace - this will fail - exiting"
+            fi
+          elif [ -f "package.json" ] && [ ! -f "pnpm-lock.yml" ] && [ ! -f "pnpm-workspace.yaml" ]; then
+          	if grep -q "workspaces" "package.json"; then
+          		echo "- The package.json file exists, and it contains 'workspaces'."
+          		if grep -q "yarn" "package.json"; then
+          			echo "-- Yarn was identified on the package.json file"
+          			version=$(grep 'yarn' package.json | grep -oE '[0-9]' | head -n 1)
+          			if [ -z "$version" ]; then
+          				echo "-- The yarn version could not be identified."
+          			else
+          				echo "-- The yarn version is: $version"
+          
+          				if [ $version -lt "3" ]; then
+          					echo "---- Running v2 lockfile generator"
+          					node veracode-helper/helper/yarn-lock-file-generator-v2.js --folder /home/runner/work/veracode/veracode
+          				elif [ $version -ge "3" ]; then
+          					echo "---- Running v3 lockfile generator"
+          					node veracode-helper/helper/yarn-lock-file-generator-v3.js --folder /home/runner/work/veracode/veracode
+          				fi
+          			fi
+          		else
+          			echo "- Yarn was not identified on the package.json file"
+              fi
+          	else
+                          echo "- The package.json file exists, but it does not contain 'workspaces'."
+          	fi
+          else
+          	echo "The package.json file does not exist."
+          fi
+          rm -rf veracode-helper
+
       - name: Run Veracode SCA
         env:
           SRCCLR_API_TOKEN: ${{ secrets.VERACODE_AGENT_TOKEN }}
-        uses: veracode/veracode-sca@v2.1.11
+          JAVA_OPTS: -Xms2g -Xmx4g
+        uses: veracode/veracode-sca@v2.1.12
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          create-issues: false  
-#           fail-on-cvss: 1
-#           min-cvss-for-issue: 1
+          create-issues: false
+          recursive: true
+          allow-dirty: true

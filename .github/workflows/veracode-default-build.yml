@@ -1,4 +1,4 @@
-name: Veracode Build Java Maven Application
+name: Veracode Build
 on:
   workflow_call:
     inputs:
@@ -14,25 +14,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: veracode/scm-packaging:latest
+    env:
+      VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
+      VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
     steps:
     - uses: actions/checkout@v4
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         token: ${{ inputs.token }}
+
     - uses: actions/checkout@v4
       with:
         path: 'veracode-helper'
-    - uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: oracle
-    - name: Cache Maven Dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+
     - name: Package the application
+      id: application_package
       env:
         VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
         VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
@@ -42,12 +41,18 @@ jobs:
         cliFileName=$(echo "$cliFile" | cut -c 1-$((${#cliFile}-7)))
         tar -zxvf $cliFile
         cd $cliFileName
-        chmod +x install.sh
-        ./install.sh system
-        cd /home/runner/work/veracode/veracode/
+        export PATH="veracode-helper/helper/cli/$cliFileName:$PATH"
+        cd /__w/veracode/veracode
         veracode package --source . --output veracode-artifacts --trust
         zip veracode-artifact.zip veracode-artifacts/* -x .zip .tar .tar.gz .gz
+
+    - name: Package error
+      if: failure() && steps.application_package.outcome == 'failure'
+      run: |
+        echo "::error::Veracode static scan faced a problem. Please contact your Veracode administrator for more information."
+
     - uses: actions/upload-artifact@v4
       with:
         name: veracode-artifact
-        path: veracode-artifact.zip
+        path: /__w/veracode/veracode/veracode-artifact.zip
+        if-no-files-found: error
