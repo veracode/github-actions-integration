@@ -1,6 +1,6 @@
-name: Binary Ready - Veracode Static Code Analysis
+name: Binary Ready - Veracode Static Code Analysis - Policy Scan
 
-run-name: Binary Ready - Static Code Analysis - ${{ github.event.client_payload.repository.name }}
+run-name: Binary Ready - Static Code Analysis - Policy Scan - ${{ github.event.client_payload.repository.name }}
 
 concurrency:
   group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
