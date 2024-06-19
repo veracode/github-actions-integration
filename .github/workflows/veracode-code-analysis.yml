@@ -38,7 +38,7 @@ jobs:
   register:
     uses: ./.github/workflows/veracode-check-run.yml
     with:
-      check_run_name: ${{ github.workflow }}${{ contains( github.event.action, 'policy') && ' - Policy Scan' || ' - Pipeline Scan' }}
+      check_run_name: ${{ github.workflow }} - ${{ contains( github.event.action, 'policy') && 'Policy' || 'Pipeline' }}
       head_sha: ${{ github.event.client_payload.sha }}
       repositroy_owner: ${{ github.event.client_payload.repository.owner }}
       repositroy_name: ${{ github.event.client_payload.repository.name }}
