@@ -8,7 +8,7 @@ concurrency:
 
 on:
   repository_dispatch:
-    types: 
+    types:
       - java-maven-pipeline-scan
       - java-maven-policy-scan
       - java-gradle-pipeline-scan
@@ -38,7 +38,7 @@ jobs:
   register:
     uses: ./.github/workflows/veracode-check-run.yml
     with:
-      check_run_name: ${{ github.workflow }}
+      check_run_name: ${{ github.workflow }}${{ contains( github.event.action, 'policy') && ' - Policy Scan' || ' - Pipeline Scan' }}
       head_sha: ${{ github.event.client_payload.sha }}
       repositroy_owner: ${{ github.event.client_payload.repository.owner }}
       repositroy_name: ${{ github.event.client_payload.repository.name }}
@@ -63,7 +63,7 @@ jobs:
           appname: ${{ github.event.client_payload.user_config.profile_name }}
           source_repository: ${{ github.event.client_payload.repository.full_name }}
           check_run_id: ${{ needs.register.outputs.run_id }}
-      
+
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
@@ -81,7 +81,7 @@ jobs:
           start_line: ${{ github.event.client_payload.annotationObj.start_line }}
           end_line: ${{ github.event.client_payload.annotationObj.end_line }}
           break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
- 
+
   build:
     needs: validations
     uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
@@ -114,7 +114,7 @@ jobs:
       filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
       language: ${{ github.event.client_payload.repository.language }}
     secrets: inherit
-    
+
   policy_scan:
     needs: [build, register]
     if: contains(github.event.action, 'policy')
