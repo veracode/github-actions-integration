@@ -8,7 +8,7 @@ veracode_static_scan:
     # Entering both will only execute branches_to_run
     # Leaving them both blank means this will never run
     branches_to_run:
-      - '*'
+      - 'main'
     branches_to_exclude:
   pull_request:
     trigger: true
