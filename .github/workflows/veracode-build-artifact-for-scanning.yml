@@ -18,7 +18,7 @@ on:
   
 jobs:
   build:
-    if: ${{ inputs.event_name == 'java-pipeline-scan' || inputs.event_name == 'java-policy-scan' || inputs.event_name == 'java-sandbox-scan' || inputs.event_name == 'unidentified-lang-pipeline-scan' || inputs.event_name == 'unidentified-lang-policy-scan' || inputs.event_name == 'unidentified-lang-sandbox-scan' }}
+    if: ${{ inputs.event_name == 'java-pipeline-scan' || inputs.event_name == 'java-policy-scan' || inputs.event_name == 'java-sandbox-scan' || inputs.event_name == 'unidentified-lang-pipeline-scan' || inputs.event_name == 'unidentified-lang-policy-scan' || inputs.event_name == 'unidentified-lang-sandbox-scan' || inputs.event_name == 'dot-net-pipeline-scan' || inputs.event_name == 'dot-net-policy-scan' || inputs.event_name == 'dot-net-sandbox-scan'}}
     uses: ./.github/workflows/veracode-default-build.yml
     with:
       repository: ${{ inputs.repository }}
@@ -44,14 +44,6 @@ jobs:
   build-source-code-scan:
     if: ${{ inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan'  || inputs.event_name == 'source-code-sandbox-scan'}}
     uses: ./.github/workflows/veracode-build-source-code.yml
-    with:
-      repository: ${{ inputs.repository }}
-      ref: ${{ inputs.ref }}
-      token: ${{ inputs.token }}
-      
-  build-dot-net-package:
-    if: ${{ inputs.event_name == 'dot-net-pipeline-scan' || inputs.event_name == 'dot-net-policy-scan'  || inputs.event_name == 'dot-net-sandbox-scan'}}
-    uses: ./.github/workflows/veracode-build-dot-net.yml
     with:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
