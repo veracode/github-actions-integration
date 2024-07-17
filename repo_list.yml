@@ -1,4 +1,4 @@
-# NOTE: You can also perform advanced search to include/exclude the repos by giving repos name as mentioned below: 
+## NOTE: You can also perform advanced search to include/exclude the repos by giving repos name as mentioned below: 
 # IMPORTANT: Please give all the repo name(s) in single quotes like 'abc' or '*' to avoid any errors and to perform advanced searches effectively.
         
   #           - 'example-*'       -- This will match the character(s) starting with 'example-' followed by anything.
