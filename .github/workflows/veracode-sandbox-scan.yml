@@ -8,8 +8,6 @@ concurrency:
 on:
   repository_dispatch:
     types:
-      - java-maven-sandbox-scan
-      - java-gradle-sandbox-scan
       - source-code-sandbox-scan
       - dot-net-sandbox-scan
       - go-sandbox-scan
