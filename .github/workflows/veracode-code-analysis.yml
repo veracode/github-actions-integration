@@ -9,10 +9,6 @@ concurrency:
 on:
   repository_dispatch:
     types:
-      - java-maven-pipeline-scan
-      - java-maven-policy-scan
-      - java-gradle-pipeline-scan
-      - java-gradle-policy-scan
       - source-code-pipeline-scan
       - source-code-policy-scan
       - dot-net-pipeline-scan
