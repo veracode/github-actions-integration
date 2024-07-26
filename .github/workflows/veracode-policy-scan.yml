@@ -68,6 +68,10 @@ jobs:
           name: veracode-artifact
           path: ./veracode_artifact_directory
 
+      - name: set version
+        run: |
+          echo "VERSION=${{ github.run_id }}-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
         uses: veracode/uploadandscan-action@v0.1.5
@@ -76,12 +80,12 @@ jobs:
           appname: ${{ inputs.profile_name }}
           createprofile: true
           policy: ${{ inputs.policy_name }}
-          version: '${{ github.run_id }}'
+          version: '${{ env.VERSION }}'
           filepath: ./veracode_artifact_directory/
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           #scanpollinginterval: 30
-          scantimeout: 15
+          scantimeout: 30
           # include: ${{ inputs.modules_to_scan }}
           failbuild: ${{ inputs.break_build_policy_findings }}
 
