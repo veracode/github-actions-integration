@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Verify Veracode API credentials
         id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@v0.1.3
+        uses: veracode/github-actions-integration-helper@v0.1.4
         with:
           action: validateVeracodeApiCreds
           token: ${{ github.event.client_payload.token }}
@@ -43,7 +43,7 @@ jobs:
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
-        uses: veracode/github-actions-integration-helper@v0.1.3
+        uses: veracode/github-actions-integration-helper@v0.1.4
         with:
           action: validatePolicyName
           token: ${{ github.event.client_payload.token }}
@@ -71,7 +71,7 @@ jobs:
           run-id: ${{ github.event.client_payload.run_id }}
 
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.5
+        uses: veracode/uploadandscan-action@v0.1.6
         id: upload_and_scan
         with:
           vid: '${{ secrets.VERACODE_API_ID }}'
@@ -88,7 +88,7 @@ jobs:
       - name: Veracode Policy Results
         id: prepare-results
         if: always()
-        uses: Veracode/github-actions-integration-helper@v0.1.3
+        uses: Veracode/github-actions-integration-helper@v0.1.4
         with:
           action: 'preparePolicyResults'
           token: ${{ github.event.client_payload.token }}
@@ -107,7 +107,7 @@ jobs:
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.3
+      - uses: veracode/github-actions-integration-helper@v0.1.4
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
