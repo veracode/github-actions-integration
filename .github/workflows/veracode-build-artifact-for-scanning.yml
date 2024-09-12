@@ -15,15 +15,36 @@ on:
       event_name:
         required: true
         type: string
+      build_runs_on:
+        required: true
+        type: string
+      build_packager_image:
+        required: true
+        type: string
+      build_predependency_command:
+        required: true
+        type: string
+      ruby_version:
+        required: true
+        type: string
+      bundle_version:
+        required: true
+        type: string
   
 jobs:
   build:
-    if: ${{ inputs.event_name == 'java-pipeline-scan' || inputs.event_name == 'java-policy-scan' || inputs.event_name == 'java-sandbox-scan' || inputs.event_name == 'unidentified-lang-pipeline-scan' || inputs.event_name == 'unidentified-lang-policy-scan' || inputs.event_name == 'unidentified-lang-sandbox-scan' || inputs.event_name == 'dot-net-pipeline-scan' || inputs.event_name == 'dot-net-policy-scan' || inputs.event_name == 'dot-net-sandbox-scan' || inputs.event_name == 'scala-pipeline-scan' || inputs.event_name == 'scala-policy-scan'  || inputs.event_name == 'scala-sandbox-scan' || inputs.event_name == 'go-pipeline-scan' || inputs.event_name == 'go-policy-scan'  || inputs.event_name == 'go-sandbox-scan' || inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan' || inputs.event_name == 'source-code-sandbox-scan'}}
+    if: ${{ inputs.event_name == 'java-pipeline-scan' || inputs.event_name == 'java-policy-scan' || inputs.event_name == 'java-sandbox-scan' || inputs.event_name == 'unidentified-lang-pipeline-scan' || inputs.event_name == 'unidentified-lang-policy-scan' || inputs.event_name == 'unidentified-lang-sandbox-scan' || inputs.event_name == 'dot-net-pipeline-scan' || inputs.event_name == 'dot-net-policy-scan' || inputs.event_name == 'dot-net-sandbox-scan' || inputs.event_name == 'scala-pipeline-scan' || inputs.event_name == 'scala-policy-scan'  || inputs.event_name == 'scala-sandbox-scan' || inputs.event_name == 'go-pipeline-scan' || inputs.event_name == 'go-policy-scan'  || inputs.event_name == 'go-sandbox-scan' || inputs.event_name == 'source-code-pipeline-scan' || inputs.event_name == 'source-code-policy-scan' || inputs.event_name == 'source-code-sandbox-scan' || inputs.event_name == 'ruby-pipeline-scan' || inputs.event_name == 'ruby-policy-scan' || inputs.event_name == 'ruby-sandbox-scan'}}
     uses: ./.github/workflows/veracode-default-build.yml
     with:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref }}
       token: ${{ inputs.token }}
+      build_runs_on: ${{ inputs.build_runs_on }}
+      build_packager_image: ${{ inputs.build_packager_image }}
+      build_predependency_command: ${{ inputs.build_predependency_command }}
+      ruby_version: ${{ inputs.ruby_version }}
+      bundle_version: ${{ inputs.bundle_version }}
+      event_name: ${{ inputs.event_name }}
 
   build-tsql-package:
     if: ${{ inputs.event_name == 'tsql-pipeline-scan' || inputs.event_name == 'tsql-policy-scan'  || inputs.event_name == 'tsql-sandbox-scan'}}

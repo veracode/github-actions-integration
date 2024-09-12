@@ -11,11 +11,30 @@ on:
       token:
         required: true
         type: string
+      event_name:
+        required: true
+        type: string
+      build_runs_on:
+        required: true
+        type: string
+      build_packager_image:
+        required: true
+        type: string
+      build_predependency_command:
+        required: true
+        type: string
+      ruby_version:
+        required: true
+        type: string
+      bundle_version:
+        required: true
+        type: string
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.build_runs_on) }}
     container:
-      image: veracode/scm-packaging:2.1.0
+      image: ${{ inputs.build_packager_image }}
     env:
       VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
@@ -32,19 +51,37 @@ jobs:
 
     - name: Package the application
       id: application_package
+      shell: bash
       env:
         VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
         VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
       run: |
+        if [[ ! -z "${{ inputs.build_predependency_command }}" ]]; then
+          echo "Executing Pre-Build Dependency.."
+          ${{ inputs.build_predependency_command }}
+        else
+          echo "No Pre-Build Dependency provided."
+        fi
+        if [[ "${{ inputs.event_name }}" == *"ruby"* ]]; then
+          source /etc/profile.d/rvm.sh
+          rvm pkg install openssl
+          rvm install ruby-${{ inputs.ruby_version }}
+        fi
+        working_path=`pwd`
+        echo "working_dir=$working_path" >> "$GITHUB_OUTPUT"
         cd veracode-helper/helper/cli
         cliFile=$(ls -1 . | head -n 1)
         cliFileName=$(echo "$cliFile" | cut -c 1-$((${#cliFile}-7)))
         tar -zxvf $cliFile
         cd $cliFileName
         export PATH="veracode-helper/helper/cli/$cliFileName:$PATH"
-        cd /__w/veracode/veracode
+        cd $working_path
+        if [[ "${{ inputs.event_name }}" == *"ruby"* ]]; then
+          gem install bundler -v ${{ inputs.bundle_version }}
+          gem install veracode
+          bundle install
+        fi
         veracode package --source . --output veracode-artifacts --trust
-        zip veracode-artifact.zip veracode-artifacts/* -x .zip .tar .tar.gz .gz
 
     - name: Package error
       if: failure() && steps.application_package.outcome == 'failure'
@@ -54,5 +91,5 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: veracode-artifact
-        path: /__w/veracode/veracode/veracode-artifacts/*
+        path: "${{ steps.application_package.outputs.working_dir }}/veracode-artifacts/*"
         if-no-files-found: error

@@ -18,6 +18,7 @@ on:
       - dart-sandbox-scan
       - java-sandbox-scan
       - unidentified-lang-sandbox-scan
+      - ruby-sandbox-scan
 
 jobs:
   build:
