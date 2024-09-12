@@ -29,6 +29,8 @@ on:
       - java-policy-scan
       - unidentified-lang-pipeline-scan
       - unidentified-lang-policy-scan
+      - ruby-pipeline-scan
+      - ruby-policy-scan
 
 jobs:
   register:
@@ -86,7 +88,11 @@ jobs:
       ref: ${{ github.event.client_payload.sha }}
       token: ${{ github.event.client_payload.token }}
       event_name: ${{ github.event.action }}
-
+      build_runs_on: ${{ github.event.client_payload.user_config.build_runs_on }}
+      build_packager_image: ${{ github.event.client_payload.user_config.build_packager_image }}
+      build_predependency_command: ${{ github.event.client_payload.user_config.build_predependency_command }}
+      ruby_version: ${{ github.event.client_payload.user_config.ruby_version }}
+      bundle_version: ${{ github.event.client_payload.user_config.bundle_version }}
 
   pipeline_scan:
     # needs the build step before this job will start running
