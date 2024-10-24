@@ -14,7 +14,7 @@ veracode_static_scan:
       - synchronize
     target_branch:
       - default_branch 
-  # If the analysis_on_platform is set to true,
+  ## If the analysis_on_platform is set to true,
   # Veracode will save your last scan result, on the default branch, as an application profile with the same name as your scanned repository on the Veracode platform. 
   # If the analysis_on_platform is set to false, scan results will not be saved to the Veracode platform.
   analysis_on_platform: false
