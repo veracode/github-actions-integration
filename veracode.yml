@@ -30,7 +30,7 @@ veracode_static_scan:
   # If the create_code_scanning_alert is set to true, GitHub security code scanning vulnerability alerts will be created for static findings.
   create_code_scanning_alert: false
   # If the create_issue is set to true, GitHub Issues will be created for static findings.
-  create_issue: false
+  create_issue: true
   # If the trigger is set to true, a scan is triggered when you create an issue containing the commands value or add a comment containing the commands value to an issue.
   # Syntax to be used - COMMANDS_VALUE [branch: BRANCH_NAME]
   issues:
