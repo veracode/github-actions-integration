@@ -123,6 +123,13 @@ jobs:
     if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.client_payload.repository.owner }}/${{ github.event.client_payload.repository.name }}
+          ref: ${{ github.event.client_payload.user_config.ref }}
+          token: ${{ github.event.client_payload.token }}
+
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
@@ -147,6 +154,13 @@ jobs:
     runs-on: ubuntu-latest
     name: Create issues
     steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.client_payload.repository.owner }}/${{ github.event.client_payload.repository.name }}
+          ref: ${{ github.event.client_payload.user_config.ref }}
+          token: ${{ github.event.client_payload.token }}
+
       - name: Get flaw file
         uses: actions/download-artifact@v4
         with:
