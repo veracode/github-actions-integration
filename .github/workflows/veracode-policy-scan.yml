@@ -92,7 +92,7 @@ jobs:
       - name: Veracode Policy Results
         id: prepare-results
         if: always()
-        uses: Veracode/github-actions-integration-helper@v0.1.5
+        uses: Veracode/github-actions-integration-helper@v0.1.6
         with:
           action: 'preparePolicyResults'
           token: ${{ inputs.token }}
@@ -111,7 +111,7 @@ jobs:
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.5
+      - uses: veracode/github-actions-integration-helper@v0.1.6
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
@@ -131,24 +131,8 @@ jobs:
           name: policy-flaws
           path: /tmp
 
-      - name: Convert policy scan output to SARIF format for java language
-        if: ${{ inputs.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
-        with:
-          scan-type: policy
-          results-json: '/tmp/policy_flaws.json'
-          output-results-sarif: veracode-results.sarif
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          commitSHA: ${{ inputs.sha }}
-          ref: ${{ inputs.ref }}
-          githubToken: ${{ inputs.token }}
-          source-base-path-1: 'com/:src/main/java/com/'
-          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Convert policy scan output to SARIF format for non java language
-        if: ${{ inputs.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
+      - name: Convert policy scan output to SARIF format
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -171,21 +155,8 @@ jobs:
           name: 'policy-flaws'
           path: /tmp
 
-      - name: Create flaws as issues for java language
-        if: ${{ inputs.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
-        with:
-          scan-results-json: '/tmp/policy_flaws.json'
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          github-token: ${{ inputs.token }}
-          commitHash: ${{ inputs.sha }}
-          source_base_path_1: 'com/:src/main/java/com/'
-          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Create flaws as issues for non java language
-        if: ${{ inputs.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+      - name: Create flaws as issues
+        uses: veracode/veracode-flaws-to-issues@v2.2.25
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ inputs.owner }}
