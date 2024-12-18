@@ -125,6 +125,12 @@ jobs:
     if: ${{ inputs.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ inputs.token }}
+
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
@@ -149,6 +155,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Create issues
     steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ inputs.token }}
+
       - name: Get flaw file
         uses: actions/download-artifact@v4
         with:
