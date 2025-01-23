@@ -52,7 +52,7 @@ jobs:
 
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.6
+        uses: veracode/uploadandscan-action@v0.1.7
         id: upload_and_scan
         with:
           appname: ${{ github.event.client_payload.user_config.profile_name }}
@@ -65,3 +65,4 @@ jobs:
           createsandbox: true
           sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+          gitRepositoryUrl: ${{ github.server_url }}/${{ github.event.client_payload.repository.full_name }}
