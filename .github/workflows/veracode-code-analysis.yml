@@ -1,6 +1,6 @@
 name: Veracode Static Code Analysis
 
-run-name: Veracode Static Code Analysis - ${{ github.event.client_payload.repository.name }}
+run-name: Static Code Analysis - ${{ github.event.client_payload.repository.name }}
 
 concurrency:
   group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
