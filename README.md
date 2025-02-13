@@ -1,4 +1,5 @@
-![Veracode](imgs/vclogo.png)
+<img src="imgs/vclogo-light-mode.png#gh-light-mode-only" width="50%">
+<img src="imgs/vclogo-dark-mode.png#gh-dark-mode-only" width="50%">
 
 # Veracode GitHub Workflow Integration 
 
