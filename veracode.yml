@@ -1,6 +1,6 @@
 veracode_static_scan:
   push:
-    trigger: true
+    trigger: false
     # Please only specify either branches_to_run or branches_to_exclude
     # Entering both will only execute branches_to_run
     # Leaving them both blank means this will never run
@@ -67,7 +67,7 @@ veracode_sca_scan:
 
 veracode_iac_secrets_scan:
   push:
-    trigger: true
+    trigger: false
     # Please only specify either branches_to_run or branches_to_exclude
     # Entering both will only execute branches_to_run
     # Leaving them both blank means this will never run
