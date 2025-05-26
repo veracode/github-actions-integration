@@ -105,6 +105,8 @@ jobs:
           fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
           fail_checks_on_error: ${{ inputs.break_build_on_error }}
           filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
+          head_sha: ${{ inputs.sha }}
+          gitRepositoryUrl: ${{ github.server_url }}/${{ inputs.source_repository }}
 
   veracode-remove-sandbox:
     needs: policy_scan
