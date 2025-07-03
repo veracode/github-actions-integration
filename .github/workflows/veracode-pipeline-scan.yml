@@ -71,9 +71,11 @@ jobs:
           echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
 
       # run the pipeline scan action
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Make sure repo files are available
       - name: Veracode Pipeline-Scan
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@master
+        uses: ./actions/Veracode-pipeline-scan-action
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
@@ -82,10 +84,12 @@ jobs:
           fail_build: ${{ inputs.break_build_policy_findings }}
           use_upgraded_version: true
 
+      # - name: Checkout repository
+      #   uses: actions/checkout@v3  # Make sure repo files are available    
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: Veracode/github-actions-integration-helper@main
+        uses: ./actions/github-actions-integration-helper
         with:
           action: 'preparePipelineResults'
           token: ${{ inputs.token }}
@@ -109,9 +113,11 @@ jobs:
         with:
           name: "Veracode Pipeline-Scan Mitigated Filtered Results"
 
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Make sure repo files are available
       - name: Convert pipeline scan output to SARIF format for java language
         if: ${{ inputs.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
+        uses: ./actions/veracode-pipeline-scan-results-to-sarif
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -123,9 +129,11 @@ jobs:
           source-base-path-1: 'com/:src/main/java/com/'
           source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
 
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Make sure repo files are available
       - name: Convert pipeline scan output to SARIF format for non java language
         if: ${{ inputs.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
+        uses: ./actions/veracode-pipeline-scan-results-to-sarif
         with:
           pipeline-results-json: filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -146,9 +154,11 @@ jobs:
         with:
           name: 'Veracode Pipeline-Scan Mitigated Filtered Results'
 
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Make sure repo files are available
       - name: Create flaws as issues for java language
         if: ${{ inputs.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        uses: ./actions/veracode-flaws-to-issues
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ inputs.owner }}
@@ -158,9 +168,11 @@ jobs:
           source_base_path_1: 'com/:src/main/java/com/'
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
 
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Make sure repo files are available          
       - name: Create flaws as issues for non java language
         if: ${{ inputs.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        uses: ./actions/veracode-flaws-to-issues
         with:
           scan-results-json: 'filtered_results.json'
           repo_owner: ${{ inputs.owner }}

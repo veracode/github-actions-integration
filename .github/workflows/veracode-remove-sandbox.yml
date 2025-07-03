@@ -34,7 +34,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.1
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Make sure repo files are available
+      - uses: ./actions/github-actions-integration-helper
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}

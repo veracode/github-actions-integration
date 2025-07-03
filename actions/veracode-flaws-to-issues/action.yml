@@ -1,0 +1,44 @@
+name: 'Veracode scan results to GitHub issues Action'
+description: 'Import the results of a Veracode scan as Issues for a repo'
+inputs:
+  scan-results-json:
+    description: 'Scan results file'
+    required: true
+    default: 'filtered_results.json'
+  github-token:
+    description: 'GitHub token to access the repo'
+    default: ${{ github.token }}
+    required: true
+  wait-time:
+    description: 'Delay (in seconds) between entering Issues into GitHub (due to rate limiting)'
+    required: false
+    default: '2'
+  source_base_path_1:
+    description: 'Rewrite 1'
+    required: false
+  source_base_path_2:
+    description: 'Rewrite 2'
+    required: false
+  source_base_path_3:
+    description: 'Rewrite 3'
+    required: false
+  repo_owner:
+    description: 'repo owner'
+    required: false
+  fail_build:
+    description: fail pipeline upon findings (true | false)
+    required: false
+  debug:
+    description: enable debug logging
+    required: false
+  commitHash:
+    description: commit hash
+    required: false
+  repo_name:
+    description: repo name
+    required: false
+
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

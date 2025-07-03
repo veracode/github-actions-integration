@@ -57,9 +57,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Validations
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3  # Make sure repo files are available
       - name: Verify Veracode API credentials
         id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@v0.1.1
+        uses: ./actions/github-actions-integration-helper
         with:
           action: validateVeracodeApiCreds
           token: ${{ github.event.client_payload.token }}
@@ -68,11 +70,13 @@ jobs:
           appname: ${{ github.event.client_payload.user_config.profile_name }}
           source_repository: ${{ github.event.client_payload.repository.full_name }}
           check_run_id: ${{ needs.register.outputs.run_id }}
-      
+
+      - name: Checkout repository
+        uses: actions/checkout@v3       
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
-        uses: veracode/github-actions-integration-helper@v0.1.1
+        uses: ./actions/github-actions-integration-helper
         with:
           action: validatePolicyName
           token: ${{ github.event.client_payload.token }}

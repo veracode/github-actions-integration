@@ -1,0 +1,58 @@
+# action.yml
+name: 'Veracode Dependency Scanning'
+description: 'An action to execute Veracode Agent-Based SCA and import findings as issues'
+branding:
+  icon: 'play'
+  color: 'blue'
+inputs:
+  github_token:
+    description: "Authorization token to query and create issues"
+    default: ${{ github.token }}
+    required: true
+  quick:
+    description: "Run the SRCCLR with the `--quick` options"
+    required: false
+    default: "false"
+  update_advisor:
+    description: "Show update advisor"
+    required: false
+    default: "false"
+  url:
+    description: "A git URL to work with in case the scan is not for the current repository"
+    required: false
+    default: ""
+  create-issues:
+    description: "An attribute to instruct the action to create an issue from found vulnerability or just simple text output"
+    required: false
+    default: "false"
+  path:
+    description: "A path within the repository where the build definition starts"
+    required: false
+    default: "."
+  debug:
+    description: "Run the SRCCLR in debug mode"
+    required: false
+    default: "false"
+  skip-collectors:
+    description: "Run the SRCCLR with the `--skip-collectors` options"
+    required: false
+    default: "false"
+  allow-dirty:
+    description: "Run the SRCCLR with the `--allow-dirty` option"
+    required: false
+    default: "false"
+  recursive:
+    description: "Run the SRCCLR with the `--recursive` option"
+    required: false
+    default: "false"
+  skip-vms:
+    description: "Run the SRCCLR with the `--skip-vms` option"
+    required: false
+    default: "false"
+  no-graphs:
+    description: "Run the SRCCLR with the `--no-graphs` option"
+    required: false
+    default: "false"
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

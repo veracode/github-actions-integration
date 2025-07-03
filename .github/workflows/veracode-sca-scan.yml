@@ -34,10 +34,13 @@ jobs:
           repository: ${{ github.event.client_payload.repository.full_name }}
           ref: ${{ github.event.client_payload.repository.branch }}
           token: ${{ github.event.client_payload.token }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - name: Run Veracode SCA
         env:
           SRCCLR_API_TOKEN: ${{ secrets.VERACODE_AGENT_TOKEN }}
-        uses: veracode/veracode-sca@v2.1.11
+          JAVA_OPTS: -Xms2g -Xmx4g
+        uses: ./actions/veracode-sca
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false  

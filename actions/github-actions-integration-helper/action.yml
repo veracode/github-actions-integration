@@ -1,0 +1,92 @@
+name: 'Veracode GitHub Workflow Tool Helper functions'
+description: 'Helper functions for GitHub Workflow Tool - Currently supports validations and process scan results.'
+author: 'Vincent Deng'
+inputs:
+  action:
+    description: 'Action to take'
+    required: true
+  vid:
+    description: 'Veracode ID'
+    required: true
+  vkey:
+    description: 'Veracode Key'
+    required: true
+  appname:
+    description: 'Veracode Application Name'
+    required: true
+  token:
+    description: 'your GITHUB_TOKEN'
+    required: false
+  check_run_id:
+    description: 'GitHub Check Run ID'
+    required: false
+  source_repository:
+    description: 'Source Repository'
+    required: false
+  fail_checks_on_policy:
+    description: 'Fail Checks if Policy Fails'
+    required: false
+  fail_checks_on_error:
+    description: 'Fail Checks if there are Build Errors'
+    required: false
+  sandboxname:
+    description: 'Sandbox Name'
+    required: false
+  policyname:
+    description: 'Policy Name'
+    required: false
+  path:
+    description: 'Path'
+    required: false
+  start_line:
+    description: 'Start line'
+    required: false
+  end_line:
+    description: 'End line'
+    required: false
+  break_build_invalid_policy:
+    description: 'Break build on invalid policy name'
+    required: false
+  filter_mitigated_flaws:
+    description: 'Filter pipeline scan results based on mitigated flaws (true) or all policy flaws (false)'
+    required: false
+  check_run_name:
+    description: 'Check run name'
+    required: false
+  head_sha:
+    description: 'Head SHA of the commit'
+    required: false
+  branch:
+    description: 'Head branch'
+    required: false
+  event_type:
+    description: 'Event type - Describe the policy, pipeline or sandbox scan.'
+    required: false
+  issue_trigger_flow:
+    description: 'A flag to identify if the scan was invoked by issue comment or creation.'
+    required: false
+  workflow_app:
+    description: 'Is this action called from the Veracode Workflow App'
+    required: false
+    default: 'true'
+  line_number_slop:
+    description: 'Line number slop'
+    required: false
+    default: '3'
+  pipeline_scan_flaw_filter:
+    description: 'Pipeline Scan Flaw filter'
+    required: false
+    default: 'policy_violations'
+    # Available filter options:
+    # - all_results: Includes all pipeline scan findings, regardless of whether they violate the security policy.
+    # - policy_violations: Includes only findings from the pipeline scan that violate the security policy.
+    # - unmitigated_results: Excludes mitigated findings on the Veracode platform and includes all remaining findings, regardless of policy violations.
+    # - unmitigated_policy_violations: Includes only unmitigated findings that violate the security policy.
+    # - new_findings: Includes net new findings introduced in this commit, regardless of policy violations, excluding findings from previous scans.
+    # - new_policy_violations: Includes net new findings introduced in this commit that violate the security policy, excluding findings from previous scans.
+  filtered_results_file:
+    description: 'Filtered results file'
+    required: false
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

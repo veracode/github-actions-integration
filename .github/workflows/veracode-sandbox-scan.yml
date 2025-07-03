@@ -36,8 +36,10 @@ jobs:
           path: ./veracode_artifact_directory
 
       # run the policy scan action
+      # - name: Checkout repository
+      #   uses: actions/checkout@v3  # Make sure repo files are available
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.4
+        uses: ./actions/uploadandscan-action
         id: upload_and_scan
         with:
           appname: ${{ inputs.profile_name }}

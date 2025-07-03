@@ -1,0 +1,109 @@
+name: 'Veracode Pipeline-Scan'
+description: 'Upload files to veracode and start a static pipeline-scan.'
+inputs:
+  vid:
+    description: 'vid'
+    required: true
+  vkey:
+    description: 'vkey'
+    required: true
+  file:
+    description: 'Filename of the packaged application to upload and scan.'
+    required: true
+  token:
+    description: 'GITHUB_TOKEN or a repo scoped PAT.'
+    default: ${{ github.token }}
+    required: true
+  veracode_policy_name:
+    description: 'Name of the Veracode default policy or custom-built policy to apply to the scan results.'
+  request_policy:
+    description: 'DPERECATED, WILL BE REMOVED WITH NEXT VERSION - Name of the security policy to download as a file. Required only if you want to download the configuration for a custom policy defined by your organization. After downloading the policy, you can provide this file in a subsequent command using the policy_file parameter.'
+    required: false
+  fail_on_severity:
+    description: 'Fail the pipeline job if the scan finds flaws of the specified severities. Enter a comma-separated list of severities in quotation marks.'
+    required: false
+  fail_on_cwe:
+    description: 'Fail the pipeline job if the scan finds flaws of the specified CWEs. Enter a comma-separated list of CWE IDs.'
+    required: false
+  baseline_file:
+    description: 'Filter the flaws that exist in the specified baseline file and show only the additional flaws in the current scan.'
+    required: false
+  policy_name:
+    description: 'DPERECATED, WILL BE REMOVED WITH NEXT VERSION - Name of the Veracode default policy rule to apply to the scan results. You can only use this parameter with a Veracode default policy.'
+    required: false
+  policy_file:
+    description: 'Name of the local policy file you want to apply to the scan results.'
+    required: false
+  timeout:
+    description: 'Amount of time, in minutes, for the Pipeline Scan to wait before reporting an unsuccessful scan if the scan does not complete. Default is 60 minutes, which is also the maximum value.'
+    required: false
+  issue_details:
+    description: 'Enter true to show detailed messages for each issue in the results summary.'
+    required: false
+  summary_display:
+    description: 'Enter true to show a human-readable results summary on the console. Default is true.'
+    required: false
+  json_display:
+    description: 'Enter true to show the JSON containing the scan results on the console. Default is false.'
+    required: false
+  verbose:
+    description: 'Enter true to display detailed messages in the scan results. Default is false.'
+    required: false
+  summary_output:
+    description: 'Enter true to save the scan results as a human-readable file. Default is false.'
+    required: false
+  summary_output_file:
+    description: 'Enter the filename of the scan results summary file. The file is stored in the current directory. Default is results.txt.'
+    required: false
+    default: 'results.txt'
+  json_output:
+    description: 'Enter true to save the scan results in JSON format. Default is true.'
+    required: false
+  json_output_file:
+    description: 'Rename the JSON file that contains the scan results. The file is stored in the current directory. Default filename is results.json.'
+    required: false
+    default: 'results.json'
+  filtered_json_output_file:
+    description: 'Enter the filename in the current directory to save results that violate pass-fail criteria. Default is filtered_results.json.'
+    required: false
+    default: 'filtered_results.json'
+  project_name:
+    description: 'Enter the name of the CI/CD code repository that runs a Pipeline Scan. This parameter adds the repository name to the scan results, which can help you track scans across repositories.'
+    required: false
+  project_url:
+    description: 'Enter the source control URL for the CI/CD code repository that runs a Pipeline Scan.'
+    required: false
+  project_ref:
+    description: 'Enter the source control reference, revision, or branch for the CI/CD code repository that runs a Pipeline Scan.'
+    required: false
+  app_id:
+    description: 'Enter the [application profile](https://docs.veracode.com/r/request_profile) ID for the application you want to upload and scan.'
+    required: false
+  development_stage:
+    description: 'Enter one these values, which are case-sensitive, for the type of development stage: Development, Testing, Release.'
+    required: false
+  debug:
+    description: 'Enable debug mode. 1 for on'
+    required: false
+  store_baseline_file:
+    description: 'Enable the storage of a baseline file. Takes true or false'
+    required: false
+  store_baseline_file_branch:
+    description: 'Enter the branch name where the baseline file should be stored'
+    required: false
+  create_baseline_from:
+    description: 'From which results should the baseline file be created. standard = full results || filtered = filtered results'
+    required: false
+  fail_build:
+    description: 'Fail the build upon findings. Takes true or false'
+    required: false
+  include: 
+    description: 'Enter a case-sensitive, comma-separated list of name patterns that represent the names of the modules to scan as top-level modules. Veracode identifies these modules during prescan. The * wildcard matches zero or more characters. The ? wildcard matches exactly one character. For example, to include various module names that contain module: --include "module 1, module-*, module2.jar". The scan results show the names of the modules that Veracode identified and the modules included in the scan. This parameter does not pause, stop, or impact the performance of your pipeline.'
+    required: false
+  artifact_name:
+    description: 'Enter the name of the artifact to be uploaded to Github.'
+    required: false
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -28,9 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Validations
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Verify Veracode API credentials
         id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@v0.1.1
+        uses: ./actions/github-actions-integration-helper
         with:
           action: validateVeracodeApiCreds
           token: ${{ github.event.client_payload.token }}
@@ -40,10 +42,12 @@ jobs:
           source_repository: ${{ github.event.client_payload.repository.full_name }}
           check_run_id: ${{ needs.register.outputs.run_id }}
 
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
-        uses: veracode/github-actions-integration-helper@v0.1.1
+        uses: ./actions/github-actions-integration-helper
         with:
           action: validatePolicyName
           token: ${{ github.event.client_payload.token }}
@@ -70,8 +74,10 @@ jobs:
           repository: ${{ github.event.client_payload.repository.full_name }}
           run-id: ${{ github.event.client_payload.run_id }}
 
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.4
+        uses: ./actions/uploadandscan-action
         id: upload_and_scan
         with:
           vid: '${{ secrets.VERACODE_API_ID }}'
@@ -86,10 +92,12 @@ jobs:
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
           use_upgraded_version: true
 
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Veracode Policy Results
         id: prepare-results
         if: always()
-        uses: Veracode/github-actions-integration-helper@v0.1.1
+        uses: ./actions/github-actions-integration-helper
         with:
           action: 'preparePolicyResults'
           token: ${{ github.event.client_payload.token }}
@@ -114,9 +122,11 @@ jobs:
           name: policy-flaws
           path: /tmp
 
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Convert policy scan output to SARIF format for Java language
         if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
+        uses: ./actions/veracode-pipeline-scan-results-to-sarif
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -129,9 +139,11 @@ jobs:
           source-base-path-1: 'com/:src/main/java/com/'
           source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
 
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Convert policy scan output to SARIF format for non Java language
         if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
+        uses: ./actions/veracode-pipeline-scan-results-to-sarif
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -154,9 +166,11 @@ jobs:
           name: 'policy-flaws'
           path: /tmp
 
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Create flaws as issues for Java language
         if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        uses: ./actions/veracode-flaws-to-issues
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ github.event.client_payload.repository.owner }}
@@ -166,9 +180,11 @@ jobs:
           source_base_path_1: 'com/:src/main/java/com/'
           source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
 
+      - name: Checkout repository
+        uses: actions/checkout@v3 
       - name: Create flaws as issues for non Java language
         if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+        uses: ./actions/veracode-flaws-to-issues
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ github.event.client_payload.repository.owner }}
