@@ -104,7 +104,7 @@ jobs:
       - name: Veracode Pipeline-Scan
         if: always()
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.18
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.19
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
@@ -118,11 +118,12 @@ jobs:
           filtered_json_output_file: ${{ strategy.job-index }}-filtered_results.json
           artifact_name: ${{ matrix.file }}
           debug: 1
+          workflow_app: true
     
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: veracode/github-actions-integration-helper@v0.1.7
+        uses: veracode/github-actions-integration-helper@v0.1.8
         with:
           action: 'preparePipelineResults'
           token: ${{ inputs.token }}
@@ -163,23 +164,32 @@ jobs:
     needs: pipeline_scan
     if: always()
     steps:
-      - name: Update check
-        id: update_check_status
-        shell: bash
-        run: |
-          # Convert JSON string to a proper format for jq processing
-          echo '${{ toJSON(needs) }}' | jq -c 'to_entries[]' | while read -r job; do
-            status=$(echo "$job" | jq -r '.value.result')
-            if [ "$status" = "success" ]; then
-              echo "Job success no need to update"
-              success_count=$((success_count + 1))
-            elif [ "$status" = "failure" ]; then
-              echo "Jobs failed - need checks update"
-              echo '{"status": "completed", "conclusion": "failure"}' > payload.txt
+     - name: Update check
+       id: update_check_status
+       shell: bash
+       env:
+        BREAK_BUILD_ON_ERROR: ${{ inputs.break_build_on_error }}
+        BREAK_BUILD_ON_POLICY: ${{ inputs.break_build_policy_findings }}
+       run: |
+            success_count=0
+            conclusion="failure"
+            # Convert JSON string to a proper format for jq processing
+            echo '${{ toJSON(needs) }}' | jq -c 'to_entries[]' | while read -r job; do
+              status=$(echo "$job" | jq -r '.value.result')
+              echo "$status"
+              if [ "$status" = "success" ]; then
+                success_count=$((success_count + 1))
+                echo '{"status": "completed", "conclusion": "success"}' > payload.txt
+              elif [ "$status" = "failure" ]; then
+                if [ "$BREAK_BUILD_ON_ERROR" = "false" && "$BREAK_BUILD_ON_POLICY" = "false" ]; then
+                  echo '{"status": "completed", "conclusion": "success"}' > payload.txt
+                else
+                  echo '{"status": "completed", "conclusion": "failure"}' > payload.txt
+                fi
+              fi
               curl -X PATCH \
                 -H "Authorization: Bearer ${{ inputs.token }}" \
                 -H "Accept: application/vnd.github+json" \
                 https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/check-runs/${{ inputs.check_run_id }} \
                 -d @"payload.txt"
-            fi
-          done
+            done
