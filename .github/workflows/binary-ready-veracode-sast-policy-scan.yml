@@ -86,6 +86,7 @@ jobs:
           policy: ${{ github.event.client_payload.policy_name }}
           scantimeout: 30
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+          deleteincompletescan: true
 
       - name: Veracode Policy Results
         id: prepare-results

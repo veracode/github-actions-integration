@@ -89,6 +89,7 @@ jobs:
           # include: ${{ inputs.modules_to_scan }}
           failbuild: ${{ inputs.break_build_policy_findings }}
           gitRepositoryUrl: ${{ github.server_url }}/${{ inputs.source_repository }}
+          deleteincompletescan: true
 
       - name: Veracode Policy Results
         id: prepare-results
