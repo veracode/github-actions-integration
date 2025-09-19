@@ -78,6 +78,29 @@ jobs:
           fi
           rm -rf veracode-helper
 
+      - name: Check for requirements files and create Pipfile.lock
+        run: |
+          if [ -f "requirements.txt" ] || [ -f "requirements-dev.txt" ] || [ -f "dev-requirements.txt" ]; then
+            if [ -f "Pipfile.lock" ]; then
+              echo "- Requirements file(s) found but Pipfile.lock already exists. Skipping pip install process."
+            else
+              echo "- Requirements file(s) found. Creating Pipfile.lock..."
+              if [ -f "requirements.txt" ]; then
+                echo "-- Installing from requirements.txt"
+                pip install -r requirements.txt
+              elif [ -f "requirements-dev.txt" ]; then
+                echo "-- Installing from requirements-dev.txt"
+                pip install -r requirements-dev.txt
+              elif [ -f "dev-requirements.txt" ]; then
+                echo "-- Installing from dev-requirements.txt"
+                pip install -r dev-requirements.txt
+              fi
+              echo "-- Pipfile.lock creation process completed."
+            fi
+          else
+            echo "- No requirements files found. Skipping pip install process."
+          fi
+
       - name: Run Veracode SCA
         env:
           SRCCLR_API_TOKEN: ${{ secrets.VERACODE_AGENT_TOKEN }}
