@@ -1,0 +1,62 @@
+name: 'Veracode Policy Scan'
+description: 'Upload files to Veracode and start a static policy scan.'
+inputs:
+  vid:
+    description: 'Veracode ID'
+    required: true
+  vkey:
+    description: 'Veracode Key'
+    required: true
+  appname:
+    description: 'Veracode Application Name'
+    required: true
+  version:
+    description: 'Veracode Version Number'
+    required: true
+  filepath:
+    description: 'File Path to upload'
+    required: true
+  createprofile:
+    description: 'Create a new profile. Boolean'
+    required: true
+    default: false
+  include:
+    description: 'Modules to include in scan'
+    required: false
+    default: ''
+  policy:
+    description: 'Veracode Policy Name'
+    required: false
+    default: ''
+  teams:
+    description: 'Veracode Team Name'
+    required: false
+    default: ''
+  scantimeout:
+    description: 'Scan Timeout in minutes'
+    required: false
+  deleteincompletescan:
+    description: 'Delete a broken or running policy scan'
+    required: false
+    default: false
+  failbuild:
+    description: 'Fail the build if the scan fails'
+    required: false
+    default: true
+  createsandbox:
+    description: 'Create a sandbox for the scan'
+    required: false
+    default: false
+  sandboxname:
+    description: 'Sandbox Name'
+    required: false
+    default: ''
+  gitRepositoryUrl:
+    description: 'Source Repository URL'
+    required: false
+    default: ''
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+

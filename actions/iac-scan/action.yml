@@ -1,0 +1,47 @@
+name: 'Veracode Container/IaC/Secrets Scanning GitHub Action'
+description: 'Veracode Container/IaC/Secrets Scanning GitHub Action'
+author: 'Veracode'
+
+inputs:
+  vid:
+    description : 'vid'
+    required: true
+  vkey:
+    description : 'vkey'
+    required: true
+  github-token:
+    description: 'GitHub token to access the repo'
+    default: ${{ github.token }}
+    required: true
+  command:
+    description : 'Scan command to run (scan|sbon)'
+    required: true
+    default: 'scan'
+  source:
+    description : 'location of the scan source for the target type.'
+    required: true
+    default: '.'
+  format:
+    description: 'format in which to output the scan results. Enter one of the following values (json|table)'
+    required: true
+    default: 'json'
+  type:
+    description: 'Which type of scan to run (image|archive|repo|directory)'
+    required: true
+    default: 'directory'
+  debug:
+    description: 'debug'
+    required: false
+    default: 'false'
+  fail_build:
+    description: 'fail_build'
+    required: false
+    default: 'false'
+  fail_build_on_error:
+    description: 'fail_build_on_error'
+    required: false
+    default: 'false'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+
