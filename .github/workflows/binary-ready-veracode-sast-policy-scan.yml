@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Verify Veracode API credentials
         id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@v0.1.8
+        uses: ./actions/integration-helper
         with:
           action: validateVeracodeApiCreds
           token: ${{ github.event.client_payload.token }}
@@ -43,7 +43,7 @@ jobs:
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
-        uses: veracode/github-actions-integration-helper@v0.1.8
+        uses: ./actions/integration-helper
         with:
           action: validatePolicyName
           token: ${{ github.event.client_payload.token }}
@@ -73,7 +73,7 @@ jobs:
           path: ./veracode_artifact_directory
 
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.7
+        uses: ./actions/policy-scan
         id: upload_and_scan
         with:
           vid: '${{ secrets.VERACODE_API_ID }}'
@@ -91,7 +91,7 @@ jobs:
       - name: Veracode Policy Results
         id: prepare-results
         if: always()
-        uses: veracode/github-actions-integration-helper@v0.1.8
+        uses: ./actions/integration-helper
         with:
           action: 'preparePolicyResults'
           token: ${{ github.event.client_payload.token }}
@@ -110,7 +110,7 @@ jobs:
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.8
+      - uses: ./actions/integration-helper
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
@@ -138,7 +138,7 @@ jobs:
           path: /tmp
 
       - name: Convert policy scan output to SARIF format
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
+        uses: ./actions/flaws-to-sarif
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -169,7 +169,7 @@ jobs:
           path: /tmp
 
       - name: Create flaws as issues
-        uses: veracode/veracode-flaws-to-issues@v2.2.25
+        uses: ./actions/flaws-to-issues
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ github.event.client_payload.repository.owner }}
