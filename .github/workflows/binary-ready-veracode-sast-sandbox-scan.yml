@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Download artifact
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           github-token: ${{ github.event.client_payload.token }}
           repository: ${{ github.event.client_payload.repository.full_name }}

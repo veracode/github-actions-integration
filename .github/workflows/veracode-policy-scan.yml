@@ -63,7 +63,7 @@ jobs:
       
       # get the compiled binary from a previous job
       - name: get archive
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
@@ -136,7 +136,7 @@ jobs:
           token: ${{ inputs.token }}
 
       - name: Get scan results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: policy-flaws
           path: /tmp
@@ -166,7 +166,7 @@ jobs:
           token: ${{ inputs.token }}
 
       - name: Get flaw file
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: 'policy-flaws'
           path: /tmp
