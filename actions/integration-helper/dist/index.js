@@ -33625,7 +33625,7 @@ const check_service_1 = __nccwpck_require__(2450);
 const http = __importStar(__nccwpck_require__(7542));
 const inputs_1 = __nccwpck_require__(8422);
 const fs = __importStar(__nccwpck_require__(1943));
-const artifact_1 = __importDefault(__nccwpck_require__(7884));
+const artifact = __importStar(__nccwpck_require__(7884));
 async function getApplicationByName(appname, vid, vkey) {
     var _a;
     try {
@@ -33870,7 +33870,7 @@ async function registerBuild(inputs) {
             repo: repo[1],
         };
         const rootDirectory = process.cwd();
-        let artifactClient = artifact_1.default.create();
+        let artifactClient = artifact.create();
         const metadata = {
             'check_run_type': inputs.event_type,
             'repository_name': ownership.repo,
@@ -34099,14 +34099,11 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.preparePipelineResults = preparePipelineResults;
 const core = __importStar(__nccwpck_require__(7484));
 const rest_1 = __nccwpck_require__(5772);
-const artifact_1 = __importDefault(__nccwpck_require__(7884));
+const artifact = __importStar(__nccwpck_require__(7884));
 const fs = __importStar(__nccwpck_require__(1943));
 const Checks = __importStar(__nccwpck_require__(9899));
 const inputs_1 = __nccwpck_require__(8422);
@@ -34154,7 +34151,7 @@ async function preparePipelineResultsNonWorkflowApp(inputs) {
     const filePath = 'pipeline_scan_flaw_filter.json';
     const artifactName = 'Veracode Pipeline-Scan Results - Filtered findings';
     const rootDirectory = process.cwd();
-    let artifactClient = artifact_1.default.create();
+    let artifactClient = artifact.create();
     if (findingsArray.length === 0 ||
         pipelineScanFlawFilter === 'all_results' ||
         pipelineScanFlawFilter === 'policy_violations') {
@@ -34310,7 +34307,7 @@ async function preparePipelineResults(inputs) {
     const filePath = 'mitigated_' + inputs.filtered_results_file;
     const artifactName = 'Veracode Pipeline-Scan Results - ' + inputs.filtered_results_file + ' - Mitigated findings';
     const rootDirectory = process.cwd();
-    let artifactClient = artifact_1.default.create();
+    let artifactClient = artifact.create();
     if (findingsArray.length === 0) {
         try {
             veracodePipelineResult.findings = [];
