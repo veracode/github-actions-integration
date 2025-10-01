@@ -25,7 +25,7 @@ jobs:
 
   validations:
     needs: register
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Validations
     steps:
       - name: Verify Veracode API credentials
@@ -60,7 +60,7 @@ jobs:
 
   policy_scan:
     needs: [register, validations]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Download artifact
         id: download-artifact
@@ -106,7 +106,7 @@ jobs:
 
   veracode-remove-sandbox:
     needs: policy_scan
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
@@ -120,7 +120,7 @@ jobs:
 
   code-scanning-alert:
     needs: policy_scan
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
@@ -152,7 +152,7 @@ jobs:
   create-issues:
     needs: policy_scan
     if: ${{ github.event.client_payload.user_config.create_issue && always() }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Create issues
     steps:
       - name: checkout repo

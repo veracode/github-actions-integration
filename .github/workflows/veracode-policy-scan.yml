@@ -54,7 +54,7 @@ on:
 
 jobs:
   policy_scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: policy scan
 
     steps:
@@ -111,7 +111,7 @@ jobs:
 
   veracode-remove-sandbox:
     needs: policy_scan
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
@@ -125,7 +125,7 @@ jobs:
 
   code-scanning-alert:
     needs: policy_scan
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: ${{ inputs.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
@@ -156,7 +156,7 @@ jobs:
   create-issues:
     needs: policy_scan
     if: ${{ inputs.create_issue && always() }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Create issues
     steps:
       - uses: actions/checkout@v4

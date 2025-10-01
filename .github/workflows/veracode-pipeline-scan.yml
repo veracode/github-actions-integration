@@ -51,7 +51,7 @@ on:
 
 jobs:
   prepare_pipeline_scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: prepare pipeline scan
     outputs:
       matrix_files: ${{ steps.get-files.outputs.matrix_files }} 
@@ -77,7 +77,7 @@ jobs:
         shell: bash
 
   pipeline_scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: prepare_pipeline_scan
     strategy:
       matrix:
@@ -160,7 +160,7 @@ jobs:
           commitHash: ${{ inputs.sha }}
 
   update-checks-status:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: pipeline_scan
     if: always()
     steps:

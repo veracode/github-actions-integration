@@ -25,7 +25,7 @@ jobs:
 
   validations:
     needs: register
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Validations
     steps:
       - name: Verify Veracode API credentials
@@ -59,7 +59,7 @@ jobs:
           break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
 
   prepare_pipeline_scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [register, validations]
     name: prepare pipeline scan
     outputs:
@@ -86,7 +86,7 @@ jobs:
         shell: bash
 
   pipeline_scan:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [register, validations, prepare_pipeline_scan]
     strategy:
       matrix:
@@ -175,7 +175,7 @@ jobs:
           commitHash:  ${{ github.event.client_payload.sha }}
 
   update-checks-status:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: pipeline_scan
     if: always()
     steps:

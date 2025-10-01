@@ -21,7 +21,7 @@ jobs:
 
   veracode-not-supported:
     needs: [register]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Veracode - SAST/SCA Not Supported Repository 
 
     steps:

@@ -25,7 +25,7 @@ jobs:
 
   veracode-sca-scan:
     needs: [register]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Veracode Component Analysis
     timeout-minutes: 30
 
