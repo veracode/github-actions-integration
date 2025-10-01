@@ -32,7 +32,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ fromJSON(inputs.build_runs_on) }}
+    runs-on: self-hosted
     container:
       image: ${{ inputs.build_packager_image }}
     env:
