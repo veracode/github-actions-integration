@@ -132,7 +132,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ${{ inputs.owner }}/${{ inputs.repo }}
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.sha }}
           token: ${{ inputs.token }}
 
       - name: Get scan results
@@ -162,7 +162,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ${{ inputs.owner }}/${{ inputs.repo }}
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.sha }}
           token: ${{ inputs.token }}
 
       - name: Get flaw file
