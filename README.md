@@ -2,7 +2,7 @@
 <img src="imgs/vclogo-dark-mode.png#gh-dark-mode-only">
 
 ## Veracode GitHub Workflow Integration is @Something IS RIGHT Or EVEN WrONG or write or read
- WAAH
+ WAAH Block
 The Veracode GitHub Workflow Integration allows you to set up a security scanning program for all of your GitHub repositories in a single configuration file.
 
 This repository includes the workflows required for the GitHub Workflow Integration to function correctly. In addition, it includes the configuration file, `veracode.yml`, which stores the default settings for you to scan your repositories with Veracode.
