@@ -1,5 +1,5 @@
 <img src="imgs/vclogo-light-mode.png#gh-light-mode-only">e2
-<img src="imgs/vclogo-dark-mode.png#gh-dark-mode-only"> e2 2
+<img src="imgs/vclogo-dark-mode.png#gh-dark-mode-only"> e2 2e
 2
 ## Veracode GitHub Workflow Integration is @Something IS RIGHT Or EVEN WrONG or write or read What is this or this is what it is searching
  WAAH Block
