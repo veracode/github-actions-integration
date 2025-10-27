@@ -1,4 +1,4 @@
-<img src="imgs/vclogo-light-mode.png#gh-light-mode-only">
+<img src="imgs/vclogo-light-mode.png#gh-light-mode-only">2
 <img src="imgs/vclogo-dark-mode.png#gh-dark-mode-only">  
 
 ## Veracode GitHub Workflow Integration  
