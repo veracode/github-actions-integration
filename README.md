@@ -1,5 +1,5 @@
 <img src="imgs/vclogo-light-mode.png#gh-light-mode-only">
-<img src="imgs/vclogo-dark-mode.png#gh-dark-mode-only">
+<img src="imgs/vclogo-dark-mode.png#gh-dark-mode-only">  
 
 ## Veracode GitHub Workflow Integration
 The Veracode GitHub Workflow Integration allows you to set up a security scanning program for all of your GitHub repositories in a single configuration file.
