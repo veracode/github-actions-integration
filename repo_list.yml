@@ -10,7 +10,7 @@
 
 #Populate the list of repos required to scan under org or leave it blank or '*' to include all
 include_repos:
-  - '*'
+  - 'mpd'
 
 #Populate the list of repos to skip from running the veracode scan(s) under org or leave it blank or '*' to exclude all
 exclude_repos:
