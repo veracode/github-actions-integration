@@ -67,3 +67,9 @@ jobs:
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
           gitRepositoryUrl: ${{ github.server_url }}/${{ github.event.client_payload.repository.full_name }}
           deleteincompletescan: true
+
+      - name: cleanup job
+        if: always()
+        run: |
+          echo "Running cleanup..."
+          sudo rm -rf $GITHUB_WORKSPACE/
