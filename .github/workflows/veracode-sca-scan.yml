@@ -88,3 +88,8 @@ jobs:
           create-issues: false
           recursive: true
           allow-dirty: true
+
+      - name: Cleanup workspace and Docker
+        run: |
+          echo "Running final cleanup..."
+          sudo rm -rf $GITHUB_WORKSPACE/
