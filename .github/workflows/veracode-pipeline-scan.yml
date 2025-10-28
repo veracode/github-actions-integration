@@ -193,3 +193,8 @@ jobs:
                 https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/check-runs/${{ inputs.check_run_id }} \
                 -d @"payload.txt"
             done
+      
+     - name: Cleanup workspace and Docker
+       run: |
+         echo "Running final cleanup..."
+         sudo rm -rf $GITHUB_WORKSPACE/
