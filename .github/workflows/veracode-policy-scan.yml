@@ -179,3 +179,9 @@ jobs:
           repo_name: ${{ inputs.repo }}
           github-token: ${{ inputs.token }}
           commitHash: ${{ inputs.sha }}
+
+      - name: cleanup job
+        if: always()
+        run: |
+          echo "Running cleanup..."
+          sudo rm -rf $GITHUB_WORKSPACE/
