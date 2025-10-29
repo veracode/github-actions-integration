@@ -90,7 +90,6 @@ jobs:
           failbuild: ${{ inputs.break_build_policy_findings }}
           gitRepositoryUrl: ${{ github.server_url }}/${{ inputs.source_repository }}
           deleteincompletescan: true
-          workflowApp: true
 
       - name: Veracode Policy Results
         id: prepare-results
