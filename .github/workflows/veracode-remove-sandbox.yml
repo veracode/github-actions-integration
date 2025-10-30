@@ -41,7 +41,12 @@ jobs:
           vkey: ${{ secrets.VERACODE_API_KEY }}
           appname: ${{ github.event.client_payload.user_config.profile_name }}
           sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
-
+          
+  cleanup:
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
+    if: always()
+    needs: [create-checks-run, veracode-remove-sandbox]
+    steps:
       - name: Cleanup workspace and Docker
         run: |
           echo "Running final cleanup..."
