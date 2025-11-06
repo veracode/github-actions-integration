@@ -71,6 +71,7 @@ jobs:
   cleanup:
     runs-on: ${{ fromJson(github.event.client_payload.user_config.default_runs_on) }}
     if: always()
+    needs: [build, sandbox_scan]
     steps:
       - name: Cleanup workspace and Docker
         if: always()
