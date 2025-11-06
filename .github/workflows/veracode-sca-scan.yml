@@ -82,12 +82,13 @@ jobs:
         env:
           SRCCLR_API_TOKEN: ${{ secrets.VERACODE_AGENT_TOKEN }}
           JAVA_OPTS: -Xms2g -Xmx4g
-        uses: veracode/veracode-sca@v2.1.13
+        uses: veracode/veracode-sca@v2.1.14
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false
           recursive: true
           allow-dirty: true
+          breakBuildOnPolicyFindings: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
 
   cleanup:
     runs-on: ${{ fromJson(github.event.client_payload.user_config.default_runs_on) }}
@@ -99,3 +100,4 @@ jobs:
         run: |
           echo "Running final cleanup..."
           sudo rm -rf $GITHUB_WORKSPACE/
+          
