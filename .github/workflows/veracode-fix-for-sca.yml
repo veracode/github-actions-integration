@@ -68,6 +68,13 @@ jobs:
         $current_path = "$env:APPDATA\veracode"
         echo "cli-path=$current_path" >> $env:GITHUB_OUTPUT
 
+    - name: Configure git for LF line endings (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        git config --global core.eol lf
+        git config --global core.autocrlf false
+
     - uses: actions/checkout@v4
       with:
         repository: ${{ github.event.client_payload.repository.full_name }}
