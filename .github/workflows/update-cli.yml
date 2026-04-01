@@ -35,9 +35,20 @@ jobs:
           
           # Single loop to remove all files except the latest Linux and Windows versions
           for file in veracode-cli_*; do
-            if [[ -f "$file" && "$file" != "veracode-cli_${latest_version}_linux_x86.tar.gz" && "$file" != "veracode-cli_${latest_version}_windows_x86.zip" ]]; then
-              echo "Removing old CLI file: $file"
-              git rm -f "$file" 2>/dev/null || rm -f "$file"
+            if [[ -f "$file" && "$file" != "veracode-cli_${latest_version}_linux_x86.tar.gz" && "$file" != "veracode-cli_${latest_version}_windows_x86.zip" && "$file" != "veracode-cli_${latest_version}_windows.ps1" ]]; then
+              # Additional check: if this is a PS1 file, only remove it if the corresponding ZIP exists
+              if [[ "$file" == *"_windows.ps1" ]]; then
+                expected_zip="veracode-cli_${latest_version}_windows_x86.zip"
+                if [[ -f "$expected_zip" ]]; then
+                  echo "Removing old PS1 file: $file (ZIP version exists)"
+                  git rm -f "$file" 2>/dev/null || rm -f "$file"
+                else
+                  echo "Keeping PS1 file: $file (no ZIP version available yet)"
+                fi
+              else
+                echo "Removing old CLI file: $file"
+                git rm -f "$file" 2>/dev/null || rm -f "$file"
+              fi
             fi
           done
 
