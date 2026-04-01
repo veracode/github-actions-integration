@@ -30,8 +30,19 @@ jobs:
           latest_version=$(<"LATEST_VERSION")
           echo "Latest version: $latest_version"
 
+          # Always clean up old versions (keep only the latest version)
+          echo "Cleaning up old CLI versions (keeping only $latest_version)..."
+          
+          # Single loop to remove all files except the latest Linux and Windows versions
+          for file in veracode-cli_*; do
+            if [[ -f "$file" && "$file" != "veracode-cli_${latest_version}_linux_x86.tar.gz" && "$file" != "veracode-cli_${latest_version}_windows_x86.zip" ]]; then
+              echo "Removing old CLI file: $file"
+              git rm -f "$file" 2>/dev/null || rm -f "$file"
+            fi
+          done
+
           if [[ -n "$local_version" && "$local_version" == "$latest_version" ]]; then
-            echo "We already have the latest version ($local_version) - nothing to do here"
+            echo "We already have the latest version ($local_version) - nothing to download"
             rm -rf LATEST_VERSION
           else
             if [[ -n "$local_version" ]]; then
@@ -39,13 +50,6 @@ jobs:
             else
               echo "No local version exists - downloading latest version ($latest_version)"
             fi
-
-            # Clean up ALL existing CLI files first to prevent accumulation
-            echo "Cleaning up all existing CLI files..."
-            git rm -f veracode-cli_*_linux_x86.tar.gz
-            git rm -f veracode-cli_*_windows_x86.zip
-            git rm -f veracode-cli_*_windows.ps1
-            ls -la
 
             # Download the new version (both Linux and Windows binaries)
             linuxUrl="https://tools.veracode.com/veracode-cli/veracode-cli_${latest_version}_linux_x86.tar.gz"
@@ -57,8 +61,8 @@ jobs:
 
             # Clean up temporary files
             rm -rf LATEST_VERSION
-            ls -la
           fi
+          ls -la
       - name: commit back to repo
         run: |
           git config --global user.name 'veracode'
