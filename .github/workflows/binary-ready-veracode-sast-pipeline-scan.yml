@@ -177,7 +177,7 @@ jobs:
 
   update-checks-status:
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
-    needs: pipeline_scan
+    needs: [register, pipeline_scan]
     if: always()
     steps:
      - name: Update check
