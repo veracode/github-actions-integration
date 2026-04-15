@@ -64,7 +64,8 @@ jobs:
       shell: pwsh
       run: |
         cd veracode-helper/helper/cli
-        & .\veracode-cli_2.47.0_windows.ps1
+        $cliFile = Get-ChildItem -Filter "veracode-cli_*.ps1" | Select-Object -First 1 -ExpandProperty Name
+        & .\$cliFile
         $current_path = "$env:APPDATA\veracode"
         echo "cli-path=$current_path" >> $env:GITHUB_OUTPUT
 
