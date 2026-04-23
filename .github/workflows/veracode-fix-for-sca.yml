@@ -45,8 +45,10 @@ jobs:
         sparse-checkout: |
           helper/cli/*
 
-    - name: Set up CLI
-      id: cli-setup
+    - name: Set up CLI (Linux/macOS)
+      id: cli-setup-unix
+      if: runner.os != 'Windows'
+      shell: bash
       run: |
         cd veracode-helper/helper/cli
         cliFile=$(ls -1 *.tar.gz | head -n 1)
@@ -56,6 +58,24 @@ jobs:
         current_path=$(pwd)
         echo "cli-path=$current_path" >> $GITHUB_OUTPUT
 
+    - name: Set up CLI (Windows)
+      id: cli-setup-windows
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        cd veracode-helper/helper/cli
+        $cliFile = Get-ChildItem -Filter "veracode-cli_*.ps1" | Select-Object -First 1 -ExpandProperty Name
+        & .\$cliFile
+        $current_path = "$env:APPDATA\veracode"
+        echo "cli-path=$current_path" >> $env:GITHUB_OUTPUT
+
+    - name: Configure git for LF line endings (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        git config --global core.eol lf
+        git config --global core.autocrlf false
+
     - uses: actions/checkout@v4
       with:
         repository: ${{ github.event.client_payload.repository.full_name }}
@@ -64,11 +84,11 @@ jobs:
         path: 'source-code'
 
     - id: run-fix-sca
-      uses: veracode/veracode-fix-for-sca@v0.1.0
+      uses: veracode/veracode-fix-for-sca@v0.1.0 # TODO: update once fix action tag is cut
       env:
         VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
         VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
-        CLI_PATH: ${{ steps.cli-setup.outputs.cli-path }}
+        CLI_PATH: ${{ runner.os == 'Windows' && steps.cli-setup-windows.outputs.cli-path || steps.cli-setup-unix.outputs.cli-path }}
       with:
         github-token: ${{ github.event.client_payload.token }}
         pr-number: ${{ github.event.client_payload.issue_number }} 
@@ -78,5 +98,3 @@ jobs:
         branch: ${{ github.event.client_payload.repository.branch }} 
         fix-sca-params: ${{ github.event.client_payload.fix_sca_params }} 
         github-api-url: ${{ github.api_url }} 
-
-
