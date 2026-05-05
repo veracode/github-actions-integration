@@ -197,7 +197,7 @@ jobs:
                 success_count=$((success_count + 1))
                 echo '{"status": "completed", "conclusion": "success"}' > payload.txt
               elif [ "$status" = "failure" ]; then
-                if [ "$BREAK_BUILD_ON_ERROR" = "false" && "$BREAK_BUILD_ON_POLICY" = "false" ]; then
+                if [ "$BREAK_BUILD_ON_ERROR" = "false" ] && [ "$BREAK_BUILD_ON_POLICY" = "false" ]; then
                   echo '{"status": "completed", "conclusion": "success"}' > payload.txt
                 else
                   echo '{"status": "completed", "conclusion": "failure"}' > payload.txt
