@@ -24,7 +24,7 @@ on:
       - scala-pipeline-scan
       - scala-policy-scan
       - dart-pipeline-scan
-      - dart-policy-sca
+      - dart-policy-scan
       - java-pipeline-scan
       - java-policy-scan
       - unidentified-lang-pipeline-scan
