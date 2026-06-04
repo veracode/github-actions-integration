@@ -54,7 +54,7 @@ jobs:
     steps: 
       # Create check run
       - name: GitHub API Request to create a check
-        uses: octokit/request-action@v2.x
+        uses: octokit/request-action@v3.0.0
         id: create_check_run
         with:
           route: POST /repos/{owner}/{repo}/check-runs
@@ -84,7 +84,7 @@ jobs:
         shell: bash
 
       - name: Save metadata
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: workflow-metadata
           path: workflow-metadata.json

@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Verify Veracode API credentials
         id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@v0.1.9
+        uses: veracode/github-actions-integration-helper@SDEVX-11283
         with:
           action: validateVeracodeApiCreds
           token: ${{ github.event.client_payload.token }}
@@ -44,7 +44,7 @@ jobs:
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
-        uses: veracode/github-actions-integration-helper@v0.1.9
+        uses: veracode/github-actions-integration-helper@SDEVX-11283
         with:
           action: validatePolicyName
           token: ${{ github.event.client_payload.token }}
@@ -69,7 +69,7 @@ jobs:
     steps:
       - name: Download artifact
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           github-token: ${{ github.event.client_payload.token }}
           repository: ${{ github.event.client_payload.repository.full_name }}
@@ -95,14 +95,14 @@ jobs:
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ github.event.client_payload.repository.owner }}/${{ github.event.client_payload.repository.name }}
           ref: ${{ github.event.client_payload.user_config.ref }}
           token: ${{ github.event.client_payload.token }}
         
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           github-token: ${{ github.event.client_payload.token }}
           repository: ${{ github.event.client_payload.repository.full_name }}
@@ -120,7 +120,7 @@ jobs:
       - name: Veracode Pipeline-Scan
         if: always()
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@v1.0.21
+        uses: veracode/Veracode-pipeline-scan-action@SDEVX-11283
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
@@ -139,7 +139,7 @@ jobs:
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: veracode/github-actions-integration-helper@v0.1.9
+        uses: veracode/github-actions-integration-helper@SDEVX-11283
         with:
           action: 'preparePipelineResults'
           token: ${{ github.event.client_payload.token }}
@@ -155,7 +155,7 @@ jobs:
 
       - name: Convert pipeline scan output to SARIF format
         if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@SDEVX-11283
         with:
           pipeline-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -167,7 +167,7 @@ jobs:
 
       - name: Create flaws as issues
         if: ${{ github.event.client_payload.user_config.create_issue && always() }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.25
+        uses: veracode/veracode-flaws-to-issues@SDEVX-11283
         with:
           scan-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
           repo_owner: ${{ github.event.client_payload.repository.owner }}

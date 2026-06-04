@@ -60,11 +60,11 @@ jobs:
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: 'veracode-helper'
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
@@ -122,7 +122,7 @@ jobs:
           echo "::error::Veracode static scan faced a problem. Please contact your Veracode administrator for more information."
 
       # ---------------- Upload artifact ----------------
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: veracode-artifact
           path: "${{ steps.application_package_linux.outputs.working_dir }}/veracode-artifacts/*"
@@ -138,11 +138,11 @@ jobs:
       VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: 'veracode-helper'
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository }}
           ref: ${{ inputs.ref }}
@@ -273,7 +273,7 @@ jobs:
           echo "::error::Veracode static scan faced a problem. Please contact your Veracode administrator for more information."
 
       # ---------------- Upload artifact ----------------
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: veracode-artifact
           path: "${{ steps.application_package_windows.outputs.working_dir }}/veracode-artifacts/*"
