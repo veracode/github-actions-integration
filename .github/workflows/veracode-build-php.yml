@@ -12,10 +12,13 @@ on:
       token:
         required: true
         type: string
-  
+      default_runs_on:
+        required: true
+        type: string
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -24,9 +27,10 @@ jobs:
         token: ${{ inputs.token }}
 
     - name: Create zip archive
-      run: zip -r veracode.zip . -x .git/**\* bin/**\* e2e/**\* tests/**\* node_modules/**\* *.pyd *.mwb *.exe *.dll *.bin *.png *.xml *.bat *.g2p *.gp4 *.wav *.jpg *.svg *.sfx *.prx *.sb *.nrm *.config *.ini *.pdf *.dat *.docx *.whl *.so *_arm64 *_armhf *_x64 *.xlsm *.sql
+      shell: bash
+      run: tar -a -cf veracode.tar --exclude=veracode.tar --exclude=.git --exclude=bin --exclude=e2e --exclude=tests --exclude=node_modules --exclude=*.{pyd,mwb,exe,dll,bin,png,xml,bat,g2p,gp4,wav,jpg,svg,sfx,prx,sb,nrm,config,ini,pdf,dat,docx,whl,so,xlsm,sql} --exclude=*__arm64 --exclude=*__armhf --exclude=*__x64 .
         
     - uses: actions/upload-artifact@v4
       with:
         name: veracode-artifact
-        path: veracode.zip
+        path: veracode.tar

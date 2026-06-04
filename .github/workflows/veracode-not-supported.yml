@@ -12,16 +12,17 @@ jobs:
     with:
       check_run_name: ${{ github.workflow }}
       head_sha: ${{ github.event.client_payload.sha }}
-      repositroy_owner: ${{ github.event.client_payload.repository.owner }}
-      repositroy_name: ${{ github.event.client_payload.repository.name }}
+      repository_owner: ${{ github.event.client_payload.repository.owner }}
+      repository_name: ${{ github.event.client_payload.repository.name }}
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
       branch: ${{ github.event.client_payload.repository.branch }}
+      default_runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
 
   veracode-not-supported:
     needs: [register]
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: Veracode - SAST/SCA Not Supported Repository 
 
     steps:
@@ -38,4 +39,3 @@ jobs:
         with:
           name: veracode-error
           path: error.txt
-

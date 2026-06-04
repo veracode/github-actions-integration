@@ -1,0 +1,23 @@
+name: 'Veracode workflow cleanup'
+on:
+  workflow_call:
+    inputs:
+      runs_on:
+        required: true
+        type: string
+
+jobs:
+  cleanup_workspace:
+    runs-on: ${{ fromJSON(inputs.runs_on) }}
+    steps:
+      - name: Cleanup workspace and Docker - Linux
+        if: contains(runner.os, 'Linux')
+        run: |
+          echo "Running final cleanup..."
+          sudo rm -rf $GITHUB_WORKSPACE/*
+
+      - name: Cleanup workspace and Docker - Windows
+        if: contains(runner.os, 'Windows')
+        run: |
+          echo "Running final cleanup..."
+          Remove-Item -Recurse -Force "$env:GITHUB_WORKSPACE\*"

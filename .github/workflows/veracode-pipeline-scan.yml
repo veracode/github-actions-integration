@@ -48,11 +48,19 @@ on:
       language:
         required: true
         type: string
+      default_runs_on:
+        required: true
+        type: string
+      debug:
+        required: false
+        type: string
 
 jobs:
-  pipeline_scan:
-    runs-on: ubuntu-latest
-    name: pipeline scan
+  prepare_pipeline_scan:
+    runs-on: ${{ fromJson(inputs.default_runs_on) }}
+    name: prepare pipeline scan
+    outputs:
+      matrix_files: ${{ steps.get-files.outputs.matrix_files }} 
 
     steps:
       - name: checkout repo
@@ -64,28 +72,64 @@ jobs:
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
-      
-      - name: Get the name of the downloaded files
-        run: |
-          artifact_file=$(ls -1 ./veracode_artifact_directory | head -n 1)
-          echo "veracode_artifact=$artifact_file" >> $GITHUB_ENV
 
-      # run the pipeline scan action
+      - name: Get list of files for matrix
+        id: get-files
+        run: |
+          files=$(ls -1 veracode_artifact_directory | jq -R . | jq -s .)
+          echo "Files for matrix: $files"
+          files=$(echo $files | jq -c .)  # Compact the JSON array to a single line
+          echo "matrix_files=$files" >> $GITHUB_OUTPUT
+        shell: bash
+
+  pipeline_scan:
+    runs-on: ${{ fromJson(inputs.default_runs_on) }}
+    needs: prepare_pipeline_scan
+    strategy:
+      matrix:
+        file: ${{fromJson(needs.prepare_pipeline_scan.outputs.matrix_files)}}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ inputs.token }}
+
+      - name: get archive
+        uses: actions/download-artifact@v4
+        with:
+          name: veracode-artifact
+          path: ./veracode_artifact_directory
+      - name: Debug Matrix Content
+        run: |
+          echo "Raw matrix files: ${{ needs.prepare_pipeline_scan.outputs.matrix_files }}"
+          echo "Current Matrix: ${{ matrix }}"
+          echo "Current File: ${{ matrix.file }}"
+
       - name: Veracode Pipeline-Scan
+        if: always()
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@master
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.21
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           veracode_policy_name: ${{ inputs.policy_name }}
-          file: ./veracode_artifact_directory/${{ env.veracode_artifact }}
+          file: ./veracode_artifact_directory/${{ matrix.file }}
           fail_build: ${{ inputs.break_build_policy_findings }}
-          use_upgraded_version: true
-
+          summary_output: true
+          summary_output_file: ${{ strategy.job-index }}-results.txt
+          json_output: true
+          json_output_file: ${{ strategy.job-index }}-results.json
+          filtered_json_output_file: ${{ strategy.job-index }}-filtered_results.json
+          artifact_name: ${{ matrix.file }}
+          debug: ${{ inputs.debug == true && '1' || '0' }}
+          workflow_app: true
+    
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: Veracode/github-actions-integration-helper@main
+        uses: veracode/github-actions-integration-helper@v0.1.9
         with:
           action: 'preparePipelineResults'
           token: ${{ inputs.token }}
@@ -97,37 +141,13 @@ jobs:
           fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
           fail_checks_on_error: ${{ inputs.break_build_on_error }} 
           filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
+          filtered_results_file: ${{ strategy.job-index }}-filtered_results.json
 
-  code-scanning-alert:
-    needs: pipeline_scan
-    runs-on: ubuntu-latest
-    if: ${{ inputs.create_code_scanning_alert && always() }}
-    name: Create code scanning alerts
-    steps:
-      - name: Get scan results
-        uses: actions/download-artifact@v4
+      - name: Convert pipeline scan output to SARIF format
+        if: ${{ inputs.create_code_scanning_alert && always() }}
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
         with:
-          name: "Veracode Pipeline-Scan Results - Mitigated findings"
-
-      - name: Convert pipeline scan output to SARIF format for java language
-        if: ${{ inputs.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
-        with:
-          pipeline-results-json: filtered_results.json
-          output-results-sarif: veracode-results.sarif
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          commitSHA: ${{ inputs.sha }}
-          ref: ${{ inputs.ref }}
-          githubToken: ${{ inputs.token }}
-          source-base-path-1: 'com/:src/main/java/com/'
-          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Convert pipeline scan output to SARIF format for non java language
-        if: ${{ inputs.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
-        with:
-          pipeline-results-json: filtered_results.json
+          pipeline-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
           output-results-sarif: veracode-results.sarif
           repo_owner: ${{ inputs.owner }}
           repo_name: ${{ inputs.repo }}
@@ -135,35 +155,47 @@ jobs:
           ref: ${{ inputs.ref }}
           githubToken: ${{ inputs.token }}
 
-  create-issues:
+      - name: Create flaws as issues
+        if: ${{ inputs.create_issue && always() }}
+        uses: veracode/veracode-flaws-to-issues@v2.2.25
+        with:
+          scan-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
+          repo_owner: ${{ inputs.owner }}
+          github-token: ${{ inputs.token }}
+          repo_name: ${{ inputs.repo }}
+          commitHash: ${{ inputs.sha }}
+
+  update-checks-status:
+    runs-on: ${{ fromJson(inputs.default_runs_on) }}
     needs: pipeline_scan
-    runs-on: ubuntu-latest
-    if: ${{ inputs.create_issue && always() }}
-    name: Create issues
+    if: always()
     steps:
-      - name: Get scan results
-        uses: actions/download-artifact@v4
-        with:
-          name: 'Veracode Pipeline-Scan Results - Mitigated findings'
-
-      - name: Create flaws as issues for java language
-        if: ${{ inputs.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
-        with:
-          scan-results-json: 'filtered_results.json'
-          repo_owner: ${{ inputs.owner }}
-          github-token: ${{ inputs.token }}
-          repo_name: ${{ inputs.repo }}
-          commitHash: ${{ inputs.sha }}
-          source_base_path_1: 'com/:src/main/java/com/'
-          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Create flaws as issues for non java language
-        if: ${{ inputs.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
-        with:
-          scan-results-json: 'filtered_results.json'
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          github-token: ${{ inputs.token }}
-          commitHash: ${{ inputs.sha }}
+     - name: Update check
+       id: update_check_status
+       shell: bash
+       env:
+        BREAK_BUILD_ON_ERROR: ${{ inputs.break_build_on_error }}
+        BREAK_BUILD_ON_POLICY: ${{ inputs.break_build_policy_findings }}
+       run: |
+            success_count=0
+            conclusion="failure"
+            # Convert JSON string to a proper format for jq processing
+            echo '${{ toJSON(needs) }}' | jq -c 'to_entries[]' | while read -r job; do
+              status=$(echo "$job" | jq -r '.value.result')
+              echo "$status"
+              if [ "$status" = "success" ]; then
+                success_count=$((success_count + 1))
+                echo '{"status": "completed", "conclusion": "success"}' > payload.txt
+              elif [ "$status" = "failure" ]; then
+                if [ "$BREAK_BUILD_ON_ERROR" = "false" && "$BREAK_BUILD_ON_POLICY" = "false" ]; then
+                  echo '{"status": "completed", "conclusion": "success"}' > payload.txt
+                else
+                  echo '{"status": "completed", "conclusion": "failure"}' > payload.txt
+                fi
+              fi
+              curl -X PATCH \
+                -H "Authorization: Bearer ${{ inputs.token }}" \
+                -H "Accept: application/vnd.github+json" \
+                https://api.github.com/repos/${{ inputs.owner }}/${{ inputs.repo }}/check-runs/${{ inputs.check_run_id }} \
+                -d @"payload.txt"
+            done

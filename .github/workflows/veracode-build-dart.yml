@@ -12,10 +12,13 @@ on:
       token:
         required: true
         type: string
-  
+      default_runs_on:
+        required: true
+        type: string
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     steps:
     - uses: actions/checkout@v4
       with:
@@ -39,7 +42,7 @@ jobs:
 
     - name: Build Flutter App
       run: flutter build apk --debug
-        
+
     - uses: actions/upload-artifact@v4
       with:
         name: veracode-artifact

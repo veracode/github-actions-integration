@@ -16,21 +16,22 @@ jobs:
     with:
       check_run_name: ${{ github.workflow }}
       head_sha: ${{ github.event.client_payload.sha }}
-      repositroy_owner: ${{ github.event.client_payload.repository.owner }}
-      repositroy_name: ${{ github.event.client_payload.repository.name }}
+      repository_owner: ${{ github.event.client_payload.repository.owner }}
+      repository_name: ${{ github.event.client_payload.repository.name }}
       event_type: ${{ github.event.client_payload.event_type }}
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
       branch: ${{ github.event.client_payload.repository.branch }}
+      default_runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
 
   validations:
     needs: register
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: Validations
     steps:
       - name: Verify Veracode API credentials
         id: verify_api_creds
-        uses: veracode/github-actions-integration-helper@main
+        uses: veracode/github-actions-integration-helper@v0.1.9
         with:
           action: validateVeracodeApiCreds
           token: ${{ github.event.client_payload.token }}
@@ -43,7 +44,7 @@ jobs:
       - name: Verify Policy name
         id: verify_policy_name
         if: success()
-        uses: veracode/github-actions-integration-helper@main
+        uses: veracode/github-actions-integration-helper@v0.1.9
         with:
           action: validatePolicyName
           token: ${{ github.event.client_payload.token }}
@@ -58,9 +59,13 @@ jobs:
           end_line: ${{ github.event.client_payload.annotationObj.end_line }}
           break_build_invalid_policy: ${{github.event.client_payload.break_build_invalid_policy }}
 
-  pipeline_scan:
+  prepare_pipeline_scan:
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     needs: [register, validations]
-    runs-on: ubuntu-latest
+    name: prepare pipeline scan
+    outputs:
+      matrix_files: ${{ steps.get-files.outputs.matrix_files }} 
+
     steps:
       - name: Download artifact
         id: download-artifact
@@ -69,22 +74,72 @@ jobs:
           github-token: ${{ github.event.client_payload.token }}
           repository: ${{ github.event.client_payload.repository.full_name }}
           run-id: ${{ github.event.client_payload.run_id }}
+          name: ${{ github.event.client_payload.repository.artifact_file }}
+          path: ./veracode_artifact_directory
 
+      - name: Get list of files for matrix
+        id: get-files
+        run: |
+          files=$(ls -1 veracode_artifact_directory | jq -R . | jq -s .)
+          echo "Files for matrix: $files"
+          files=$(echo $files | jq -c .)  # Compact the JSON array to a single line
+          echo "matrix_files=$files" >> $GITHUB_OUTPUT
+        shell: bash
+
+  pipeline_scan:
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
+    needs: [register, validations, prepare_pipeline_scan]
+    strategy:
+      matrix:
+        file: ${{fromJson(needs.prepare_pipeline_scan.outputs.matrix_files)}}
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.client_payload.repository.owner }}/${{ github.event.client_payload.repository.name }}
+          ref: ${{ github.event.client_payload.user_config.ref }}
+          token: ${{ github.event.client_payload.token }}
+        
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.event.client_payload.token }}
+          repository: ${{ github.event.client_payload.repository.full_name }}
+          run-id: ${{ github.event.client_payload.run_id }}
+          name: ${{ github.event.client_payload.repository.artifact_file }}
+          path: ./veracode_artifact_directory
+
+      - name: Debug Matrix Content
+        run: |
+          echo "Raw matrix files: ${{ needs.prepare_pipeline_scan.outputs.matrix_files }}"
+          echo "Current Matrix: ${{ matrix }}"
+          echo "Current File: ${{ matrix.file }}"
+
+      # run the pipeline scan action
       - name: Veracode Pipeline-Scan
+        if: always()
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@master
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.21
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           veracode_policy_name: ${{ github.event.client_payload.policy_name }}
-          file: ${{ github.event.client_payload.repository.artifact_file }}
+          file: ./veracode_artifact_directory/${{ matrix.file }}
           fail_build: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
-          use_upgraded_version: true
-
+          summary_output: true
+          summary_output_file: ${{ strategy.job-index }}-results.txt
+          json_output: true
+          json_output_file: ${{ strategy.job-index }}-results.json
+          filtered_json_output_file: ${{ strategy.job-index }}-filtered_results.json
+          artifact_name: ${{ matrix.file }}
+          debug: 1
+          workflow_app: true
+    
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: Veracode/github-actions-integration-helper@main
+        uses: veracode/github-actions-integration-helper@v0.1.9
         with:
           action: 'preparePipelineResults'
           token: ${{ github.event.client_payload.token }}
@@ -96,37 +151,13 @@ jobs:
           fail_checks_on_policy: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
           fail_checks_on_error: ${{ github.event.client_payload.user_config.break_build_on_error }} 
           filter_mitigated_flaws: ${{ github.event.client_payload.user_config.filter_mitigated_flaws }}
+          filtered_results_file: ${{ strategy.job-index }}-filtered_results.json
 
-  code-scanning-alert:
-    needs: pipeline_scan
-    runs-on: ubuntu-latest
-    if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
-    name: Create code scanning alerts
-    steps:
-      - name: Get scan results
-        uses: actions/download-artifact@v4
+      - name: Convert pipeline scan output to SARIF format
+        if: ${{ github.event.client_payload.user_config.create_code_scanning_alert && always() }}
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
         with:
-          name: "Veracode Pipeline-Scan Results - Mitigated findings"
-
-      - name: Convert pipeline scan output to SARIF format for Java language
-        if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
-        with:
-          pipeline-results-json: filtered_results.json
-          output-results-sarif: veracode-results.sarif
-          repo_owner: ${{ github.event.client_payload.repository.owner }}
-          repo_name: ${{ github.event.client_payload.repository.name }}
-          commitSHA: ${{ github.event.client_payload.sha }}
-          ref: ${{ github.event.client_payload.user_config.ref }}
-          githubToken: ${{ github.event.client_payload.token }}
-          source-base-path-1: 'com/:src/main/java/com/'
-          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Convert pipeline scan output to SARIF format for non Java language
-        if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
-        with:
-          pipeline-results-json: filtered_results.json
+          pipeline-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
           output-results-sarif: veracode-results.sarif
           repo_owner: ${{ github.event.client_payload.repository.owner }}
           repo_name: ${{ github.event.client_payload.repository.name }}
@@ -134,35 +165,47 @@ jobs:
           ref: ${{ github.event.client_payload.user_config.ref }}
           githubToken: ${{ github.event.client_payload.token }}
 
-  create-issues:
-    needs: pipeline_scan
-    runs-on: ubuntu-latest
-    if: ${{ github.event.client_payload.user_config.create_issue && always() }}
-    name: Create issues
+      - name: Create flaws as issues
+        if: ${{ github.event.client_payload.user_config.create_issue && always() }}
+        uses: veracode/veracode-flaws-to-issues@v2.2.25
+        with:
+          scan-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
+          repo_owner: ${{ github.event.client_payload.repository.owner }}
+          github-token: ${{ github.event.client_payload.token }}
+          repo_name: ${{ github.event.client_payload.repository.name }}
+          commitHash:  ${{ github.event.client_payload.sha }}
+
+  update-checks-status:
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
+    needs: [register, pipeline_scan]
+    if: always()
     steps:
-      - name: Get scan results
-        uses: actions/download-artifact@v4
-        with:
-          name: 'Veracode Pipeline-Scan Results - Mitigated findings'
-
-      - name: Create flaws as issues for Java language
-        if: ${{ github.event.client_payload.repository.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
-        with:
-          scan-results-json: 'filtered_results.json'
-          repo_owner: ${{ github.event.client_payload.repository.owner }}
-          github-token: ${{ github.event.client_payload.token }}
-          repo_name: ${{ github.event.client_payload.repository.name }}
-          commitHash:  ${{ github.event.client_payload.sha }}
-          source_base_path_1: 'com/:src/main/java/com/'
-          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Create flaws as issues for non Java language
-        if: ${{ github.event.client_payload.repository.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
-        with:
-          scan-results-json: 'filtered_results.json'
-          repo_owner: ${{ github.event.client_payload.repository.owner }}
-          github-token: ${{ github.event.client_payload.token }}
-          repo_name: ${{ github.event.client_payload.repository.name }}
-          commitHash:  ${{ github.event.client_payload.sha }}
+     - name: Update check
+       id: update_check_status
+       shell: bash
+       env:
+        BREAK_BUILD_ON_ERROR: ${{ github.event.client_payload.user_config.break_build_on_error }}
+        BREAK_BUILD_ON_POLICY: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+       run: |
+            success_count=0
+            conclusion="failure"
+            # Convert JSON string to a proper format for jq processing
+            echo '${{ toJSON(needs) }}' | jq -c 'to_entries[]' | while read -r job; do
+              status=$(echo "$job" | jq -r '.value.result')
+              echo "$status"
+              if [ "$status" = "success" ]; then
+                success_count=$((success_count + 1))
+                echo '{"status": "completed", "conclusion": "success"}' > payload.txt
+              elif [ "$status" = "failure" ]; then
+                if [ "$BREAK_BUILD_ON_ERROR" = "false" && "$BREAK_BUILD_ON_POLICY" = "false" ]; then
+                  echo '{"status": "completed", "conclusion": "success"}' > payload.txt
+                else
+                  echo '{"status": "completed", "conclusion": "failure"}' > payload.txt
+                fi
+              fi
+              curl -X PATCH \
+                -H "Authorization: Bearer ${{ github.event.client_payload.token }}" \
+                -H "Accept: application/vnd.github+json" \
+                https://api.github.com/repos/${{ github.event.client_payload.repository.owner }}/${{ github.event.client_payload.repository.name }}/check-runs/${{ needs.register.outputs.run_id }} \
+                -d @"payload.txt"
+            done

@@ -51,16 +51,22 @@ on:
       language:
         required: true
         type: string
+      default_runs_on:
+        required: true
+        type: string
+      debug:
+        required: false
+        type: string
 
 jobs:
   policy_scan:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     name: policy scan
 
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
-      
+
       # get the compiled binary from a previous job
       - name: get archive
         uses: actions/download-artifact@v4
@@ -68,28 +74,36 @@ jobs:
           name: veracode-artifact
           path: ./veracode_artifact_directory
 
+      - name: Set version
+        shell: bash
+        run: |
+          echo "VERSION=${{ github.run_id }}-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.4
+        uses: veracode/uploadandscan-action@v0.2.1
         id: upload_and_scan
         with:
           appname: ${{ inputs.profile_name }}
           createprofile: true
           policy: ${{ inputs.policy_name }}
-          version: '${{ github.run_id }}'
+          version: '${{ env.VERSION }}'
           filepath: ./veracode_artifact_directory/
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           #scanpollinginterval: 30
-          scantimeout: 15
+          scantimeout: 30
           # include: ${{ inputs.modules_to_scan }}
           failbuild: ${{ inputs.break_build_policy_findings }}
-          use_upgraded_version: true
+          gitRepositoryUrl: ${{ github.server_url }}/${{ inputs.source_repository }}
+          deleteincompletescan: true
+          workflowApp: true
+          debug: ${{ inputs.debug }}
 
       - name: Veracode Policy Results
         id: prepare-results
         if: always()
-        uses: Veracode/github-actions-integration-helper@main
+        uses: veracode/github-actions-integration-helper@v0.1.9
         with:
           action: 'preparePolicyResults'
           token: ${{ inputs.token }}
@@ -101,14 +115,16 @@ jobs:
           fail_checks_on_policy: ${{ inputs.break_build_policy_findings }}
           fail_checks_on_error: ${{ inputs.break_build_on_error }}
           filter_mitigated_flaws: ${{ inputs.filter_mitigated_flaws }}
+          head_sha: ${{ inputs.sha }}
+          gitRepositoryUrl: ${{ github.server_url }}/${{ inputs.source_repository }}
 
   veracode-remove-sandbox:
     needs: policy_scan
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@main
+      - uses: veracode/github-actions-integration-helper@v0.1.9
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
@@ -118,34 +134,24 @@ jobs:
 
   code-scanning-alert:
     needs: policy_scan
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     if: ${{ inputs.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ inputs.token }}
+
       - name: Get scan results
         uses: actions/download-artifact@v4
         with:
           name: policy-flaws
           path: /tmp
 
-      - name: Convert policy scan output to SARIF format for java language
-        if: ${{ inputs.language == 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
-        with:
-          scan-type: policy
-          results-json: '/tmp/policy_flaws.json'
-          output-results-sarif: veracode-results.sarif
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          commitSHA: ${{ inputs.sha }}
-          ref: ${{ inputs.ref }}
-          githubToken: ${{ inputs.token }}
-          source-base-path-1: 'com/:src/main/java/com/'
-          source-base-path-2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Convert policy scan output to SARIF format for non java language
-        if: ${{ inputs.language != 'Java' }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.3
+      - name: Convert policy scan output to SARIF format
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -159,30 +165,23 @@ jobs:
   create-issues:
     needs: policy_scan
     if: ${{ inputs.create_issue && always() }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     name: Create issues
     steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ inputs.token }}
+
       - name: Get flaw file
         uses: actions/download-artifact@v4
         with:
           name: 'policy-flaws'
           path: /tmp
 
-      - name: Create flaws as issues for java language
-        if: ${{ inputs.language == 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
-        with:
-          scan-results-json: '/tmp/policy_flaws.json'
-          repo_owner: ${{ inputs.owner }}
-          repo_name: ${{ inputs.repo }}
-          github-token: ${{ inputs.token }}
-          commitHash: ${{ inputs.sha }}
-          source_base_path_1: 'com/:src/main/java/com/'
-          source_base_path_2: 'WEB-INF:src/main/webapp/WEB-INF'
-
-      - name: Create flaws as issues for non java language
-        if: ${{ inputs.language != 'Java' }}
-        uses: veracode/veracode-flaws-to-issues@v2.2.24
+      - name: Create flaws as issues
+        uses: veracode/veracode-flaws-to-issues@v2.2.25
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ inputs.owner }}

@@ -11,8 +11,14 @@ on:
     types: [binary-ready-veracode-sast-sandbox-scan]
 
 jobs:
+  cleanup:
+    uses: ./.github/workflows/veracode-clean-up.yml
+    with:
+      runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
+
   sandbox_scan:
-    runs-on: ubuntu-latest
+    needs: cleanup
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     steps:
       - name: Download artifact
         id: download-artifact
@@ -21,19 +27,24 @@ jobs:
           github-token: ${{ github.event.client_payload.token }}
           repository: ${{ github.event.client_payload.repository.full_name }}
           run-id: ${{ github.event.client_payload.run_id }}
+          name: ${{ github.event.client_payload.repository.artifact_file }}
+          path: ./veracode_artifact_directory
 
       - name: Veracode Upload and Scan Action Step
         id: upload_and_scan
-        uses: veracode/uploadandscan-action@v0.1.4
+        uses: veracode/uploadandscan-action@v0.2.1
         with:
           appname: ${{ github.event.client_payload.user_config.profile_name }}
           createprofile: true
           policy: ${{ github.event.client_payload.policy_name }}
           version: '${{ github.run_id }}'
-          filepath: ${{ github.event.client_payload.repository.artifact_file }}
+          filepath: ./veracode_artifact_directory/
           vid: '${{ secrets.VERACODE_API_ID }}'
           vkey: '${{ secrets.VERACODE_API_KEY }}'
           createsandbox: true
           sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
           # include: ${{ github.event.client_payload.modules_to_scan }}
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+          deleteincompletescan: true
+          workflowApp: true
+          debug: ${{ github.event.client_payload.user_config.debug }}

@@ -9,12 +9,12 @@ on:
 
 jobs:
   register:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: register
     steps:
     - name: Register build
       id: register-build
-      uses: veracode/github-actions-integration-helper@main
+      uses: veracode/github-actions-integration-helper@v0.1.9
       with:
         action: registerBuild
         token: ${{ github.event.client_payload.token }}

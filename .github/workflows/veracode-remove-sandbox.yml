@@ -9,14 +9,15 @@ concurrency:
 on:
   repository_dispatch:
     types: [veracode-remove-sandbox]
-    
+ 
 jobs:
   create-checks-run:
     name: Create Checks Run
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     steps:
     - name: Create metadata
       id: create_metadata_json
+      shell: bash
       run: |
         echo '{
           "check_run_type": "${{ github.event.client_payload.event_type }}",
@@ -24,20 +25,29 @@ jobs:
           "check_run_id": "",
           "sha": "${{ github.event.client_payload.sha }}"
         }' > workflow-metadata.json
+
     - name: Save metadata
       uses: actions/upload-artifact@v4
       with:
         name: workflow-metadata
         path: workflow-metadata.json
+
   veracode-remove-sandbox:
     needs: create-checks-run
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@main
+      - uses: veracode/github-actions-integration-helper@v0.1.9
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
           appname: ${{ github.event.client_payload.user_config.profile_name }}
           sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
+
+  cleanup:
+    needs: veracode-remove-sandbox
+    if: always()
+    uses: ./.github/workflows/veracode-clean-up.yml
+    with:
+      runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}

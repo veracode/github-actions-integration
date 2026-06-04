@@ -1,0 +1,48 @@
+name: 'Create workflow metadata artifact'
+on:
+  workflow_call:
+    inputs:
+      event_type:
+        required: true
+        type: string
+      repository_name:
+        required: true
+        type: string
+      repository_owner:
+        required: true
+        type: string
+      pull_request_num:
+        required: false
+        type: string
+      branch:
+        required: true
+        type: string
+      head_sha:
+        required: true
+        type: string
+
+jobs:
+  create_metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create metadata
+        id: create-metadata-json
+        run: |
+          echo '{
+            "check_run_type": "${{ inputs.event_type }}",
+            "repository_name": "${{ inputs.repository_name }}",
+            "repository_owner": "${{ inputs.repository_owner }}",
+            "pull_request": {
+              "num": "${{ inputs.pull_request_num }}"
+            },
+            "branch": "${{ inputs.branch }}",
+            "sha": "${{ inputs.head_sha }}",
+            "run_id": "${{ github.run_id }}"
+          }' > workflow-metadata.json
+        shell: bash
+
+      - name: Save metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-metadata
+          path: workflow-metadata.json

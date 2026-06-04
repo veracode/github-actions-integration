@@ -8,8 +8,6 @@ concurrency:
 on:
   repository_dispatch:
     types:
-      - java-maven-sandbox-scan
-      - java-gradle-sandbox-scan
       - source-code-sandbox-scan
       - dot-net-sandbox-scan
       - go-sandbox-scan
@@ -18,25 +16,40 @@ on:
       - php-sandbox-scan
       - scala-sandbox-scan
       - dart-sandbox-scan
+      - java-sandbox-scan
+      - unidentified-lang-sandbox-scan
+      - ruby-sandbox-scan
 
 jobs:
+  cleanup:
+    uses: ./.github/workflows/veracode-clean-up.yml
+    with:
+      runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
+
   build:
+    needs: cleanup
     uses: ./.github/workflows/veracode-build-artifact-for-scanning.yml
     with:
       repository: ${{ github.event.client_payload.repository.full_name }}
       ref: ${{ github.event.client_payload.sha }}
       token: ${{ github.event.client_payload.token }}
       event_name: ${{ github.event.action }}
+      build_runs_on: ${{ github.event.client_payload.user_config.build_runs_on }}
+      build_packager_image: ${{ github.event.client_payload.user_config.build_packager_image }}
+      build_predependency_command: ${{ github.event.client_payload.user_config.build_predependency_command }}
+      ruby_version: ${{ github.event.client_payload.user_config.ruby_version }}
+      bundle_version: ${{ github.event.client_payload.user_config.bundle_version }}
+      default_runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
 
   sandbox_scan:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: sandbox scan
 
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
-      
+
       # get the compiled binary from a previous job
       - name: get archive
         uses: actions/download-artifact@v4
@@ -46,7 +59,7 @@ jobs:
 
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.1.4
+        uses: veracode/uploadandscan-action@v0.2.1
         id: upload_and_scan
         with:
           appname: ${{ github.event.client_payload.user_config.profile_name }}
@@ -59,3 +72,7 @@ jobs:
           createsandbox: true
           sandboxname: GitHub App Scans-${{ github.event.client_payload.repository.branch }}
           failbuild: ${{ github.event.client_payload.user_config.break_build_policy_findings }}
+          gitRepositoryUrl: ${{ github.server_url }}/${{ github.event.client_payload.repository.full_name }}
+          deleteincompletescan: true
+          workflowApp: true
+          debug: ${{ github.event.client_payload.user_config.debug }}
