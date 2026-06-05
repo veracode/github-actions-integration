@@ -80,7 +80,7 @@ jobs:
           path: ./veracode_artifact_directory
 
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@SDEVX-11283
+        uses: veracode/uploadandscan-action@SDEVX-11283-v1
         id: upload_and_scan
         with:
           vid: '${{ secrets.VERACODE_API_ID }}'
