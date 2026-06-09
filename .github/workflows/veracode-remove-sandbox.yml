@@ -37,7 +37,7 @@ jobs:
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@SDEVX-11283
+      - uses: veracode/github-actions-integration-helper@v0.1.10
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
