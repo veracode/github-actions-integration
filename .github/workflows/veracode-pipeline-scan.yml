@@ -110,7 +110,7 @@ jobs:
       - name: Veracode Pipeline-Scan
         if: always()
         id: pipeline-scan
-        uses: veracode/Veracode-pipeline-scan-action@SDEVX-11283-v1
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.22
         with:
           vid: ${{ secrets.VERACODE_API_ID }}
           vkey: ${{ secrets.VERACODE_API_KEY }}
@@ -129,7 +129,7 @@ jobs:
       - name: Veracode Pipeline Results
         if: always()
         id: prepare-results
-        uses: veracode/github-actions-integration-helper@SDEVX-11283
+        uses: veracode/github-actions-integration-helper@v0.1.10
         with:
           action: 'preparePipelineResults'
           token: ${{ inputs.token }}
@@ -145,7 +145,7 @@ jobs:
 
       - name: Convert pipeline scan output to SARIF format
         if: ${{ inputs.create_code_scanning_alert && always() }}
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@SDEVX-11283
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.5
         with:
           pipeline-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
           output-results-sarif: veracode-results.sarif
@@ -157,7 +157,7 @@ jobs:
 
       - name: Create flaws as issues
         if: ${{ inputs.create_issue && always() }}
-        uses: veracode/veracode-flaws-to-issues@SDEVX-11283
+        uses: veracode/veracode-flaws-to-issues@v2.2.26
         with:
           scan-results-json: mitigated_${{ strategy.job-index }}-filtered_results.json
           repo_owner: ${{ inputs.owner }}

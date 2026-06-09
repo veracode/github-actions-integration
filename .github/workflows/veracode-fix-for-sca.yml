@@ -84,7 +84,7 @@ jobs:
         path: 'source-code'
 
     - id: run-fix-sca
-      uses: veracode/veracode-fix-for-sca@SDEVX-11283
+      uses: veracode/veracode-fix-for-sca@v0.1.2
       env:
         VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
         VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'

@@ -157,7 +157,7 @@ jobs:
           JAVA_OPTS: -Xms2g -Xmx4g
           VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
           VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
-        uses: "veracode/veracode-sca@SDEVX-11283"
+        uses: veracode/veracode-sca@v2.1.19
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false
