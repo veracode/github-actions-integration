@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
@@ -30,7 +30,7 @@ jobs:
       shell: bash
       run: tar -a -cf veracode.tar --exclude=veracode.tar --exclude=.git/** --exclude=bin/** --exclude=e2e/** --exclude=tests/** --exclude=node_modules/** --exclude=*.{pyd,mwb,exe,dll,bin,png,xml,bat,g2p,gp4,wav,jpg,svg,sfx,prx,sb,nrm,config,ini,pdf,dat,docx,whl,so,xlsm} --exclude=*__arm64 --exclude=*__armhf --exclude=*__x64 .
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: veracode-artifact
         path: veracode.tar
