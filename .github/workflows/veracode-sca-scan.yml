@@ -38,12 +38,12 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ${{ github.event.client_payload.repository.full_name }}
           ref: ${{ github.event.client_payload.repository.branch }}
           token: ${{ github.event.client_payload.token }}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: 'veracode-helper'
 
@@ -143,7 +143,7 @@ jobs:
             Remove-Item -Recurse -Force "veracode-helper" -ErrorAction SilentlyContinue
 
       - name: Check out to get veracode CLI
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: 'veracode-helper'
           fetch-depth: 0
@@ -157,7 +157,7 @@ jobs:
           JAVA_OPTS: -Xms2g -Xmx4g
           VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
           VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
-        uses: "veracode/veracode-sca@v2.1.18"
+        uses: veracode/veracode-sca@v2.1.19
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create-issues: false

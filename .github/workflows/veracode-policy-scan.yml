@@ -65,11 +65,11 @@ jobs:
 
     steps:
       - name: checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # get the compiled binary from a previous job
       - name: get archive
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: veracode-artifact
           path: ./veracode_artifact_directory
@@ -81,7 +81,7 @@ jobs:
 
       # run the policy scan action
       - name: Veracode Upload and Scan Action Step
-        uses: veracode/uploadandscan-action@v0.2.1
+        uses: veracode/uploadandscan-action@v0.2.2
         id: upload_and_scan
         with:
           appname: ${{ inputs.profile_name }}
@@ -103,7 +103,7 @@ jobs:
       - name: Veracode Policy Results
         id: prepare-results
         if: always()
-        uses: veracode/github-actions-integration-helper@v0.1.9
+        uses: veracode/github-actions-integration-helper@v0.1.10
         with:
           action: 'preparePolicyResults'
           token: ${{ inputs.token }}
@@ -124,7 +124,7 @@ jobs:
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.9
+      - uses: veracode/github-actions-integration-helper@v0.1.10
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
@@ -138,20 +138,20 @@ jobs:
     if: ${{ inputs.create_code_scanning_alert && always() }}
     name: Create code scanning alerts
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.owner }}/${{ inputs.repo }}
           ref: ${{ inputs.ref }}
           token: ${{ inputs.token }}
 
       - name: Get scan results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: policy-flaws
           path: /tmp
 
       - name: Convert policy scan output to SARIF format
-        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.4
+        uses: Veracode/veracode-pipeline-scan-results-to-sarif@v2.0.5
         with:
           scan-type: policy
           results-json: '/tmp/policy_flaws.json'
@@ -168,20 +168,20 @@ jobs:
     runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     name: Create issues
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: ${{ inputs.owner }}/${{ inputs.repo }}
           ref: ${{ inputs.ref }}
           token: ${{ inputs.token }}
 
       - name: Get flaw file
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: 'policy-flaws'
           path: /tmp
 
       - name: Create flaws as issues
-        uses: veracode/veracode-flaws-to-issues@v2.2.25
+        uses: veracode/veracode-flaws-to-issues@v2.2.26
         with:
           scan-results-json: '/tmp/policy_flaws.json'
           repo_owner: ${{ inputs.owner }}
