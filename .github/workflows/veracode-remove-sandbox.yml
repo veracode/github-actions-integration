@@ -27,7 +27,7 @@ jobs:
         }' > workflow-metadata.json
 
     - name: Save metadata
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: workflow-metadata
         path: workflow-metadata.json
@@ -37,7 +37,7 @@ jobs:
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.9
+      - uses: veracode/github-actions-integration-helper@v0.1.10
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}

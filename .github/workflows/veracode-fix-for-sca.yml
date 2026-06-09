@@ -29,7 +29,7 @@ jobs:
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.default_runs_on) }}
     steps:
     - name: Download SCA scan artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         github-token: ${{ github.event.client_payload.token }}
         run-id: ${{ github.event.client_payload.workflow_run_id }}
@@ -37,7 +37,7 @@ jobs:
         path: ./veracode_artifact_directory
 
     - name: Check out to get veracode CLI
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         path: 'veracode-helper'
         fetch-depth: 0
@@ -76,7 +76,7 @@ jobs:
         git config --global core.eol lf
         git config --global core.autocrlf false
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         repository: ${{ github.event.client_payload.repository.full_name }}
         ref: ${{ github.event.client_payload.repository.branch }}
@@ -84,7 +84,7 @@ jobs:
         path: 'source-code'
 
     - id: run-fix-sca
-      uses: veracode/veracode-fix-for-sca@v0.1.0 # TODO: update once fix action tag is cut
+      uses: veracode/veracode-fix-for-sca@v0.1.2
       env:
         VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
         VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
