@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: ${{ fromJSON(inputs.default_runs_on) }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
@@ -43,7 +43,7 @@ jobs:
     - name: Build Flutter App
       run: flutter build apk --debug
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: veracode-artifact
         path: build/app/outputs/flutter-apk
