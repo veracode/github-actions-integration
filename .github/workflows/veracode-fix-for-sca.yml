@@ -1,6 +1,6 @@
 name: Veracode Fix for SCA
 
-run-name: Veracode Fix for SCA - ${{ github.event.client_payload.repository.name }}
+run-name: Veracode Fix for SCA - ${{ github.event.client_payload.workflow_name }}
 
 on:
   repository_dispatch:
