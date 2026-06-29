@@ -19,6 +19,7 @@ on:
       - java-sandbox-scan
       - unidentified-lang-sandbox-scan
       - ruby-sandbox-scan
+      - apex-sandbox-scan
 
 jobs:
   cleanup:
