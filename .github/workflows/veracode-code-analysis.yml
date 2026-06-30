@@ -1,6 +1,6 @@
 name: Veracode Static Code Analysis
 
-run-name: Static Code Analysis - ${{ github.event.client_payload.repository.name }}
+run-name: Static Code Analysis - ${{ github.event.client_payload.workflow_name }}
 
 concurrency:
   group: ${{ github.event.client_payload.event_type }}-${{ github.event.client_payload.repository.name }}-${{ github.event.client_payload.repository.branch }}
@@ -24,13 +24,19 @@ on:
       - scala-pipeline-scan
       - scala-policy-scan
       - dart-pipeline-scan
-      - dart-policy-sca
+      - dart-policy-scan
       - java-pipeline-scan
       - java-policy-scan
       - unidentified-lang-pipeline-scan
       - unidentified-lang-policy-scan
       - ruby-pipeline-scan
       - ruby-policy-scan
+      - apex-pipeline-scan
+      - apex-policy-scan
+      - perl-pipeline-scan
+      - perl-policy-scan
+      - vb6-pipeline-scan
+      - vb6-policy-scan
 
 jobs:
   cleanup:
