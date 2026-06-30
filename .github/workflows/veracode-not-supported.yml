@@ -1,6 +1,6 @@
 name: Veracode - SAST/SCA Not Supported Repository
 
-run-name: Veracode - SAST/SCA Not Supported Repository - ${{ github.event.client_payload.repository.name }}
+run-name: Veracode - SAST/SCA Not Supported Repository - ${{ github.event.client_payload.workflow_name }}
 
 on:
   repository_dispatch:
