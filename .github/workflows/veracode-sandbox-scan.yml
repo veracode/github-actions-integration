@@ -20,6 +20,8 @@ on:
       - unidentified-lang-sandbox-scan
       - ruby-sandbox-scan
       - apex-sandbox-scan
+      - vb6-sandbox-scan
+      - perl-sandbox-scan
 
 jobs:
   cleanup:
