@@ -103,7 +103,7 @@ jobs:
       - name: Veracode Policy Results
         id: prepare-results
         if: always()
-        uses: veracode/github-actions-integration-helper@v0.1.10
+        uses: veracode/github-actions-integration-helper@v0.1.11
         with:
           action: 'preparePolicyResults'
           token: ${{ inputs.token }}
@@ -124,7 +124,7 @@ jobs:
     if: ${{ github.event.client_payload.user_config.sandbox_scan.execute_remove_sandbox_action && always() }}
     name: Remove Sandbox
     steps:
-      - uses: veracode/github-actions-integration-helper@v0.1.10
+      - uses: veracode/github-actions-integration-helper@v0.1.11
         with:
           action: 'removeSandbox'
           vid: ${{ secrets.VERACODE_API_ID }}
