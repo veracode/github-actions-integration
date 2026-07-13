@@ -64,10 +64,11 @@ jobs:
       shell: pwsh
       run: |
         cd veracode-helper/helper/cli
-        $cliFile = Get-ChildItem -Filter "veracode-cli_*.ps1" | Select-Object -First 1 -ExpandProperty Name
-        & .\$cliFile
-        $current_path = "$env:APPDATA\veracode"
-        echo "cli-path=$current_path" >> $env:GITHUB_OUTPUT
+        $zipFile = Get-ChildItem -Filter "veracode-cli_*.zip" | Select-Object -First 1 -ExpandProperty FullName
+        Expand-Archive -Path $zipFile -DestinationPath . -Force
+        $cliExe = Get-ChildItem -Filter "veracode.exe" -Recurse | Select-Object -First 1
+        $cliPath = $cliExe.DirectoryName
+        echo "cli-path=$cliPath" >> $env:GITHUB_OUTPUT
 
     - name: Configure git for LF line endings (Windows)
       if: runner.os == 'Windows'
@@ -84,7 +85,7 @@ jobs:
         path: 'source-code'
 
     - id: run-fix-sca
-      uses: veracode/veracode-fix-for-sca@v0.1.3
+      uses: veracode/veracode-fix-for-sca@v0.1.4
       env:
         VERACODE_API_KEY_ID: '${{ secrets.VERACODE_API_ID }}'
         VERACODE_API_KEY_SECRET: '${{ secrets.VERACODE_API_KEY }}'
