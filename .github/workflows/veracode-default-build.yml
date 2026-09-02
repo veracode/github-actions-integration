@@ -153,6 +153,16 @@ jobs:
           ref: ${{ inputs.ref }}
           token: ${{ inputs.token }}
           path: 'source-code'
+          
+      - name: Run Pre-Build Dependency
+        shell: pwsh
+        run: |
+          if (-not [string]::IsNullOrEmpty("${{ inputs.build_predependency_command }}")) {
+            Write-Host "Executing Pre-Build Dependency.."
+            Invoke-Expression "${{ inputs.build_predependency_command }}"
+          } else {
+            Write-Host "No Pre-Build Dependency provided."
+          }
 
       - name: Install Veracode CLI
         shell: pwsh
