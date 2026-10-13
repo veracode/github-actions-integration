@@ -29,7 +29,7 @@ jobs:
       github_token: ${{ github.event.client_payload.token }}
       run_id: ${{ github.run_id }}
       branch: ${{ github.event.client_payload.repository.branch }}
-      default_runs_on: ${{ github.event.client_payload.user_config.build_runs_on }}
+      default_runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
       
   identify-os:
     needs: register
