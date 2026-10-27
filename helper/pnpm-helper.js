@@ -3549,26 +3549,6 @@ if (fileExists(`${commander_plus_1.default.folder}/.npmrc`)) {
 else {
     console.log(chalk_1.default.yellow('.npmrc file not found, skipping internal registry detection.'));
 }
-var registryName = [];
-// Read the .npmrc file and find all registry entries that start with @
-var registryName = [];
-if (fileExists(`${commander_plus_1.default.folder}/.npmrc`)) {
-    const npmrc = fs.readFileSync(`${commander_plus_1.default.folder}/.npmrc`, 'utf8');
-    const registryEntries = npmrc.match(/^@.*registry=.*$/gm);
-    if (registryEntries) {
-        registryEntries.forEach((entry, index) => {
-            const registryUrl = entry.split(':')[0];
-            console.log(chalk_1.default.green(`\n## found internal registry on .npmrc: ${registryUrl}`));
-            registryName.push(registryUrl);
-        });
-    }
-    else {
-        console.log(chalk_1.default.yellow('No registry entries found in .npmrc file.'));
-    }
-}
-else {
-    console.log(chalk_1.default.yellow('.npmrc file not found, skipping internal registry detection.'));
-}
 function findSubfolders(folderPath) {
     try {
         // Read the contents of the folder
