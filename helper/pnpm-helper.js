@@ -3530,7 +3530,7 @@ const workspaces = require(commander_plus_1.default.folder + '/package.json').wo
 //const workspaces = require(program.folder+'/package.json').workspaces.packages;
 console.log(chalk_1.default.green(`\n## Running on ${commander_plus_1.default.folder}...`));
 console.log(chalk_1.default.green(`\n## Workspaces: ${JSON.stringify(workspaces)}`));
-// Read the .npmrc file and find all registry entries that start with @
+// Read the .npmrc file and find all registry entries
 var registryName = [];
 if (fileExists(`${commander_plus_1.default.folder}/.npmrc`)) {
     const npmrc = fs.readFileSync(`${commander_plus_1.default.folder}/.npmrc`, 'utf8');
