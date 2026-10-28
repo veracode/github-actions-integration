@@ -11,13 +11,31 @@ on:
     types: [veracode-sca-scan]
 
 jobs:
-  cleanup:
-    uses: ./.github/workflows/veracode-clean-up.yml
-    with:
-      runs_on: ${{ github.event.client_payload.user_config.build_runs_on }}
+  cleanup-and-identify-os:
+    runs-on: ${{ fromJSON(github.event.client_payload.user_config.build_runs_on) }}
+    name: Cleanup and Identify Runner OS
+    outputs:
+      runner_os: ${{ steps.identify_runner_os.outputs.runner_os }}
+    steps:
+      - name: Identify the runner OS
+        id: identify_runner_os
+        shell: bash
+        run: echo "runner_os=${{ runner.os }}" >> $GITHUB_OUTPUT
+
+      - name: Cleanup workspace and Docker - Linux
+        if: contains(steps.identify_runner_os.outputs.runner_os, 'Linux')
+        run: |
+          echo "Running final cleanup..."
+          sudo rm -rf $GITHUB_WORKSPACE/*
+
+      - name: Cleanup workspace and Docker - Windows
+        if: contains(steps.identify_runner_os.outputs.runner_os, 'Windows')
+        run: |
+          echo "Running final cleanup..."
+          Remove-Item -Recurse -Force "$env:GITHUB_WORKSPACE\*"
 
   register:
-    needs: cleanup
+    needs: cleanup-and-identify-os
     uses: ./.github/workflows/veracode-check-run.yml
     with:
       check_run_name: ${{ github.workflow }}
@@ -30,26 +48,14 @@ jobs:
       run_id: ${{ github.run_id }}
       branch: ${{ github.event.client_payload.repository.branch }}
       default_runs_on: ${{ github.event.client_payload.user_config.default_runs_on }}
-      
-  identify-os:
-    needs: register
-    runs-on: ${{ fromJSON(github.event.client_payload.user_config.build_runs_on) }}
-    name: Identify the runner OS
-    outputs:
-      runner_os: ${{ steps.identify_runner_os.outputs.runner_os }}
-    steps:
-      - name: Identify the runner OS
-        id: identify_runner_os
-        shell: bash
-        run: echo "runner_os=${{ runner.os }}" >> $GITHUB_OUTPUT
 
   veracode-sca-scan:
-    needs: identify-os
+    needs: register
     runs-on: ${{ fromJSON(github.event.client_payload.user_config.build_runs_on) }}
     name: Veracode Component Analysis
     timeout-minutes: 30
     container:
-      image: ${{ contains(needs.identify-os.outputs.runner_os, 'Linux') && github.event.client_payload.user_config.build_packager_image || '' }}
+      image: ${{ contains(needs.cleanup-and-identify-os.outputs.runner_os, 'Linux') && github.event.client_payload.user_config.build_packager_image || '' }}
 
     steps:
       - uses: actions/checkout@v6
