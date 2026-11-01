@@ -66,6 +66,10 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.owner }}/${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+          token: ${{ inputs.token }}
 
       # get the compiled binary from a previous job
       - name: get archive
