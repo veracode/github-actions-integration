@@ -1,7 +1,7 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 609:
+/***/ 412:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
@@ -48,7 +48,7 @@ const setLazyProperty = (object, property, get) => {
 let colorConvert;
 const makeDynamicStyles = (wrap, targetSpace, identity, isBackground) => {
 	if (colorConvert === undefined) {
-		colorConvert = __nccwpck_require__(330);
+		colorConvert = __nccwpck_require__(185);
 	}
 
 	const offset = isBackground ? 10 : 0;
@@ -173,17 +173,17 @@ Object.defineProperty(module, 'exports', {
 
 /***/ }),
 
-/***/ 357:
+/***/ 465:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
-const ansiStyles = __nccwpck_require__(609);
-const {stdout: stdoutColor, stderr: stderrColor} = __nccwpck_require__(726);
+const ansiStyles = __nccwpck_require__(412);
+const {stdout: stdoutColor, stderr: stderrColor} = __nccwpck_require__(450);
 const {
 	stringReplaceAll,
 	stringEncaseCRLFWithFirstIndex
-} = __nccwpck_require__(756);
+} = __nccwpck_require__(809);
 
 const {isArray} = Array;
 
@@ -392,7 +392,7 @@ const chalkTag = (chalk, ...strings) => {
 	}
 
 	if (template === undefined) {
-		template = __nccwpck_require__(159);
+		template = __nccwpck_require__(670);
 	}
 
 	return template(chalk, parts.join(''));
@@ -410,7 +410,7 @@ module.exports = chalk;
 
 /***/ }),
 
-/***/ 159:
+/***/ 670:
 /***/ ((module) => {
 
 "use strict";
@@ -552,7 +552,7 @@ module.exports = (chalk, temporary) => {
 
 /***/ }),
 
-/***/ 756:
+/***/ 809:
 /***/ ((module) => {
 
 "use strict";
@@ -599,12 +599,12 @@ module.exports = {
 
 /***/ }),
 
-/***/ 639:
+/***/ 872:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /* MIT license */
 /* eslint-disable no-mixed-operators */
-const cssKeywords = __nccwpck_require__(368);
+const cssKeywords = __nccwpck_require__(953);
 
 // NOTE: conversions should only return primitive values (i.e. arrays, or
 //       values that give correct `typeof` results).
@@ -1445,11 +1445,11 @@ convert.rgb.gray = function (rgb) {
 
 /***/ }),
 
-/***/ 330:
+/***/ 185:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const conversions = __nccwpck_require__(639);
-const route = __nccwpck_require__(190);
+const conversions = __nccwpck_require__(872);
+const route = __nccwpck_require__(200);
 
 const convert = {};
 
@@ -1533,10 +1533,10 @@ module.exports = convert;
 
 /***/ }),
 
-/***/ 190:
+/***/ 200:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const conversions = __nccwpck_require__(639);
+const conversions = __nccwpck_require__(872);
 
 /*
 	This function routes a model to all other models.
@@ -1637,7 +1637,7 @@ module.exports = function (fromModel) {
 
 /***/ }),
 
-/***/ 368:
+/***/ 953:
 /***/ ((module) => {
 
 "use strict";
@@ -1797,7 +1797,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 74:
+/***/ 849:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /*!
@@ -1810,13 +1810,13 @@ module.exports = {
  * Module dependencies.
  */
 
-var EventEmitter = (__nccwpck_require__(361).EventEmitter)
-  , spawn = (__nccwpck_require__(81).spawn)
-  , keypress = __nccwpck_require__(780)
-  , fs = __nccwpck_require__(147)
+var EventEmitter = (__nccwpck_require__(434).EventEmitter)
+  , spawn = (__nccwpck_require__(317).spawn)
+  , keypress = __nccwpck_require__(22)
+  , fs = __nccwpck_require__(896)
   , exists = fs.existsSync
-  , path = __nccwpck_require__(17)
-  , tty = __nccwpck_require__(224)
+  , path = __nccwpck_require__(928)
+  , tty = __nccwpck_require__(18)
   , dirname = path.dirname
   , basename = path.basename;
 
@@ -2961,7 +2961,7 @@ function outputHelpIfNecessary(cmd, options) {
 
 /***/ }),
 
-/***/ 264:
+/***/ 813:
 /***/ ((module) => {
 
 "use strict";
@@ -2977,7 +2977,7 @@ module.exports = (flag, argv = process.argv) => {
 
 /***/ }),
 
-/***/ 780:
+/***/ 22:
 /***/ ((module) => {
 
 
@@ -3330,14 +3330,14 @@ function emitKey(stream, s) {
 
 /***/ }),
 
-/***/ 726:
+/***/ 450:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 "use strict";
 
-const os = __nccwpck_require__(37);
-const tty = __nccwpck_require__(224);
-const hasFlag = __nccwpck_require__(264);
+const os = __nccwpck_require__(857);
+const tty = __nccwpck_require__(18);
+const hasFlag = __nccwpck_require__(813);
 
 const {env} = process;
 
@@ -3473,7 +3473,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 925:
+/***/ 407:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -3505,16 +3505,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const fs = __importStar(__nccwpck_require__(147));
-const path = __importStar(__nccwpck_require__(17));
-const chalk_1 = __importDefault(__nccwpck_require__(357));
-const commander_plus_1 = __importDefault(__nccwpck_require__(74));
-const child_process_1 = __nccwpck_require__(81);
+const fs = __importStar(__nccwpck_require__(896));
+const path = __importStar(__nccwpck_require__(928));
+const chalk_1 = __importDefault(__nccwpck_require__(465));
+const commander_plus_1 = __importDefault(__nccwpck_require__(849));
+const child_process_1 = __nccwpck_require__(317);
 commander_plus_1.default
     .usage('--folder <option> --intRepoPrefix <option> --repoName <option>')
     .option('--folder <folder>', 'folder path to run on')
-    .option('--intRepoPrefix <prefix>', 'the prefix to idenfiy internal node modules, maybe behind a nexus (@sky-uk/)')
-    .option('--repoName <name>', 'the name of the repo to exclude selfreferencing modules (cherry-app-release)')
+    .option('--intRepoPrefix <prefix>', 'the prefix to idenfiy internal node modules, maybe behind a nexus')
+    .option('--repoName <name>', 'the name of the repo to exclude selfreferencing modules')
     .parse(process.argv);
 let missingRequiredArg = false;
 const printMissingArg = (details) => console.error(chalk_1.default.red('Missing argument:'), details);
@@ -3526,7 +3526,29 @@ if (missingRequiredArg) {
     commander_plus_1.default.help();
 }
 //read the workspaces from the package.json
-const workspaces = require(commander_plus_1.default.folder + '/package.json').workspaces.packages;
+const workspaces = require(commander_plus_1.default.folder + '/package.json').workspaces;
+//const workspaces = require(program.folder+'/package.json').workspaces.packages;
+console.log(chalk_1.default.green(`\n## Running on ${commander_plus_1.default.folder}...`));
+console.log(chalk_1.default.green(`\n## Workspaces: ${JSON.stringify(workspaces)}`));
+// Read the .npmrc file and find all registry entries
+var registryName = [];
+if (fileExists(`${commander_plus_1.default.folder}/.npmrc`)) {
+    const npmrc = fs.readFileSync(`${commander_plus_1.default.folder}/.npmrc`, 'utf8');
+    const registryEntries = npmrc.match(/^@.*registry=.*$/gm);
+    if (registryEntries) {
+        registryEntries.forEach((entry, index) => {
+            const registryUrl = entry.split(':')[0];
+            console.log(chalk_1.default.green(`\n## found internal registry on .npmrc: ${registryUrl}`));
+            registryName.push(registryUrl);
+        });
+    }
+    else {
+        console.log(chalk_1.default.yellow('No registry entries found in .npmrc file.'));
+    }
+}
+else {
+    console.log(chalk_1.default.yellow('.npmrc file not found, skipping internal registry detection.'));
+}
 function findSubfolders(folderPath) {
     try {
         // Read the contents of the folder
@@ -3555,8 +3577,10 @@ function fileExists(filePath) {
     }
 }
 //remove internal node modules  
+const workspaceList = Array.isArray(workspaces) ? workspaces : workspaces.packages;
 //use the workspaces to run a dedicated command for each workspace
-workspaces.forEach(workspace => {
+workspaceList.forEach(workspace => {
+    //workspaces.packages.forEach(workspace => {
     console.log(chalk_1.default.green(`\n## Running ${commander_plus_1.default.folder}/${workspace}...`));
     //remove /* from the workspace
     var myWorkspace = workspace.replace(/\/\*\*?/g, '');
@@ -3574,10 +3598,61 @@ workspaces.forEach(workspace => {
                 var myLockfile = `${commander_plus_1.default.folder}/yarn.lock`;
                 var myWrite = `${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}/yarn.lock`;
                 var myForce = 'true';
-                console.log(chalk_1.default.green('###### package.json exists, create a pacakge-lock.json file'));
+                //read package.json file and remove node modules marked as workspace includes
+                let packageJson = require(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json');
+                console.log(chalk_1.default.green(`\n## Rewriting ("workspace:") package.json in ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                //remove all internal node modules
+                console.log(chalk_1.default.green('\n## Removing all internal node modules...'));
+                if (packageJson.dependencies) {
+                    console.log(chalk_1.default.green('\n## in dependencies...'));
+                    for (const [key, value] of Object.entries(packageJson.dependencies)) {
+                        if (value.includes('workspace')) {
+                            console.log(chalk_1.default.green(`\n## Removing ${key} from ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                            delete packageJson.dependencies[key];
+                        }
+                        for (const registry of registryName) {
+                            if (key.includes(registry)) {
+                                console.log(chalk_1.default.green(`\n## Removing internal ${key} from ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                                delete packageJson.dependencies[key];
+                            }
+                        }
+                    }
+                }
+                if (packageJson.peerDependencies) {
+                    console.log(chalk_1.default.green('\n## in peerDependencies...'));
+                    for (const [key, value] of Object.entries(packageJson.peerDependencies)) {
+                        if (value.includes('workspace')) {
+                            console.log(chalk_1.default.green(`\n## Removing ${key} from ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                            delete packageJson.peerDependencies[key];
+                        }
+                        for (const registry of registryName) {
+                            if (key.includes(registry)) {
+                                console.log(chalk_1.default.green(`\n## Removing ${key} from ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                                delete packageJson.peerDependencies[key];
+                            }
+                        }
+                    }
+                }
+                if (packageJson.devDependencies) {
+                    console.log(chalk_1.default.green('\n## in devDependencies...'));
+                    for (const [key, value] of Object.entries(packageJson.devDependencies)) {
+                        if (value.includes('workspace')) {
+                            console.log(chalk_1.default.green(`\n## Removing ${key} from ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                            delete packageJson.devDependencies[key];
+                        }
+                        for (const registry of registryName) {
+                            if (key.includes(registry)) {
+                                console.log(chalk_1.default.green(`\n## Removing ${key} from ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                                delete packageJson.devDependencies[key];
+                            }
+                        }
+                    }
+                }
+                //overwrite the package.json file
+                fs.writeFileSync(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json', JSON.stringify(packageJson, null, 2));
                 //read package.json file and remove internal node modules
                 if (commander_plus_1.default.intRepoPrefix != undefined) {
-                    const packageJson = require(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json');
+                    let packageJson = require(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json');
                     console.log(chalk_1.default.green(`\n## Rewriting (intRepoPrefix) package.json in ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
                     //remove internal node modules
                     if (packageJson.dependencies) {
@@ -3586,22 +3661,23 @@ workspaces.forEach(workspace => {
                                 delete packageJson.dependencies[key];
                             }
                         }
-                        //overwrite the package.json file
-                        fs.writeFileSync(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json', JSON.stringify(packageJson, null, 2));
                     }
+                    //overwrite the package.json file
+                    fs.writeFileSync(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json', JSON.stringify(packageJson, null, 2));
                 }
                 if (commander_plus_1.default.repoName != undefined) {
-                    const packageJson2 = require(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json');
-                    console.log(chalk_1.default.green(`\n## Rewriting (repoName) package.json in ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
-                    if (packageJson2.devDependencies) {
-                        for (const [key, value] of Object.entries(packageJson2.devDependencies)) {
+                    let packageJson = require(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json');
+                    console.log(chalk_1.default.green(`\n## Rewriting devDependencies (repoName) package.json in ${commander_plus_1.default.folder}/${myWorkspace}/${subfolder}...`));
+                    if (packageJson.devDependencies) {
+                        console.log(chalk_1.default.green('DevDependencies'));
+                        for (const [key, value] of Object.entries(packageJson.devDependencies)) {
                             if (key.includes(commander_plus_1.default.repoName)) {
-                                delete packageJson2.devDependencies[key];
+                                delete packageJson.devDependencies[key];
                             }
                         }
-                        //overwrite the package.json file
-                        fs.writeFileSync(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json', JSON.stringify(packageJson2, null, 2));
                     }
+                    //overwrite the package.json file
+                    fs.writeFileSync(commander_plus_1.default.folder + '/' + myWorkspace + '/' + subfolder + '/package.json', JSON.stringify(packageJson, null, 2));
                 }
                 //run execsync npm install to create package-lock.json
                 try {
@@ -3619,7 +3695,7 @@ workspaces.forEach(workspace => {
 
 /***/ }),
 
-/***/ 81:
+/***/ 317:
 /***/ ((module) => {
 
 "use strict";
@@ -3627,7 +3703,7 @@ module.exports = require("child_process");
 
 /***/ }),
 
-/***/ 361:
+/***/ 434:
 /***/ ((module) => {
 
 "use strict";
@@ -3635,7 +3711,7 @@ module.exports = require("events");
 
 /***/ }),
 
-/***/ 147:
+/***/ 896:
 /***/ ((module) => {
 
 "use strict";
@@ -3643,7 +3719,7 @@ module.exports = require("fs");
 
 /***/ }),
 
-/***/ 37:
+/***/ 857:
 /***/ ((module) => {
 
 "use strict";
@@ -3651,7 +3727,7 @@ module.exports = require("os");
 
 /***/ }),
 
-/***/ 17:
+/***/ 928:
 /***/ ((module) => {
 
 "use strict";
@@ -3659,7 +3735,7 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 224:
+/***/ 18:
 /***/ ((module) => {
 
 "use strict";
@@ -3703,6 +3779,9 @@ module.exports = require("tty");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/asset-relocator-loader */
+/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
+/******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
 /******/ 		__nccwpck_require__.nmd = (module) => {
@@ -3712,16 +3791,12 @@ module.exports = require("tty");
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/compat */
-/******/ 	
-/******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/ 	
 /************************************************************************/
 /******/ 	
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(925);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(407);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
